@@ -1,0 +1,4 @@
+user/build/
+user/node_modules/
+use/.env
+.env
