@@ -25,3 +25,21 @@ export const CATEGORY = [
     {title:'BABY & MOTHER', id:6, image:'tube.png'},
 
 ]
+
+export const OFFER = [
+
+    {title:'STAY HOME ', titleb:'GET DISCOUNT', id:1, image:'covid.png'},
+    {title:'GET 50% ', titleb:'OFF MEDICINE', id:2, image:'covid.png'},
+
+]
+
+export const SELLER = [
+
+    {title:'Well Life Store ', id:1, image:'profile.jpg', address:'Willington Bridge'},
+    {title:'Tab "N" More', id:2, image:'profile_3.png', address:'Willington Bridge'},
+    {title:'NSUK Pharmacy', id:3, image:'profile_4.png', address:'Willington Bridge'},
+    {title:'Admotron Solutions', id:4, image:'profile_5.png', address:'Willington Bridge'},
+    {title:'Well Life Store', id:5, image:'profile.jpg', address:'Willington Bridge'},
+    {title:'Well Life Store', id:6, image:'profile_4.png', address:'Willington Bridge'},
+
+]

@@ -7,7 +7,7 @@ import MaterialIcon  from 'react-native-vector-icons/MaterialIcons'
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATEGORY, LANGUAGELIST } from '../../components/data';
+import { CATEGORY, LANGUAGELIST, OFFER, SELLER } from '../../components/data';
 import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 
@@ -58,6 +58,7 @@ const handleNext =()=>{
     }, [])
 
 const CATCOLOR = ['','#4CD1BC', '#75B4FC', '#FC9680', '#9BE471', '#585AE1', '#FFDA6E']
+const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', '#9BE471' ]
 
     const CardCategory =({item}:{item:any})=>{
         return <Pressable style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
@@ -70,15 +71,46 @@ const CATCOLOR = ['','#4CD1BC', '#75B4FC', '#FC9680', '#9BE471', '#585AE1', '#FF
 
 
         const CardOffer =({item}:{item:any})=>{
-            return <Pressable style={[styles.offer, {backgroundColor:CATCOLOR[item.id]} ]}>
+            return <Pressable style={[styles.offer, {backgroundColor:OFFERCOLOR[item.id]} ]}>
     
-              <Text style={{color:colors.white, fontSize:10, marginLeft:15, marginTop:15, fontWeight:'600'}}>{item.title}</Text>
+            <View>
+              <Text style={{color:colors.white, fontSize:14,  marginTop:15, fontWeight:'700'}}>{item.title}</Text>
+              <Text style={{color:colors.white, fontSize:14,  fontWeight:'700'}}>{item.titleb}</Text>
+            <View style={styles.line} />
     
-              <Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
+             </View>
+
+              <Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.offerImage} />
               </Pressable>
             }
 
-  return (<SafeAreaView style={[ {flex:1, backgroundColor:colors.white}]}>
+
+            const Seller =({item}:{item:any})=>{
+                return <Pressable style={[styles.seller]}>
+        
+
+        <Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.sellerImage} />
+                
+
+                <View style={{marginLeft:10, width:(width/2)-50}}>
+                  <Text style={{fontSize:12}}>{item.title}</Text>
+
+
+                  <View style={styles.address}>
+
+                  <MaterialIcon name="location-on" size={8} color={colors.grey}  /> 
+                  <Text style={{fontSize:8, color:colors.grey, marginLeft:5}}>{item.address}</Text>
+                 
+                  </View>
+                 </View>
+
+
+    
+                   </Pressable>
+                }
+
+
+  return (<SafeAreaView style={[ { backgroundColor:colors.white, flex:1}]}>
     
 
     <View style={styles.header}>
@@ -143,7 +175,7 @@ renderItem={({item})=> <CardCategory key={item.id} item={item} />}
 
 <View style={{marginLeft:20, marginVertical:15}}>
 <FlatList 
-data={CATEGORY}
+data={OFFER}
 horizontal
 showsHorizontalScrollIndicator={false}
 snapToInterval={width-20}
@@ -155,8 +187,37 @@ renderItem={({item})=> <CardOffer key={item.id} item={item} />}
 
 </View>
 
+<View style={[styles.contentWrapper, {marginTop:4} ]}>
+<Text style={styles.infoText}>Seller Near you</Text>
+</View>
 
+
+
+
+<ScrollView
+  horizontal={true}
+  contentContainerStyle={{width: '100%', height: '100%'}}
+>
+<FlatList 
+data={SELLER}
+numColumns={2}
+snapToInterval={width-20}
+contentContainerStyle={{ paddingHorizontal:20, marginTop:10}}
+showsHorizontalScrollIndicator={false}
+renderItem={({item})=> <Seller key={item.id} item={item} />}
+
+
+/>
 </ScrollView>
+</ScrollView>
+
+
+<View style={styles.locationWrapper}>
+  <Text style={styles.labelLocation}>Wallington</Text>
+  <Text style={styles.labelLocation}>Office</Text>
+  <Text style={styles.labelLocation}>Other</Text>
+  <Text style={styles.labelLocation}>Set Location</Text>
+</View>
     </SafeAreaView>
   )
 }
@@ -178,18 +239,11 @@ const styles = StyleSheet.create({
     fontWeight:'600',
     fontSize:14,
   },
-
-
-  infoWrapper:{
-    width:width,
-    display:'flex',
-    justifyContent:'center',
-    alignItems:'center',
-    marginVertical:50
-  },
+ 
+  
   infoText:{
     fontSize:12,
-    color:'#9E9E9E',
+    color:colors.grey,
     fontWeight:'500'
 
   },
@@ -278,7 +332,75 @@ bottom:0
     height:100,
     width:230,
     borderRadius:10,
-    marginRight:15
+    paddingHorizontal:15,
+    marginRight:15,
+    display:'flex',
+    flexDirection:'row',
+    justifyContent:'space-between',
+    alignItems:'center',
+
     
       },
+      offerImage:{
+        height:80,
+        width:100,
+        resizeMode:'cover'
+
+      },
+      line:{
+        width:25,
+        height:5,
+        backgroundColor:colors.white,
+        marginTop:10,
+        borderRadius:10,
+      },
+
+      sellerImage:{
+        height:40,
+        width:40,
+        borderRadius:10,
+        resizeMode:'cover'
+
+      },
+      seller:{
+        height:40,
+        width:(width/2),
+        display:'flex',
+        flexDirection:'row',
+        marginBottom:10
+    
+        
+          },
+
+          address:{
+        display:'flex',
+        flexDirection:'row',
+        alignItems:'center',
+        marginTop:5
+          },
+
+          locationWrapper:{
+            position:'absolute', 
+            top:30,
+            left:50,
+            width:(width/4)+10,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 2
+            },
+            
+            shadowOpacity: 0.25,
+            shadowRadius: 4,
+            elevation: 5,
+            backgroundColor:colors.white,
+            padding:10,
+          },
+
+          labelLocation:{
+            fontWeight:'600',
+            fontSize:12,
+            marginVertical:10
+            
+          },
 })

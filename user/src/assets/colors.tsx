@@ -5,6 +5,8 @@ const colors = {
   primary:'#5a5ce3',
   dark:'#131415',
   icon:'#24C0F7',
+  grey:'#9E9E9E',
+
 
 
     black: "#000000",

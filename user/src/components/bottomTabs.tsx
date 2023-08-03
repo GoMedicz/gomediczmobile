@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Text } from 'react-native'
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -8,6 +8,10 @@ import colors from '../assets/colors';
 import StackNavigator from '../navigator/stack';
 import Dashboard from '../screens/home/dashboard';
 
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
+import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
+
+import FontAwesome from 'react-native-vector-icons/FontAwesome'
 
 const Tab = createBottomTabNavigator();
 
@@ -74,16 +78,20 @@ function CustomButton({ state, descriptors, navigation }:any) {
               <View style={[styles.tabButton, label==='add'?styles.centerButton:[]]}>
       
 
-              <Icon name={
-                label==="Home"?"home":
-              label==="Account"?
-              "user":label==="Support"?
-              "mail":"user"} 
-              size={label==='add'?40:30}   color={isFocused&&label!=='add' ? colors.aquaSqueeze : '#C5C4C9'} />  
+               <MaterialIcon name={
+                label==="Medicine"?"medication":
+              label==="Lab Test"? "science":
+              label==="Hospitals"? "add-location":
+              label==="Doctors"? "personal-injury":
+              "person"} 
 
-        {/*  <Text style={{ color: isFocused ? colors.emerald : '#C5C4C9' }}> 
+              size={20}   
+              
+              color={isFocused&&label!=='add' ? colors.primary : '#C5C4C9'} />  
+
+ <Text style={{ color: isFocused ? colors.primary : '#C5C4C9', fontSize:10 }}> 
                {label}
-              </Text>  */} 
+              </Text>  
               </View>
 
             </TouchableOpacity>
@@ -128,10 +136,12 @@ const BottomTabs =()=> {
 
       >
 
-<Tab.Screen  name='Home'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
-<Tab.Screen  name='Account'>{(props:any) =><Dashboard {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Medicine'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Doctors'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Hospitals'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Lab Test'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
+<Tab.Screen  name='More'>{(props:any) =><Dashboard {...props}  />}</Tab.Screen>
 
-{/* <Tab.Screen  name='Support'>{(props:any) =><Support {...props}  />}</Tab.Screen> */}
 
       </Tab.Navigator>
     );
@@ -160,13 +170,22 @@ const styles = StyleSheet.create({
       
     },
     btnWrapper:{
-      height:70,
+      height:40,
       paddingBottom:10,
-      paddingTop:10,
+      paddingTop:8,
      paddingHorizontal:20,
       flexDirection:'row',
       justifyContent:'space-between',
       backgroundColor:colors.white,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2
+      },
+      
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5
     },
     tabButton:{
       justifyContent:'center',
