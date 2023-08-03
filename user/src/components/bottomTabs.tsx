@@ -6,12 +6,11 @@ import  Icon  from 'react-native-vector-icons/Feather';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import colors from '../assets/colors';
 import StackNavigator from '../navigator/stack';
-import Dashboard from '../screens/home/dashboard';
-
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-
-import FontAwesome from 'react-native-vector-icons/FontAwesome'
+import Doctors from '../screens/home/doctors';
+import Hospital from '../screens/home/hospital';
+import LabTest from '../screens/home/labtest';
+import MoreTab from '../screens/home/more';
 
 const Tab = createBottomTabNavigator();
 
@@ -137,10 +136,10 @@ const BottomTabs =()=> {
       >
 
 <Tab.Screen  name='Medicine'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
-<Tab.Screen  name='Doctors'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
-<Tab.Screen  name='Hospitals'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
-<Tab.Screen  name='Lab Test'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
-<Tab.Screen  name='More'>{(props:any) =><Dashboard {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Doctors'>{(props:any) =><Doctors {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Hospitals'>{(props:any) =><Hospital {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Lab Test'>{(props:any) =><LabTest {...props}  />}</Tab.Screen>
+<Tab.Screen  name='More'>{(props:any) =><MoreTab {...props}  />}</Tab.Screen>
 
 
       </Tab.Navigator>

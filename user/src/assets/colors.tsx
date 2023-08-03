@@ -6,6 +6,7 @@ const colors = {
   dark:'#131415',
   icon:'#24C0F7',
   grey:'#9E9E9E',
+  lightSkye:'#F4F8FB',
 
 
 

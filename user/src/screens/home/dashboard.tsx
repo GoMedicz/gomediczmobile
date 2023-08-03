@@ -22,14 +22,15 @@ const height =
 
 
 type RootStackParamList = {
-  Verification: undefined;
+  Dashboard: undefined;
+  Cart:undefined;
     Language:undefined; 
     BottomTabs:{
      code:string;
    }
    };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Verification'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
  const Dashboard =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
@@ -44,8 +45,8 @@ interface item {
 
 
 
-const handleBack =()=>{
-  navigation.navigate('Language');
+const handleCart =()=>{
+  navigation.navigate('Cart');
 }
 
 const handleNext =()=>{
@@ -120,14 +121,14 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
     <Text style={[styles.label, {fontSize:12, marginLeft:20}]}>Wallington</Text>
 </View>
 
-    <View style={styles.cart}>
+    <Pressable onPress={handleCart} style={styles.cart}>
 
     <MaterialIcon name="shopping-cart" size={14} color={colors.dark}  /> 
         <View style={styles.circle}>
             <Text style={{color:colors.white, fontSize:8, fontWeight:'500'}}>1</Text>
         </View>
 
-        </View>
+        </Pressable>
     </View>
 
     <ScrollView>

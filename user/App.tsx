@@ -18,6 +18,8 @@ import SignIn from './src/screens/onboarding/signin';
 import Register from './src/screens/onboarding/register';
 import Verification from './src/screens/onboarding/verification';
 import BottomTabs from './src/components/bottomTabs';
+import Cart from './src/screens/cart/cart';
+import ConfirmOrder from './src/screens/cart/confirmOrder';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -37,17 +39,20 @@ const StackNavigator=()=>{
  {/* <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
  */} 
 
+
+
+{/* Place All these screen that doesnt require login here  */}
 <Stack.Screen  name='Verification'>{(props:any) =><Verification {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
   <Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>
  <Stack.Screen  name='Welcome'>{(props:any) =><Welcome  {...props}  />}</Stack.Screen>
 
 
+{/* Place All these screen that  require login here  */}
+<Stack.Screen  name='Cart'>{(props:any) =><Cart  {...props}  />}</Stack.Screen>
+<Stack.Screen  name='ConfirmOrder'>{(props:any) =><ConfirmOrder  {...props}  />}</Stack.Screen>
 
-{/* <Stack.Screen  name='Register'>{(props:any) =><Register  {...props}  />}</Stack.Screen>
-<Stack.Screen  name='Login'>{(props:any) =><Login  {...props}  />}</Stack.Screen> */}
 
 </Stack.Navigator>
 
