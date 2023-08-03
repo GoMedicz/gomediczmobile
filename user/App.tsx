@@ -17,6 +17,7 @@ import Welcome from './src/screens/onboarding/welcome';
 import SignIn from './src/screens/onboarding/signin';
 import Register from './src/screens/onboarding/register';
 import Verification from './src/screens/onboarding/verification';
+import BottomTabs from './src/components/bottomTabs';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -58,7 +59,7 @@ const DrawerNavigator =()=>{
   >
 
   <Drawer.Screen name='Homes' component={StackNavigator} /> 
-{/*   <Drawer.Screen name='BottomTabs' component={BottomTabs} />  */}
+  <Drawer.Screen name='BottomTabs' component={BottomTabs} />
  </Drawer.Navigator>
  }
 

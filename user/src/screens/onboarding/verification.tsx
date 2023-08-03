@@ -49,7 +49,9 @@ const handleBack =()=>{
 }
 
 const handleNext =()=>{
-  //navigation.navigate('Welcome');
+  navigation.navigate('BottomTabs', {
+    code:'cds',
+  }); 
 }
 
   const onRefresh = useCallback(()=>{
@@ -91,9 +93,7 @@ const handleNext =()=>{
 
 
 <View style={styles.contentWrapper}>
-
 <Text style={styles.label}>0:19 min left</Text>
-
 <Text style={styles.label}>RESEND</Text>
 </View>
 

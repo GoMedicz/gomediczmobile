@@ -2,6 +2,7 @@
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import Dashboard from '../screens/home/dashboard';
 
 
 const Drawer = createDrawerNavigator();
@@ -12,8 +13,8 @@ const StackNavigator=()=>{
     return <Stack.Navigator screenOptions = {{headerShown:false}}>
 
 
-{/* //place only screen that require bottom tab here */}
-   {/* <Stack.Screen  name='Dashboard'>{(props:any) =><Dashboard  {...props}  />}</Stack.Screen>  */}
+{/* //place only screen that require bottom tab here, such as profile, dashboard */}
+    <Stack.Screen  name='Dashboard'>{(props:any) =><Dashboard  {...props}  />}</Stack.Screen>  
  
 
   </Stack.Navigator>

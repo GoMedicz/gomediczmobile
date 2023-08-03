@@ -13,3 +13,15 @@ export const LANGUAGELIST = [
     {title:'Deutsch', isDefault:'No', id:10},
     {title:'Romana', isDefault:'No', id:11},
 ]
+
+
+export const CATEGORY = [
+
+    {title:'OTC MEDICINES', id:1, image:'medicine.png'},
+    {title:'DIABETES MEDICINE', id:2, image:'d.png'},
+    {title:'BABY & MOTHER', id:3, image:'baby.png'},
+    {title:'PERSONEL CARE', id:4, image:'care.png'},
+    {title:'OUT PATIENT CARE', id:5, image:'d.png'},
+    {title:'BABY & MOTHER', id:6, image:'tube.png'},
+
+]
