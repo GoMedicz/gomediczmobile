@@ -21,8 +21,8 @@ export const CATEGORY = [
     {title:'DIABETES MEDICINE', id:2, image:'d.png'},
     {title:'BABY & MOTHER', id:3, image:'baby.png'},
     {title:'PERSONEL CARE', id:4, image:'care.png'},
-    {title:'OUT PATIENT CARE', id:5, image:'d.png'},
-    {title:'BABY & MOTHER', id:6, image:'tube.png'},
+    {title:'OUT PATIENT CARE', id:5, image:'d.png'},/* 
+    {title:'BABY & MOTHER', id:6, image:'tube.png'}, */
 
 ]
 
@@ -54,3 +54,6 @@ export const CATITEMS = [
     {title:'Well Life Store', id:6, image:'med2.png', address:'Willington Bridge'}, 
 
 ]
+
+
+export const CATCOLOR = ['','#4CD1BC', '#75B4FC', '#FC9680', '#9BE471', '#585AE1', '#FFDA6E']

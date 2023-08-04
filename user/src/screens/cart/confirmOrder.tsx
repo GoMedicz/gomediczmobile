@@ -123,7 +123,8 @@ snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
 renderItem={({item})=> <CardCategory key={item.id} item={item} />}
-
+refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
+}
 />
 
 

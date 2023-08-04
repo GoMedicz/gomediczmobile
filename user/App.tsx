@@ -22,6 +22,11 @@ import Cart from './src/screens/cart/cart';
 import ConfirmOrder from './src/screens/cart/confirmOrder';
 import Payment from './src/screens/cart/payment';
 import OrderPlaced from './src/screens/cart/OrderPlaced';
+import Category from './src/screens/category/category';
+import CategoryDetails from './src/screens/category/CategoryDetails';
+import DrugDetails from './src/screens/category/DrugDetails';
+import StoreItems from './src/screens/category/StoreItems';
+import Reviews from './src/screens/category/Reviews';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -59,6 +64,17 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Payment'>{(props:any) =><Payment  {...props}  />}</Stack.Screen>
 
 <Stack.Screen  name='OrderPlaced'>{(props:any) =><OrderPlaced  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Category'>{(props:any) =><Category  {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='CategoryDetails'>{(props:any) =><CategoryDetails  {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='DrugDetails'>{(props:any) =><DrugDetails  {...props}  />}</Stack.Screen>
+<Stack.Screen  name='StoreItems'>{(props:any) =><StoreItems  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Reviews'>{(props:any) =><Reviews  {...props}  />}</Stack.Screen>
 
 </Stack.Navigator>
 

@@ -19,4 +19,12 @@ export  const globalStyles = StyleSheet.create({
         borderRadius:5,
         marginHorizontal:20
       },
+      rowCenterBetween:{
+        display:'flex', 
+        flexDirection:'row', justifyContent:'space-between', alignItems:'center' 
+      },
+      rowCenterCenter:{
+        display:'flex', 
+        flexDirection:'row', justifyContent:'center', alignItems:'center' 
+      }
     })

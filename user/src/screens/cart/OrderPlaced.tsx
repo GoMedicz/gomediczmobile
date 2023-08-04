@@ -24,7 +24,7 @@ const height =
 
 type RootStackParamList = {
   OrderPlaced: undefined;
-  Payment:undefined; 
+  Category:undefined; 
     BottomTabs:{
      code:string;
    }
@@ -46,7 +46,7 @@ interface item {
 
 
 const handlePayment =()=>{
-  navigation.navigate('Payment');
+  navigation.navigate('Category');
 }
 
 const handleNext =()=>{
