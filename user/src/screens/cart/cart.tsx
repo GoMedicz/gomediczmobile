@@ -103,7 +103,6 @@ const CardCategory =({item}:{item:any})=>{
     <View />
     </View>
 
-
     <View style={{ marginVertical:5, flex:1}}>
 <FlatList 
 data={CATITEMS}
@@ -155,7 +154,7 @@ renderItem={({item})=> <CardCategory key={item.id} item={item} />}
   <Text style={styles.label}>N18.00</Text>
 </View>
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, flexDirection:'row', justifyContent:'space-between', paddingHorizontal:20} ]}>
+<TouchableOpacity  onPress={handleConfirm}activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, flexDirection:'row', justifyContent:'space-between', paddingHorizontal:20} ]}>
   <Text style={globalStyles.buttonText}>Checkout</Text>
   <MaterialIcon name="arrow-forward-ios" size={14} color={colors.white}  /> 
 </TouchableOpacity>
@@ -269,7 +268,7 @@ textWrapper:{
   borderRadius:5,
   height:45,
   marginVertical:10,
-  backgroundColor:'#F5F5F50'
+  backgroundColor:colors.grey5,
 
 },
 textInput:{

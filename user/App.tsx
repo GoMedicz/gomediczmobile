@@ -20,6 +20,8 @@ import Verification from './src/screens/onboarding/verification';
 import BottomTabs from './src/components/bottomTabs';
 import Cart from './src/screens/cart/cart';
 import ConfirmOrder from './src/screens/cart/confirmOrder';
+import Payment from './src/screens/cart/payment';
+import OrderPlaced from './src/screens/cart/OrderPlaced';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -53,6 +55,10 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Cart'>{(props:any) =><Cart  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='ConfirmOrder'>{(props:any) =><ConfirmOrder  {...props}  />}</Stack.Screen>
 
+
+<Stack.Screen  name='Payment'>{(props:any) =><Payment  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='OrderPlaced'>{(props:any) =><OrderPlaced  {...props}  />}</Stack.Screen>
 
 </Stack.Navigator>
 

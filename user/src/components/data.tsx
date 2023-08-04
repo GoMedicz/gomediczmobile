@@ -48,9 +48,9 @@ export const CATITEMS = [
 
     {title:'Well Life Store ', id:1, image:'med1.png', address:'Willington Bridge'},
     {title:'Tab "N" More', id:2, image:'med2.png', address:'Willington Bridge'},
-    {title:'NSUK Pharmacy', id:3, image:'med3.png', address:'Willington Bridge'},/* 
+    {title:'NSUK Pharmacy', id:3, image:'med3.png', address:'Willington Bridge'},
     {title:'Admotron Solutions', id:4, image:'med4.png', address:'Willington Bridge'},
     {title:'Well Life Store', id:5, image:'med5.png', address:'Willington Bridge'},
-    {title:'Well Life Store', id:6, image:'med2.png', address:'Willington Bridge'}, */
+    {title:'Well Life Store', id:6, image:'med2.png', address:'Willington Bridge'}, 
 
 ]

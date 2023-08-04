@@ -23,15 +23,15 @@ const height =
 
 
 type RootStackParamList = {
-  ConfirmOrder: undefined;
+  OrderPlaced: undefined;
   Payment:undefined; 
     BottomTabs:{
      code:string;
    }
    };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ConfirmOrder'>;
- const ConfirmOrder =({ route, navigation }:Props)=> {
+type Props = NativeStackScreenProps<RootStackParamList, 'OrderPlaced'>;
+ const OrderPlaced =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
@@ -56,31 +56,6 @@ const handleNext =()=>{
 }
 
 
-const CardCategory =({item}:{item:any})=>{
-  return <Pressable style={[styles.card]}>
-
-<View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-
-<View>
-
-<View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-<Text style={styles.label}>{item.title}</Text> 
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />
-</View>
-
-
-<Text style={[styles.infoText, {marginBottom:10}]}>2 Packs</Text>
-
-</View>
-</View>
-
-
-    <Text style={[styles.label, {fontWeight:'700'}]}>N44.00</Text>
- 
-
-
-    </Pressable>
-  }
 
 
   const onRefresh = useCallback(()=>{
@@ -88,105 +63,65 @@ const CardCategory =({item}:{item:any})=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
+  return (<SafeAreaView style={[ {flex:1, backgroundColor:colors.white}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Confirm Order</Text>
-    <View />
+    <Text style={styles.label}>Order Placed</Text>
+   
     </View>
 
+<ScrollView>
+<View style={{display:'flex', justifyContent:'center', alignItems:'center', marginTop:50}}>
+
+    <Image source={{ uri:ImagesUrl+"/icons/delivery.png"}} style={styles.cardImage} />
 
 
-    <Text style={[styles.label,{marginVertical:10, marginLeft:10}]}>Delivery at</Text>
-
-<View style={styles.address}>
-
-<MaterialIcon name="home" size={18} color={colors.primary}  />
-
-<View style={{marginLeft:10}}>
-  <Text style={styles.label}>Home</Text>
-  <Text style={{fontSize:12, marginTop:10}}>14134, Silver Green Street, 2nd Avenue,</Text>
-  <Text style={{fontSize:12}}>Hamiltone, New York, USA</Text>
-</View>
-</View>
-
-
-<Text style={[styles.label,{marginVertical:10, marginLeft:10}]}>Items in Cart</Text>
-
-    <View style={{ marginVertical:5, maxHeight:(height/3)+25  }}>
-<FlatList 
-data={CATITEMS}
-numColumns={1}
-showsHorizontalScrollIndicator={false}
-snapToInterval={width-20}
-snapToAlignment='center'
-decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
-
-/>
-
-
-</View>
-
-<View style={{display:'flex',  flexDirection:'row', justifyContent:'space-between', alignItems:'center',paddingHorizontal:10, marginBottom:0, backgroundColor:colors.white, height:50, width:width}}>
-
-  <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />
-
-<Text style={{fontSize:12, fontWeight:'700', marginLeft:30}}>Prescription Uploaded</Text>
-</View>
-
-<MaterialIcon name="visibility" size={18} color={colors.primary}  /> 
-
-</View>
+    <Text style={[styles.label,{color:colors.primary, marginTop:50}]}>Your Order placed !!</Text>
 
 
 
+<Text style={[styles.label,{ marginTop:40}]}>Your order has been placed</Text>
+<Text style={[styles.label]}>Successfully.</Text>
+<Text style={[styles.label]}>Visit My Order</Text>
+
+<Text style={[styles.label]}>to check order status.</Text>
+
+<Text style={[styles.label,{color:colors.primary, marginTop:80}]}>My Orders</Text>
+    </View>
+
+   
+
+
+
+
+
+
+
+
+    </ScrollView>
 
 <View style={styles.container}>
 
 
-<View style={styles.row}>
-  <Text style={styles.label}>Sub total</Text>
-  <Text style={styles.label}>N18.00</Text>
-</View>
-
-<View style={styles.row}>
-  <Text style={styles.label}>Promo Code Applied</Text>
-  <Text style={styles.label}>N18.00</Text>
-</View>
-
-<View style={styles.row}>
-  <Text style={styles.label}>Service Charge</Text>
-  <Text style={styles.label}>N18.00</Text>
-</View>
-
-<View style={styles.row}>
-  <Text style={styles.label}>Amount to Pay</Text>
-  <Text style={styles.label}>N18.00</Text>
-</View>
-
 <TouchableOpacity onPress={handlePayment} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, } ]}>
-  <Text style={globalStyles.buttonText}>Continue to Pay</Text> 
+  <Text style={globalStyles.buttonText}>Continue Shopping</Text> 
 </TouchableOpacity>
 
 </View>
 
-
-    </View>
+    </SafeAreaView>
   )
 }
 
 
-export default ConfirmOrder
+export default OrderPlaced
 
 const styles = StyleSheet.create({
 
   header:{
 
     display:'flex',
-    justifyContent:'space-between',
+    justifyContent:'center',
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
@@ -219,8 +154,8 @@ card:{
   backgroundColor:colors.white,
 },
 cardImage:{
-height:40,
-width:40,
+height:height/4,
+width:width-40,
 resizeMode:'cover',
 },
 addPlus:{
