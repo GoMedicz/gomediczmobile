@@ -62,23 +62,36 @@ const handleNext =()=>{
   const CardCategory =({item}:{item:any})=>{
     return <Pressable onPress={handleNext} style={[styles.box]}>
 
-<View style={{display:'flex', alignItems:'flex-end'}}>
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.px} />
+
+<View style={styles.content}>
+
+<View style={globalStyles.rowCenterCenter}>
+<Image source={{ uri:ImagesUrl+"/seller/profile_4.png" }} style={styles.profile} />
+
+    
+    <View style={[{display:'flex'}, {marginLeft:15}]}>
+      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600', marginBottom:5}}>Henry Johnson</Text>
+      <Text style={styles.infoText}>For <Text style={{color:colors.dark}}>Cold Fever</Text></Text>
+    </View> 
 </View>
 
-<Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
-
-<View style={{marginTop:15}}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>Allerygy Relief</Text>
-
-      <Text style={{color:colors.dark, fontSize:10,  fontWeight:'600'}}>Tablet</Text>
-
-      <Text style={{color:colors.dark, fontSize:12,  fontWeight:'700', marginTop:10}}>$3.50</Text>
+ 
+  <View style={[globalStyles.columnCenterBetween]}>
+      <View style={[globalStyles.rowCenterCenter, {marginBottom:5}]}>
+    <Text style={{color:colors.dark, fontSize:10,  fontWeight:'700'}}>4.5</Text>
+      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+      <MaterialIcon name="star" size={12} color={colors.grey}  />
       </View>
+      <Text style={styles.infoText}>10.DEC.2019</Text>
+  </View> 
 
-  <View style={styles.addItem}>
-<MaterialIcon name="add" size={18} color={colors.white}  />
-      </View>
+</View>
+
+<Text style={{fontSize:10, marginBottom:5, marginHorizontal:10, textAlign:'justify'}}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum, commodi ipsum! Dolor cum impedit at unde dignissimos</Text>
+
 
       </Pressable>
     }
@@ -100,6 +113,26 @@ const handleNext =()=>{
 
     <View/>
     </View>
+
+    <View style={{backgroundColor:colors.white,  paddingHorizontal:10, marginBottom:5, paddingBottom:10}}>
+    <View style={[globalStyles.rowCenterBetween,{marginTop:15}]}>
+      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>Salospir 100mg Tablet</Text>
+
+<View style={globalStyles.rowCenterCenter}>
+      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+
+      <Text style={{color:'#EEA31E', fontSize:10,  fontWeight:'700', marginHorizontal:5}}>4.5</Text>
+      </View>
+
+      </View>
+
+      <View style={[globalStyles.rowCenterBetween,{marginVertical:5, marginRight:5}]}>
+<Text style={styles.infoText}>Average Reviews</Text>
+<Text style={styles.infoText}>Avg Reviews</Text>
+
+</View>
+</View>
+
 
     <View style={styles.catItems}>
 
@@ -155,7 +188,7 @@ const styles = StyleSheet.create({
 box:{
   width:width,
   backgroundColor:colors.white,
-  marginBottom:10,
+  marginBottom:5,
   display:'flex',
   padding:10,
   
@@ -163,16 +196,7 @@ box:{
 
 catItems:{
 flex:1,
-shadowColor: "#000",
 marginHorizontal:5,
-shadowOffset: {
-  width: 0,
-  height: 0
-},
-
-shadowOpacity: 0.25,
-shadowRadius: 2,
-elevation: 5,
 
 },
 
@@ -232,5 +256,20 @@ container:{
    paddingHorizontal:10
   
   
+  },
+  profile:{
+    width:30,
+    height:30,
+    borderRadius:15,
+    resizeMode:'contain'
+  },
+ content:{
+    display:'flex', 
+    flexDirection:'row', 
+    justifyContent:'space-between', 
+    alignItems:'center',
+    paddingHorizontal:10, 
+    paddingBottom:10,
+    marginVertical:5
   }
 })

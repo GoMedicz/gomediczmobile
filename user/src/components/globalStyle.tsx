@@ -21,10 +21,20 @@ export  const globalStyles = StyleSheet.create({
       },
       rowCenterBetween:{
         display:'flex', 
-        flexDirection:'row', justifyContent:'space-between', alignItems:'center' 
+        flexDirection:'row', 
+        justifyContent:'space-between',
+         alignItems:'center' 
       },
       rowCenterCenter:{
         display:'flex', 
-        flexDirection:'row', justifyContent:'center', alignItems:'center' 
-      }
+        flexDirection:'row', 
+        justifyContent:'center',
+         alignItems:'center' 
+      },
+      columnCenterBetween:{
+        display:'flex', 
+        flexDirection:'column', 
+        justifyContent:'space-between',
+         alignItems:'center' 
+      },
     })
