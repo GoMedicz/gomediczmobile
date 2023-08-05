@@ -57,3 +57,54 @@ export const CATITEMS = [
 
 
 export const CATCOLOR = ['','#4CD1BC', '#75B4FC', '#FC9680', '#9BE471', '#585AE1', '#FFDA6E']
+
+export const DOCTORS = [
+
+    {fullname:'Dr. Joseph Williamson', id:1, image:'doc1.png'},
+    {fullname:'Dr. Anglina Taylor', id:2, image:'doc2.png'},
+    {fullname:'Dr. Anthony Peterson', id:3, image:'doc3.png'},
+    {fullname:'Dr. Elina George', id:4, image:'doc4.png'},
+    {fullname:'Dr. Joseph Williamson', id:5, image:'doc1.png'},
+    {fullname:'Dr. Anglina Taylor', id:6, image:'doc2.png'},
+
+]
+
+
+export const DOCTORSCATEGORY = [
+
+    {title:'DOCTORS', id:1, image:'medicine.png'},
+    {title:'DENTIST', id:2, image:'d.png'},
+    {title:'ATURVEDIC', id:3, image:'baby.png'},
+    {title:'THERAPIST', id:4, image:'care.png'},
+    {title:'DOCTOR', id:5, image:'d.png'},
+
+]
+
+export const SPECIALITY = [
+
+    {title:'Addiction psychiatrist', id:1, },
+    {title:'Adolescent medicine specialist', id:2, },
+    {title:'Allergist (Immunologist)', id:3,},
+    {title:'Addiction psychiatrist', id:4},
+    {title:'Adolescent medicine specialist', id:5},
+    {title:'Allergist (Immunologist)', id:6},
+
+]
+
+export const DATES =[
+    {day:'WED', date:'12', fulldate:'12-02-2023', id:1},
+    {day:'THU', date:'13', fulldate:'12-02-2023', id:2},
+    {day:'FRI', date:'14', fulldate:'12-02-2023', id:3},
+    {day:'SAT', date:'15', fulldate:'12-02-2023', id:4},
+    {day:'SUN', date:'16', fulldate:'12-02-2023', id:5},
+    {day:'MON', date:'17', fulldate:'12-02-2023', id:6},
+  ]
+  
+  export const TIMES =[
+    {time:'09:00 am', date:'12', fulldate:'12-02-2023', id:1},
+    {time:'09:30 am', date:'13', fulldate:'12-02-2023', id:2},
+    {time:'10:00 am', date:'14', fulldate:'12-02-2023', id:3},
+    {time:'09:30 am', date:'15', fulldate:'12-02-2023', id:4},
+    {time:'10:00 am', date:'16', fulldate:'12-02-2023', id:5},
+    {time:'09:30 am', date:'17', fulldate:'12-02-2023', id:6},
+  ]

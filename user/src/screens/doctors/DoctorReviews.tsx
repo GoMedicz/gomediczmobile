@@ -24,15 +24,15 @@ const height =
 
 
 type RootStackParamList = {
-  Reviews: undefined;
+  DoctorReviews: undefined;
   Cart:undefined; 
-  Offers:{
+  Appointment:{
      code:string;
    }
    };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Reviews'>;
- const Reviews =({ route, navigation }:Props)=> {
+type Props = NativeStackScreenProps<RootStackParamList, 'DoctorReviews'>;
+ const DoctorReviews =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
@@ -51,7 +51,7 @@ const handleCart =()=>{
 }
 
 const handleNext =()=>{
-  navigation.navigate('Offers', {
+  navigation.navigate('Appointment', {
     code:'cds',
   }); 
 }
@@ -71,7 +71,7 @@ const handleNext =()=>{
     
     <View style={[{display:'flex'}, {marginLeft:15}]}>
       <Text style={{color:colors.dark, fontSize:14, fontWeight:'600', marginBottom:5}}>Henry Johnson</Text>
-      <Text style={styles.infoText}>For <Text style={{color:colors.dark}}>Cold Fever</Text></Text>
+      <Text style={styles.infoText}>Visited For <Text style={{color:colors.dark}}>Cold Fever</Text></Text>
     </View> 
 </View>
 
@@ -116,7 +116,7 @@ const handleNext =()=>{
 
     <View style={{backgroundColor:colors.white,  paddingHorizontal:10, marginBottom:5, paddingBottom:10}}>
     <View style={[globalStyles.rowCenterBetween,{marginTop:15}]}>
-      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>Salospir 100mg Tablet</Text>
+      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>Dr. Joseph Wiliamson</Text>
 
 <View style={globalStyles.rowCenterCenter}>
       <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
@@ -157,7 +157,7 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 }
 
 
-export default Reviews
+export default DoctorReviews
 
 const styles = StyleSheet.create({
 

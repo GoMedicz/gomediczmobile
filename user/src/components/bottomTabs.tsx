@@ -7,11 +7,11 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import colors from '../assets/colors';
 import StackNavigator from '../navigator/stack';
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import Doctors from '../screens/home/doctors';
 import Hospital from '../screens/home/hospital';
 import LabTest from '../screens/home/labtest';
 import MoreTab from '../screens/home/more';
-
+import DoctorHome from '../screens/doctors/doctorHome';
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 const Tab = createBottomTabNavigator();
 
 
@@ -76,13 +76,14 @@ function CustomButton({ state, descriptors, navigation }:any) {
             
               <View style={[styles.tabButton, label==='add'?styles.centerButton:[]]}>
       
+               <FontAwesome5Icon name={
+                label==="Medicine"?"pills":
+              label==="Lab Test"? "stethoscope":
+              label==="Hospitals"? "map-marker-alt":
+              label==="Doctors"? "user-md":
+              "user"} 
 
-               <MaterialIcon name={
-                label==="Medicine"?"medication":
-              label==="Lab Test"? "science":
-              label==="Hospitals"? "add-location":
-              label==="Doctors"? "personal-injury":
-              "person"} 
+              
 
               size={20}   
               
@@ -136,7 +137,7 @@ const BottomTabs =()=> {
       >
 
 <Tab.Screen  name='Medicine'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
-<Tab.Screen  name='Doctors'>{(props:any) =><Doctors {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Doctors'>{(props:any) =><DoctorHome {...props}  />}</Tab.Screen>
 <Tab.Screen  name='Hospitals'>{(props:any) =><Hospital {...props}  />}</Tab.Screen>
 <Tab.Screen  name='Lab Test'>{(props:any) =><LabTest {...props}  />}</Tab.Screen>
 <Tab.Screen  name='More'>{(props:any) =><MoreTab {...props}  />}</Tab.Screen>

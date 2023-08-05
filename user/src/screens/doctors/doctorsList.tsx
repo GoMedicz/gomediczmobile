@@ -7,7 +7,7 @@ import MaterialIcon  from 'react-native-vector-icons/MaterialIcons'
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
+import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST } from '../../components/data';
 import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
@@ -24,15 +24,15 @@ const height =
 
 
 type RootStackParamList = {
-  Reviews: undefined;
+  DoctorsList: undefined;
   Cart:undefined; 
-  Offers:{
+  DoctorsDetails:{
      code:string;
    }
    };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Reviews'>;
- const Reviews =({ route, navigation }:Props)=> {
+type Props = NativeStackScreenProps<RootStackParamList, 'DoctorsList'>;
+ const DoctorsList =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
@@ -51,9 +51,9 @@ const handleCart =()=>{
 }
 
 const handleNext =()=>{
-  navigation.navigate('Offers', {
+   navigation.navigate('DoctorsDetails', {
     code:'cds',
-  }); 
+  });  
 }
 
 
@@ -66,31 +66,37 @@ const handleNext =()=>{
 <View style={styles.content}>
 
 <View style={globalStyles.rowCenterCenter}>
-<Image source={{ uri:ImagesUrl+"/seller/profile_4.png" }} style={styles.profile} />
+<Image source={{ uri:ImagesUrl+"/doctors/"+item.image }} style={styles.profile} />
 
     
-    <View style={[{display:'flex'}, {marginLeft:15}]}>
-      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600', marginBottom:5}}>Henry Johnson</Text>
-      <Text style={styles.infoText}>For <Text style={{color:colors.dark}}>Cold Fever</Text></Text>
+    <View style={[{display:'flex'}, {marginLeft:2}]}>
+      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600', marginBottom:2}}>{item.fullname}</Text>
+
+
+      <Text style={styles.infoText}>Cardiac Surgeon <Text style={{color:colors.grey, opacity:0.5}}>at</Text> Apple Hospital</Text>
+
+
+<View style={{display:'flex', flexDirection:'row', alignItems:'center', marginTop:10}}>
+      <Text style={[styles.infoText]}>Exp. <Text style={{color:colors.dark}}>22 years</Text> </Text>
+      <Text style={[styles.infoText, {marginLeft:10}]}>Fees <Text style={{color:colors.dark}}>$30</Text></Text>
+      </View>
     </View> 
 </View>
 
  
-  <View style={[globalStyles.columnCenterBetween]}>
-      <View style={[globalStyles.rowCenterCenter, {marginBottom:5}]}>
-    <Text style={{color:colors.dark, fontSize:10,  fontWeight:'700'}}>4.5</Text>
+  <View style={[globalStyles.rowCenterCenter, { position:'absolute', bottom:5, right:5}]}>
+      <View style={[globalStyles.rowCenterCenter]}>
       <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
       <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
       <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
       <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
       <MaterialIcon name="star" size={12} color={colors.grey}  />
       </View>
-      <Text style={styles.infoText}>10.DEC.2019</Text>
+      <Text style={styles.infoText}>(20)</Text>
   </View> 
 
 </View>
 
-<Text style={{fontSize:10, marginBottom:5, marginHorizontal:10, textAlign:'justify'}}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum, commodi ipsum! Dolor cum impedit at unde dignissimos</Text>
 
 
       </Pressable>
@@ -107,37 +113,32 @@ const handleNext =()=>{
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
+    <View style={{backgroundColor:colors.white}}>
+   
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Reviews</Text>
-
-    <View/>
+      
+      <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
+    <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark}  /> 
+    <TextInput placeholder='Search' style={styles.textInput} />
     </View>
 
-    <View style={{backgroundColor:colors.white,  paddingHorizontal:10, marginBottom:5, paddingBottom:10}}>
-    <View style={[globalStyles.rowCenterBetween,{marginTop:15}]}>
-      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>Salospir 100mg Tablet</Text>
+    <MaterialIcon name="search" size={18} color={colors.dark}  />
 
-<View style={globalStyles.rowCenterCenter}>
-      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+    </View>
 
-      <Text style={{color:'#EEA31E', fontSize:10,  fontWeight:'700', marginHorizontal:5}}>4.5</Text>
-      </View>
 
-      </View>
+   <View style={[styles.header,{width:width, marginTop:10, borderRadius:0, marginHorizontal:0}]}>
+    <Text style={styles.label}>27 Results found</Text>
 
-      <View style={[globalStyles.rowCenterBetween,{marginVertical:5, marginRight:5}]}>
-<Text style={styles.infoText}>Average Reviews</Text>
-<Text style={styles.infoText}>Avg Reviews</Text>
+    </View> 
 
-</View>
-</View>
+    </View>
 
 
     <View style={styles.catItems}>
 
 <FlatList 
-data={CATEGORY}
+data={DOCTORS}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
@@ -157,7 +158,7 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 }
 
 
-export default Reviews
+export default DoctorsList
 
 const styles = StyleSheet.create({
 
@@ -168,13 +169,13 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
-    height:60
+    backgroundColor:colors.lightSkye,
+    height:45,
+    marginTop:40,
+    marginHorizontal:10,
+    borderRadius:5
   },
-  label:{
-    fontWeight:'600',
-    fontSize:12,
-  },
+
  
   infoText:{
     fontSize:10,
@@ -190,7 +191,8 @@ box:{
   backgroundColor:colors.white,
   marginBottom:5,
   display:'flex',
-  padding:10,
+  paddingVertical:10,
+  paddingHorizontal:5
   
     },
 
@@ -200,76 +202,27 @@ marginHorizontal:5,
 
 },
 
-px:{
-  height:25,
-  width:25,
-  resizeMode:'cover',
-    },
-catImage:{
-height:(height/2)*0.2,
-width:(width/2)-40,
-resizeMode:'contain',
-marginTop:15
-  },
-
-  address:{
-    backgroundColor:colors.white,
-    display:'flex',
-    flexDirection:'row',
-    paddingVertical:10
-  },
-
- 
-addItem:{
-  height:25,
-  width:25,
-  backgroundColor:colors.primary,
-  borderBottomRightRadius:5,
-  borderTopLeftRadius:5,
-  display:'flex',
-  alignItems:'center',
-  justifyContent:'center',
-  position:'absolute',
-  bottom:0,
-  right:0
-},
-sellerImage:{
-  height:80,
-  width:80,
-  resizeMode:'cover'
-},
-companyLogo:{
-  height:100,
-  width:100,
-  backgroundColor:'#9Be471',
-  borderRadius:10,
-  display:'flex',
-  justifyContent:'center',
-  alignItems:'center'
-
-},
-container:{
-  display:'flex',
-   flexDirection:'row', 
-   backgroundColor:colors.white,
-   paddingVertical:15,
-   paddingHorizontal:10
-  
-  
-  },
   profile:{
-    width:30,
-    height:30,
-    borderRadius:15,
+    width:60,
+    height:60,
     resizeMode:'contain'
   },
  content:{
     display:'flex', 
     flexDirection:'row', 
     justifyContent:'space-between', 
-    alignItems:'center',
-    paddingHorizontal:10, 
-    paddingBottom:10,
-    marginVertical:5
-  }
+    alignItems:'center', 
+  },
+  textInput:{
+    width:width-100,
+    marginLeft:10,
+    fontSize:12,
+    fontWeight:'600',
+    color:colors.dark
+  },
+  label:{
+    fontWeight:'600',
+    fontSize:12,
+    color:colors.grey
+  },
 })

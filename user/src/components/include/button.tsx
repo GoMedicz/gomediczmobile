@@ -14,6 +14,16 @@ const height =
 
 
 
+export const PrimaryButtonChildren = ({children, handleAction, style}:{children:React.ReactElement, handleAction?:()=>void, style?: StyleProp<ViewStyle>}) => {
+  return (
+    <TouchableOpacity onPress={handleAction} activeOpacity={0.9} style={[styles.button, style ]}>
+
+      {children}
+</TouchableOpacity>
+  )
+}
+
+
 export const PrimaryButton = ({title, handleAction, style}:{title:string, handleAction?:()=>void, style?: StyleProp<ViewStyle>}) => {
   return (
     <TouchableOpacity onPress={handleAction} activeOpacity={0.9} style={[styles.button, style ]}>
@@ -21,7 +31,6 @@ export const PrimaryButton = ({title, handleAction, style}:{title:string, handle
 </TouchableOpacity>
   )
 }
-
 
 
 const styles = StyleSheet.create({
