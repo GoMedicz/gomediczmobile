@@ -33,6 +33,7 @@ import DoctorsDetails from './src/screens/doctors/doctorsDetails';
 import DoctorReviews from './src/screens/doctors/DoctorReviews';
 import Appointment from './src/screens/doctors/appointment';
 import Feedback from './src/screens/doctors/feedback';
+import HospitalDetails from './src/screens/hospital/hospitalDetails';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -65,30 +66,24 @@ const StackNavigator=()=>{
 {/* Place All these screen that  require login here  */}
 <Stack.Screen  name='Cart'>{(props:any) =><Cart  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='ConfirmOrder'>{(props:any) =><ConfirmOrder  {...props}  />}</Stack.Screen>
-
-
 <Stack.Screen  name='Payment'>{(props:any) =><Payment  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='OrderPlaced'>{(props:any) =><OrderPlaced  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='Category'>{(props:any) =><Category  {...props}  />}</Stack.Screen>
-
-
 <Stack.Screen  name='CategoryDetails'>{(props:any) =><CategoryDetails  {...props}  />}</Stack.Screen>
 
 
 <Stack.Screen  name='DrugDetails'>{(props:any) =><DrugDetails  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='StoreItems'>{(props:any) =><StoreItems  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='Reviews'>{(props:any) =><Reviews  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Offers'>{(props:any) =><Offers  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='DoctorsList'>{(props:any) =><DoctorsList  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='DoctorsDetails'>{(props:any) =><DoctorsDetails  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='DoctorReviews'>{(props:any) =><DoctorReviews  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Appointment'>{(props:any) =><Appointment  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='Feedback'>{(props:any) =><Feedback  {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='HospitalDetails'>{(props:any) =><HospitalDetails  {...props}  />}</Stack.Screen>
 
 </Stack.Navigator>
 
@@ -98,7 +93,6 @@ const DrawerNavigator =()=>{
   return  <Drawer.Navigator  screenOptions={{ headerShown: false }}
   drawerContent={(props:any) => DrawerContent(props)}
   >
-
   <Drawer.Screen name='Homes' component={StackNavigator} /> 
   <Drawer.Screen name='BottomTabs' component={BottomTabs} />
  </Drawer.Navigator>

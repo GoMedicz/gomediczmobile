@@ -37,4 +37,10 @@ export  const globalStyles = StyleSheet.create({
         justifyContent:'space-between',
          alignItems:'center' 
       },
+      columnCenterCenter:{
+        display:'flex', 
+        flexDirection:'column', 
+        justifyContent:'center',
+         alignItems:'center' 
+      },
     })

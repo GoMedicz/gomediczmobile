@@ -305,12 +305,12 @@ h1:{
   },
 
   box:{
-height:100,
-width:90,
-borderRadius:10,
-marginRight:6
-
-  },
+    height:100,
+    width:87,
+    borderRadius:10,
+    marginRight:8
+    
+      },
 
   docImage:{
 height:50,

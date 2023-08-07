@@ -7,11 +7,14 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import colors from '../assets/colors';
 import StackNavigator from '../navigator/stack';
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import Hospital from '../screens/home/hospital';
 import LabTest from '../screens/home/labtest';
 import MoreTab from '../screens/home/more';
 import DoctorHome from '../screens/doctors/doctorHome';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+
+import Hospital from '../screens/hospital/hospital';
+
+
 const Tab = createBottomTabNavigator();
 
 

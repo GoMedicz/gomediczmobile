@@ -1,15 +1,16 @@
 
 import React, { useCallback, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, StatusBar } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATEGORY, LANGUAGELIST, OFFER, SELLER } from '../../components/data';
+import { CATEGORY, DOCTORSCATEGORY, LANGUAGELIST, OFFER, SELLER } from '../../components/data';
 import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -22,16 +23,16 @@ const height =
 
 
 type RootStackParamList = {
-  Dashboard: undefined;
-  Cart:undefined;
+    Hospital: undefined;
+    HospitalDetails:undefined;
     Language:undefined; 
     BottomTabs:{
      code:string;
    }
    };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
- const Dashboard =({ route, navigation }:Props)=> {
+type Props = NativeStackScreenProps<RootStackParamList, 'Hospital'>;
+ const Hospital =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
@@ -46,11 +47,11 @@ interface item {
 
 
 const handleCart =()=>{
-  navigation.navigate('Cart');
+  navigation.navigate('HospitalDetails');
 }
 
 const handleNext =()=>{
-  //navigation.navigate('Welcome');
+  navigation.navigate('HospitalDetails');
 }
 
   const onRefresh = useCallback(()=>{
@@ -61,59 +62,74 @@ const handleNext =()=>{
 const CATCOLOR = ['','#4CD1BC', '#75B4FC', '#FC9680', '#9BE471', '#585AE1', '#FFDA6E']
 const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', '#9BE471' ]
 
-    const CardCategory =({item}:{item:any})=>{
-        return <Pressable style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
-
-          <Text style={{color:colors.white, fontSize:10, marginLeft:15, marginTop:15, fontWeight:'600'}}>{item.title}</Text>
-
-          <Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
-          </Pressable>
-        }
 
 
-        const CardOffer =({item}:{item:any})=>{
-            return <Pressable style={[styles.offer, {backgroundColor:OFFERCOLOR[item.id]} ]}>
+const CardCategory =({item}:{item:any})=>{
+    return <Pressable style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
+
+      <Text style={{color:colors.white, fontSize:10, marginLeft:15, marginTop:15, fontWeight:'600'}}>{item.title}</Text>
+
+      <View style={styles.docImage}>
+      <FontAwesome5Icon name="user-md" size={50} color={colors.grey4}  />
+      </View>
+
+      </Pressable>
+    }
+
+ 
+
+
+
+
+            const Clinic =({item}:{item:any})=>{
+                return <Pressable onPress={handleNext} style={[styles.clinic]}>
     
-            <View>
-              <Text style={{color:colors.white, fontSize:14,  marginTop:15, fontWeight:'700'}}>{item.title}</Text>
-              <Text style={{color:colors.white, fontSize:14,  fontWeight:'700'}}>{item.titleb}</Text>
-            <View style={styles.line} />
-    
-             </View>
+   
 
-              <Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.offerImage} />
-              </Pressable>
-            }
+<View style={globalStyles.rowCenterBetween}>
+    <View >
+<Text style={{fontSize:12, fontWeight:'600'}}>{item.title}</Text>
+<Text style={[styles.infoText, {fontSize:10}]}>{item.address}</Text>
+</View>
 
 
-            const Seller =({item}:{item:any})=>{
-                return <Pressable style={[styles.seller]}>
-        
-
-        <Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.sellerImage} />
-                
-
-                <View style={{marginLeft:10, width:(width/2)-50}}>
-                  <Text style={{fontSize:12}}>{item.title}</Text>
 
 
-                  <View style={styles.address}>
+<View style={globalStyles.rowCenterCenter} >
 
-                  <MaterialIcon name="location-on" size={8} color={colors.grey}  /> 
-                  <Text style={{fontSize:8, color:colors.grey, marginLeft:5}}>{item.address}</Text>
-                 
-                  </View>
-                 </View>
+<Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.clinicImage} />
+<Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.clinicImage} />
+
+</View>
+</View>
 
 
-    
-                   </Pressable>
+
+
+
+<View style={[globalStyles.rowCenterBetween, {marginTop:10}]}>
+
+<View style={globalStyles.rowCenterCenter}>
+<MaterialIcon name="location-on" size={10} color={colors.grey}  />
+<Text style={[styles.infoText, {fontSize:8}]}>Walter street, Wallington, New York</Text>
+</View>
+
+
+<View style={globalStyles.rowCenterCenter}>
+<MaterialIcon name="call" size={8} color={colors.primary}  />
+<Text style={{fontSize:8, marginLeft:10, color:colors.primary, fontWeight:'600'}}>Call Now</Text>
+</View>
+
+</View>
+
+
+   </Pressable>
                 }
 
 
-  return (<SafeAreaView style={[ { backgroundColor:colors.white, flex:1}]}>
+  return (<SafeAreaView style={[ { backgroundColor:colors.white}]}>
     
-
+    <StatusBar barStyle={'light-content'} />
     <View style={styles.header}>
 
 <View style={styles.location}>
@@ -121,26 +137,18 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
     <Text style={[styles.label, {fontSize:12, marginLeft:20}]}>Wallington</Text>
 </View>
 
-    <Pressable onPress={handleCart} style={styles.cart}>
-
-    <MaterialIcon name="shopping-cart" size={14} color={colors.dark}  /> 
-        <View style={styles.circle}>
-            <Text style={{color:colors.white, fontSize:8, fontWeight:'500'}}>1</Text>
-        </View>
-
-        </Pressable>
     </View>
 
     <ScrollView>
 
-    <Text style={[styles.infoText,{marginHorizontal:20, marginTop:30}]}>Hello, Sam Smith,</Text>
+    <Text style={[styles.infoText,{marginHorizontal:20, marginTop:10}]}>Hello, Sam Smith,</Text>
 
-    <Text style={styles.h1}>Find your medicines</Text> 
+    <Text style={styles.h1}>Find Hospital</Text> 
 
 
     <View style={styles.textWrapper}>
     <MaterialIcon name="search" size={14} color={colors.icon}  /> 
-  <TextInput placeholder='Search medicines' 
+  <TextInput placeholder='Search Hospital' 
   placeholderTextColor={'#959595'}
   style={styles.textInput} />
 </View>
@@ -156,7 +164,7 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
 
 <View style={{marginLeft:20, marginVertical:15}}>
 <FlatList 
-data={CATEGORY}
+data={DOCTORSCATEGORY}
 horizontal
 showsHorizontalScrollIndicator={false}
 snapToInterval={width-20}
@@ -168,44 +176,23 @@ renderItem={({item})=> <CardCategory key={item.id} item={item} />}
 
 </View>
 
-<View style={[styles.contentWrapper, {marginTop:4} ]}>
-<Text style={styles.infoText}>Offers</Text>
-<Text style={[styles.infoText,{color:colors.primary}]}>View all</Text>
+<View style={[styles.contentWrapper, {marginVertical:12} ]}>
+<Text style={[styles.infoText,{fontSize:12} ]}>Hospitals near you</Text>
+<MaterialIcon name="map" size={20} color={colors.grey}  /> 
 </View>
-
-
-<View style={{marginLeft:20, marginVertical:15}}>
-<FlatList 
-data={OFFER}
-horizontal
-showsHorizontalScrollIndicator={false}
-snapToInterval={width-20}
-snapToAlignment='center'
-decelerationRate="fast"
-renderItem={({item})=> <CardOffer key={item.id} item={item} />}
-
-/>
-
-</View>
-
-<View style={[styles.contentWrapper, {marginTop:4} ]}>
-<Text style={styles.infoText}>Seller Near you</Text>
-</View>
-
 
 
 
 <ScrollView
   horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%'}}
+  contentContainerStyle={{width: '100%', height: '100%', flex:1}}
 >
 <FlatList 
 data={SELLER}
-numColumns={2}
-snapToInterval={width-20}
-contentContainerStyle={{ paddingHorizontal:20, marginTop:10}}
+snapToInterval={width}
+contentContainerStyle={{ padding:5, backgroundColor:colors.lightSkye}}
 showsHorizontalScrollIndicator={false}
-renderItem={({item})=> <Seller key={item.id} item={item} />}
+renderItem={({item})=> <Clinic key={item.id} item={item} />}
 
 
 />
@@ -213,18 +200,12 @@ renderItem={({item})=> <Seller key={item.id} item={item} />}
 </ScrollView>
 
 
-<View style={styles.locationWrapper}>
-  <Text style={styles.labelLocation}>Wallington</Text>
-  <Text style={styles.labelLocation}>Office</Text>
-  <Text style={styles.labelLocation}>Other</Text>
-  <Text style={styles.labelLocation}>Set Location</Text>
-</View>
     </SafeAreaView>
   )
 }
 
 
-export default Dashboard
+export default Hospital
 
 const styles = StyleSheet.create({
 
@@ -233,8 +214,11 @@ const styles = StyleSheet.create({
     display:'flex',
     justifyContent:'space-between',
     flexDirection:'row',
-    marginTop:20,
-    marginHorizontal:20
+    alignItems:'center',
+    paddingHorizontal:20,
+    height:40,
+    width:width,
+    backgroundColor:colors.white,
   },
   label:{
     fontWeight:'600',
@@ -258,7 +242,17 @@ contentWrapper:{
   marginTop:10
   
 },
- 
+docImage:{
+    height:50,
+    width:50,
+    resizeMode:'cover',
+    alignItems:'flex-end',
+    justifyContent:'flex-end',
+    position:'absolute',
+    bottom:5,
+    right:5,
+    
+      },
 
 textWrapper:{
   display:'flex',
@@ -310,12 +304,12 @@ h1:{
     fontWeight:'700',
     color:colors.dark,
     marginTop:10,
-    marginBottom:30,
+    marginBottom:20,
     marginHorizontal:20,
   },
 
   box:{
-    height:100,
+    height:102,
     width:87,
     borderRadius:10,
     marginRight:8
@@ -356,20 +350,20 @@ bottom:0
         borderRadius:10,
       },
 
-      sellerImage:{
-        height:40,
-        width:40,
-        borderRadius:10,
+      clinicImage:{
+        height:45,
+        width:75,
+        borderRadius:5,
+        marginLeft:5,
         resizeMode:'cover'
 
       },
-      seller:{
-        height:40,
-        width:(width/2),
+      clinic:{
+        width:width,
         display:'flex',
-        flexDirection:'row',
-        marginBottom:10
-    
+        marginBottom:5,
+        padding:10,
+        backgroundColor:colors.white,
         
           },
 
