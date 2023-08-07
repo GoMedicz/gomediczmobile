@@ -34,6 +34,11 @@ import DoctorReviews from './src/screens/doctors/DoctorReviews';
 import Appointment from './src/screens/doctors/appointment';
 import Feedback from './src/screens/doctors/feedback';
 import HospitalDetails from './src/screens/hospital/hospitalDetails';
+import TestList from './src/screens/lab/TestList';
+import LabDetails from './src/screens/lab/LabDetails';
+import LabMapView from './src/screens/lab/LabMapView';
+import SearchLab from './src/screens/lab/SearchLab';
+import ConfirmBooking from './src/screens/lab/confirmBooking';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -82,8 +87,20 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Appointment'>{(props:any) =><Appointment  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Feedback'>{(props:any) =><Feedback  {...props}  />}</Stack.Screen>
 
-
 <Stack.Screen  name='HospitalDetails'>{(props:any) =><HospitalDetails  {...props}  />}</Stack.Screen>
+
+
+
+<Stack.Screen  name='TestList'>{(props:any) =><TestList  {...props}  />}</Stack.Screen>
+<Stack.Screen  name='LabDetails'>{(props:any) =><LabDetails  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='LabMapView'>{(props:any) =><LabMapView  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='SearchLab'>{(props:any) =><SearchLab  {...props}  />}</Stack.Screen>
+
+
+
+<Stack.Screen  name='ConfirmBooking'>{(props:any) =><ConfirmBooking  {...props}  />}</Stack.Screen>
 
 </Stack.Navigator>
 

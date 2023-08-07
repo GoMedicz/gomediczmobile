@@ -13,6 +13,7 @@ import DoctorHome from '../screens/doctors/doctorHome';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
 import Hospital from '../screens/hospital/hospital';
+import LabHome from '../screens/lab/LabHome';
 
 
 const Tab = createBottomTabNavigator();
@@ -142,7 +143,7 @@ const BottomTabs =()=> {
 <Tab.Screen  name='Medicine'>{(props:any) =><StackNavigator {...props}  />}</Tab.Screen>
 <Tab.Screen  name='Doctors'>{(props:any) =><DoctorHome {...props}  />}</Tab.Screen>
 <Tab.Screen  name='Hospitals'>{(props:any) =><Hospital {...props}  />}</Tab.Screen>
-<Tab.Screen  name='Lab Test'>{(props:any) =><LabTest {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Lab Test'>{(props:any) =><LabHome {...props}  />}</Tab.Screen>
 <Tab.Screen  name='More'>{(props:any) =><MoreTab {...props}  />}</Tab.Screen>
 
 

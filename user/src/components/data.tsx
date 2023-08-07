@@ -108,3 +108,26 @@ export const DATES =[
     {time:'10:00 am', date:'16', fulldate:'12-02-2023', id:5},
     {time:'09:30 am', date:'17', fulldate:'12-02-2023', id:6},
   ]
+
+
+  export const LABTEST = [
+
+    {title:'BRAIN', id:1, image:'brain'},
+    {title:'CANCER', id:2, image:'hand-point-up'},
+    {title:'DIABETES', id:3, image:'lungs'},
+    {title:'KIDNEY', id:4, image:'virus'},
+    {title:'LIVER', id:5, image:'soap'},/* 
+    {title:'BABY & MOTHER', id:6, image:'tube.png'}, */
+
+]
+
+export const LAB = [
+
+    {title:'City Cure Labs', id:1, image:'brain'},
+    {title:'24x7 Test Point', id:2, image:'hand-point-up'},
+    {title:'Helocom Labs', id:3, image:'lungs'},
+    {title:'City Cure Labs', id:4, image:'virus'},
+    {title:'Helocom Labs', id:5, image:'soap'},
+    {title:'24x7 Test Point', id:6, image:'tube.png'}, 
+
+]

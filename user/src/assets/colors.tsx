@@ -7,7 +7,7 @@ const colors = {
   icon:'#24C0F7',
   grey:'#9E9E9E',
   lightSkye:'#F4F8FB',
-
+navyBlue:'#35c2F5',
 
 
     black: "#000000",
@@ -65,7 +65,6 @@ const colors = {
     nobel: "#9B9B9B",
     //blue
     mayaBlue: "#6ABEFF",
-    navyBlue: "#097FDB",
     //pink
     monaLisa: "#FF8A8A",
     //modal transparent
