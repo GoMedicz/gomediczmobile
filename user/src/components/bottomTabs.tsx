@@ -6,14 +6,12 @@ import  Icon  from 'react-native-vector-icons/Feather';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import colors from '../assets/colors';
 import StackNavigator from '../navigator/stack';
-import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import LabTest from '../screens/home/labtest';
-import MoreTab from '../screens/home/more';
 import DoctorHome from '../screens/doctors/doctorHome';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
 import Hospital from '../screens/hospital/hospital';
 import LabHome from '../screens/lab/LabHome';
+import AccountProfile from '../screens/more/AcountProfile';
 
 
 const Tab = createBottomTabNavigator();
@@ -144,7 +142,7 @@ const BottomTabs =()=> {
 <Tab.Screen  name='Doctors'>{(props:any) =><DoctorHome {...props}  />}</Tab.Screen>
 <Tab.Screen  name='Hospitals'>{(props:any) =><Hospital {...props}  />}</Tab.Screen>
 <Tab.Screen  name='Lab Test'>{(props:any) =><LabHome {...props}  />}</Tab.Screen>
-<Tab.Screen  name='More'>{(props:any) =><MoreTab {...props}  />}</Tab.Screen>
+<Tab.Screen  name='More'>{(props:any) =><AccountProfile {...props}  />}</Tab.Screen>
 
 
       </Tab.Navigator>

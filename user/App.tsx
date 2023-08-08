@@ -39,6 +39,10 @@ import LabDetails from './src/screens/lab/LabDetails';
 import LabMapView from './src/screens/lab/LabMapView';
 import SearchLab from './src/screens/lab/SearchLab';
 import ConfirmBooking from './src/screens/lab/confirmBooking';
+import MyAppointment from './src/screens/more/appointment/MyAppointment';
+import ChatDoctor from './src/screens/more/appointment/ChatDoctor';
+import MyLabTest from './src/screens/lab/MyLabTest';
+import AppointmentDetails from './src/screens/more/appointment/AppointmentDetails';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -101,6 +105,17 @@ const StackNavigator=()=>{
 
 
 <Stack.Screen  name='ConfirmBooking'>{(props:any) =><ConfirmBooking  {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='MyAppointment'>{(props:any) =><MyAppointment  {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='ChatDoctor'>{(props:any) =><ChatDoctor  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='MyLabTest'>{(props:any) =><MyLabTest  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='AppointmentDetails'>{(props:any) =><AppointmentDetails  {...props}  />}</Stack.Screen>
+
 
 </Stack.Navigator>
 
