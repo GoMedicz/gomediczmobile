@@ -43,6 +43,9 @@ import MyAppointment from './src/screens/more/appointment/MyAppointment';
 import ChatDoctor from './src/screens/more/appointment/ChatDoctor';
 import MyLabTest from './src/screens/lab/MyLabTest';
 import AppointmentDetails from './src/screens/more/appointment/AppointmentDetails';
+import Wallet from './src/screens/more/wallet/wallet';
+import SendMoney from './src/screens/more/wallet/sendMoney';
+import ChosePayment from './src/screens/more/wallet/payment';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -115,6 +118,13 @@ const StackNavigator=()=>{
 <Stack.Screen  name='MyLabTest'>{(props:any) =><MyLabTest  {...props}  />}</Stack.Screen>
 
 <Stack.Screen  name='AppointmentDetails'>{(props:any) =><AppointmentDetails  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Wallet'>{(props:any) =><Wallet  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='SendMoney'>{(props:any) =><SendMoney  {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='ChosePayment'>{(props:any) =><ChosePayment  {...props}  />}</Stack.Screen>
 
 
 </Stack.Navigator>

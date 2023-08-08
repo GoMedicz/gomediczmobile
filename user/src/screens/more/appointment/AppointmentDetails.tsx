@@ -27,7 +27,7 @@ const height =
 
 type RootStackParamList = {
   AppointmentDetails: undefined;
-  DoctorReviews:undefined; 
+  Wallet:undefined; 
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AppointmentDetails'>;
@@ -46,11 +46,11 @@ interface item {
 
 
 const handleCart =()=>{
-  navigation.navigate('DoctorReviews');
+  navigation.navigate('Wallet');
 }
 
 const handleNext =()=>{
-  navigation.navigate('DoctorReviews');
+  navigation.navigate('Wallet');
 }
 
 
@@ -176,6 +176,8 @@ const CardDate =({item}:{item:any})=>{
 
 
 <PrimaryButtonChildren
+
+handleAction={handleNext}
 style={{backgroundColor:colors.lightSkye, width:width/2}}
 >
 <View style={{display:'flex', flexDirection:'row', justifyContent:'center'}}>
@@ -190,6 +192,7 @@ style={{backgroundColor:colors.lightSkye, width:width/2}}
 
 <PrimaryButtonChildren
 style={{ width:width/2}}
+handleAction={handleNext}
 >
 <View style={{display:'flex', flexDirection:'row', justifyContent:'center'}}>
 
