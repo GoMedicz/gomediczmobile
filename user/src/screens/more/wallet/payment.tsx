@@ -25,7 +25,7 @@ const height =
 type RootStackParamList = {
   ChosePayment: undefined;
     Language:undefined; 
-    OrderPlaced:{
+    MyOrder:{
      code:string;
    }
    };
@@ -51,7 +51,7 @@ const handleBack =()=>{
 }
 
 const handleNext =()=>{
-  navigation.navigate('OrderPlaced', {
+  navigation.navigate('MyOrder', {
     code:'cds',
   }); 
 }
