@@ -48,6 +48,16 @@ import SendMoney from './src/screens/more/wallet/sendMoney';
 import ChosePayment from './src/screens/more/wallet/payment';
 import MyOrder from './src/screens/cart/MyOrder';
 import OrderDetails from './src/screens/cart/OrderDetails';
+import Reminder from './src/screens/more/reminder/Reminder';
+import CreateReminder from './src/screens/more/reminder/CreateReminder';
+import Address from './src/screens/more/address/Address';
+import AddAddress from './src/screens/more/address/AddAddress';
+import SavedItems from './src/screens/more/SavedItem';
+import Theme from './src/screens/onboarding/Theme';
+import Contact from './src/screens/onboarding/Contact';
+import Terms from './src/screens/onboarding/Terms';
+import Faqs from './src/screens/onboarding/Faqs';
+import Password from './src/screens/onboarding/Password';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -67,20 +77,33 @@ const StackNavigator=()=>{
  {/* <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
  */} 
 
+<Stack.Screen  name='Password'>{(props:any) =><Password {...props}  />}</Stack.Screen>
+<Stack.Screen  name='Faqs'>{(props:any) =><Faqs {...props}  />}</Stack.Screen>
 
+ <Stack.Screen  name='Terms'>{(props:any) =><Terms {...props}  />}</Stack.Screen>
+<Stack.Screen  name='Contact'>{(props:any) =><Contact {...props}  />}</Stack.Screen>
+<Stack.Screen  name='Theme'>{(props:any) =><Theme {...props}  />}</Stack.Screen>
+<Stack.Screen  name='Verification'>{(props:any) =><Verification {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='Welcome'>{(props:any) =><Welcome  {...props}  />}</Stack.Screen>
 
 {/* Place All these screen that doesnt require login here  */}
-<Stack.Screen  name='Verification'>{(props:any) =><Verification {...props}  />}</Stack.Screen>
-<Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
-<Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
   <Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>
- <Stack.Screen  name='Welcome'>{(props:any) =><Welcome  {...props}  />}</Stack.Screen>
+
 
 
 {/* Place All these screen that  require login here  */}
 <Stack.Screen  name='Cart'>{(props:any) =><Cart  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='ConfirmOrder'>{(props:any) =><ConfirmOrder  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Payment'>{(props:any) =><Payment  {...props}  />}</Stack.Screen>
+
+
 <Stack.Screen  name='OrderPlaced'>{(props:any) =><OrderPlaced  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Category'>{(props:any) =><Category  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='CategoryDetails'>{(props:any) =><CategoryDetails  {...props}  />}</Stack.Screen>
@@ -132,7 +155,14 @@ const StackNavigator=()=>{
 <Stack.Screen  name='MyOrder'>{(props:any) =><MyOrder  {...props}  />}</Stack.Screen>
 
 <Stack.Screen  name='OrderDetails'>{(props:any) =><OrderDetails  {...props}  />}</Stack.Screen>
+<Stack.Screen  name='Reminder'>{(props:any) =><Reminder  {...props}  />}</Stack.Screen>
 
+
+<Stack.Screen  name='CreateReminder'>{(props:any) =><CreateReminder  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Address'>{(props:any) =><Address {...props}  />}</Stack.Screen>
+<Stack.Screen  name='AddAddress'>{(props:any) =><AddAddress {...props}  />}</Stack.Screen>
+<Stack.Screen  name='SavedItems'>{(props:any) =><SavedItems {...props}  />}</Stack.Screen>
 
 </Stack.Navigator>
 

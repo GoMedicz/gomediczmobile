@@ -7,7 +7,7 @@ import MaterialIcon  from 'react-native-vector-icons/MaterialIcons'
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
+import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST, SELLER } from '../../components/data';
 import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
@@ -23,15 +23,15 @@ const height =
 
 
 type RootStackParamList = {
-  CategoryDetails: undefined;
+  SavedItems: undefined;
   Cart:undefined; 
   DrugDetails:{
      code:string;
    }
    };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'CategoryDetails'>;
- const CategoryDetails =({ route, navigation }:Props)=> {
+type Props = NativeStackScreenProps<RootStackParamList, 'SavedItems'>;
+ const SavedItems =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
@@ -56,6 +56,95 @@ const handleNext =()=>{
 }
 
 
+
+const DoctorsCategory =({item}:{item:any})=>{
+  return <Pressable onPress={handleNext} style={[styles.docBox]}>
+
+
+<View style={styles.content}>
+
+<View style={globalStyles.rowCenterCenter}>
+<Image source={{ uri:ImagesUrl+"/doctors/"+item.image }} style={styles.profile} />
+
+  
+  <View style={[{display:'flex'}, {marginLeft:2}]}>
+    <Text style={{color:colors.dark, fontSize:12, fontWeight:'600', marginBottom:2}}>{item.fullname}</Text>
+
+
+    <Text style={styles.infoText}>Cardiac Surgeon <Text style={{color:colors.grey, opacity:0.5}}>at</Text> Apple Hospital</Text>
+
+
+<View style={{display:'flex', flexDirection:'row', alignItems:'center', marginTop:10}}>
+    <Text style={[styles.infoText]}>Exp. <Text style={{color:colors.dark}}>22 years</Text> </Text>
+    <Text style={[styles.infoText, {marginLeft:10}]}>Fees <Text style={{color:colors.dark}}>$30</Text></Text>
+    </View>
+  </View> 
+</View>
+
+
+<View style={[globalStyles.rowCenterCenter, { position:'absolute', bottom:5, right:5}]}>
+    <View style={[globalStyles.rowCenterCenter]}>
+    <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+    <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+    <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+    <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
+    <MaterialIcon name="star" size={12} color={colors.grey}  />
+    </View>
+    <Text style={styles.infoText}>(20)</Text>
+</View> 
+
+</View>
+
+
+
+    </Pressable>
+  }
+
+
+  const Clinic =({item}:{item:any})=>{
+    return <Pressable onPress={handleNext} style={[styles.clinic]}>
+
+
+
+<View style={globalStyles.rowCenterBetween}>
+<View >
+<Text style={{fontSize:12, fontWeight:'600'}}>{item.title}</Text>
+<Text style={[styles.infoText, {fontSize:10}]}>{item.address}</Text>
+</View>
+
+
+
+
+<View style={globalStyles.rowCenterCenter} >
+
+<Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.clinicImage} />
+<Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.clinicImage} />
+
+</View>
+</View>
+
+
+
+
+
+<View style={[globalStyles.rowCenterBetween, {marginTop:10}]}>
+
+<View style={globalStyles.rowCenterCenter}>
+<MaterialIcon name="location-on" size={10} color={colors.grey}  />
+<Text style={[styles.infoText, {fontSize:8}]}>Walter street, Wallington, New York</Text>
+</View>
+
+
+<View style={globalStyles.rowCenterCenter}>
+<MaterialIcon name="call" size={8} color={colors.primary}  />
+<Text style={{fontSize:8, marginLeft:10, color:colors.primary, fontWeight:'600'}}>Call Now</Text>
+</View>
+
+</View>
+
+
+</Pressable>
+    }
 
 
   const CardCategory =({item}:{item:any})=>{
@@ -95,17 +184,15 @@ const handleNext =()=>{
     
     <View style={styles.header}>
     <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Health Care</Text>
+    <Text style={styles.label}>Saved</Text>
     
-    
-    <Pressable onPress={handleCart} style={styles.cart}>
-
-<MaterialIcon name="shopping-cart" size={14} color={colors.dark}  /> 
-    <View style={styles.circle}>
-        <Text style={{color:colors.white, fontSize:8, fontWeight:'500'}}>1</Text>
+    <View/>
     </View>
 
-    </Pressable>
+    <View style={[globalStyles.rowCenterBetween, {paddingHorizontal:30, paddingVertical:15, backgroundColor:colors.white}]}>
+      <Text style={[styles.label, {color:colors.navyBlue, fontWeight:'700'}]}>Medicine</Text>
+      <Text style={[styles.label, {color:colors.navyBlue}]}>Doctors</Text>
+      <Text style={[styles.label, {color:colors.navyBlue}]}>Hospitals</Text>
     </View>
 
 
@@ -126,14 +213,43 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 </View>
 
+<View style={styles.catItems}>
 
+<FlatList 
+data={DOCTORS}
+numColumns={1}
+showsVerticalScrollIndicator={false}
+snapToInterval={width-20}
+snapToAlignment='center'
+decelerationRate="fast"
+renderItem={({item})=> <DoctorsCategory key={item.id} item={item} />}
+refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
+}
+/>
+
+</View>
+
+<View style={styles.catItems}>
+
+<FlatList 
+data={SELLER}
+
+showsVerticalScrollIndicator={false}
+snapToInterval={width}
+contentContainerStyle={{ padding:5, backgroundColor:colors.lightSkye}}
+showsHorizontalScrollIndicator={false}
+renderItem={({item})=> <Clinic key={item.id} item={item} />}
+
+
+/>
+</View>
 
     </View>
   )
 }
 
 
-export default CategoryDetails
+export default SavedItems
 
 const styles = StyleSheet.create({
 
@@ -145,7 +261,8 @@ const styles = StyleSheet.create({
     alignItems:'center',
     paddingHorizontal:20,
     backgroundColor:colors.white,
-    height:60
+    height:60,
+    paddingTop:20
   },
   label:{
     fontWeight:'600',
@@ -177,12 +294,10 @@ box:{
 catItems:{
 flex:1,
 marginTop:10,
-
 marginHorizontal:5,
 
 
 },
-
 overlay:{
 display:'flex',
 justifyContent:'flex-end',
@@ -269,5 +384,41 @@ bottomItem:{
   flexDirection:'row',
   backgroundColor:'red',
 
-}
+},
+profile:{
+  width:60,
+  height:60,
+  resizeMode:'contain'
+},
+content:{
+  display:'flex', 
+  flexDirection:'row', 
+  justifyContent:'space-between', 
+  alignItems:'center', 
+},
+docBox:{
+  width:width,
+  backgroundColor:colors.white,
+  marginBottom:5,
+  display:'flex',
+  paddingVertical:10,
+  paddingHorizontal:5
+  
+    },
+    clinicImage:{
+      height:45,
+      width:75,
+      borderRadius:5,
+      marginLeft:5,
+      resizeMode:'cover'
+
+    },
+    clinic:{
+      width:width,
+      display:'flex',
+      marginBottom:5,
+      padding:10,
+      backgroundColor:colors.white,
+      
+        },
 })

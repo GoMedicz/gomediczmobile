@@ -6,11 +6,12 @@ import MaterialIcon  from 'react-native-vector-icons/MaterialIcons'
 
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
-import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
+import colors from '../../../assets/colors';
+import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../../components/data';
+import { ImagesUrl } from '../../../components/includes';
+import { globalStyles } from '../../../components/globalStyle';
+import ModalDialog from '../../../components/modal';
+import ShoppingCart from '../../../components/include/ShoppingCart';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -23,15 +24,15 @@ const height =
 
 
 type RootStackParamList = {
-  CategoryDetails: undefined;
-  Cart:undefined; 
-  DrugDetails:{
+  Reminder: undefined;
+  CreateReminder:undefined; 
+  Offers:{
      code:string;
    }
    };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'CategoryDetails'>;
- const CategoryDetails =({ route, navigation }:Props)=> {
+type Props = NativeStackScreenProps<RootStackParamList, 'Reminder'>;
+ const Reminder =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
@@ -46,13 +47,11 @@ interface item {
 
 
 const handleCart =()=>{
-  navigation.navigate('Cart');
+  navigation.navigate('CreateReminder');
 }
 
 const handleNext =()=>{
-  navigation.navigate('DrugDetails', {
-    code:'cds',
-  }); 
+  navigation.navigate('CreateReminder');
 }
 
 
@@ -61,23 +60,21 @@ const handleNext =()=>{
   const CardCategory =({item}:{item:any})=>{
     return <Pressable onPress={handleNext} style={[styles.box]}>
 
-<View style={{display:'flex', alignItems:'flex-end'}}>
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.px} />
+
+<View style={styles.circle}>
+
+<MaterialIcon name="notifications-active" size={20} color={colors.icon}  />
 </View>
 
-<Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
+    
+    <View style={[{display:'flex'}, {marginLeft:15}]}>
+      <Text style={styles.label}>Multi Vitamins</Text>
+      <Text style={styles.infoText}>Mon, Tue, Wed</Text>
+      <Text style={[styles.infoText, {fontSize:8, marginTop:5}]}>08:00 am, 02:00 pm</Text>
+    </View> 
 
-<View style={{marginTop:15}}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>Allerygy Relief</Text>
 
-      <Text style={{color:colors.dark, fontSize:10,  fontWeight:'600'}}>Tablet</Text>
 
-      <Text style={{color:colors.dark, fontSize:12,  fontWeight:'700', marginTop:10}}>$3.50</Text>
-      </View>
-
-  <View style={styles.addItem}>
-<MaterialIcon name="add" size={18} color={colors.white}  />
-      </View>
 
       </Pressable>
     }
@@ -95,26 +92,17 @@ const handleNext =()=>{
     
     <View style={styles.header}>
     <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Health Care</Text>
-    
-    
-    <Pressable onPress={handleCart} style={styles.cart}>
+    <Text style={styles.label}>Pill Reminders</Text>
 
-<MaterialIcon name="shopping-cart" size={14} color={colors.dark}  /> 
-    <View style={styles.circle}>
-        <Text style={{color:colors.white, fontSize:8, fontWeight:'500'}}>1</Text>
+    <View/>
     </View>
-
-    </Pressable>
-    </View>
-
 
 
     <View style={styles.catItems}>
 
 <FlatList 
 data={CATEGORY}
-numColumns={2}
+numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
@@ -127,13 +115,16 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 </View>
 
 
-
+<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.addMore}>
+  
+<MaterialIcon name="add" size={20} color={colors.white}  /> 
+</TouchableOpacity>
     </View>
   )
 }
 
 
-export default CategoryDetails
+export default Reminder
 
 const styles = StyleSheet.create({
 
@@ -162,40 +153,23 @@ const styles = StyleSheet.create({
 
 
 box:{
-  height:(height/3)-40,
-  width:(width/2)-15,
+  width:width,
   backgroundColor:colors.white,
-  borderRadius:10,
-  marginBottom:10,
+  marginBottom:5,
   display:'flex',
-  paddingVertical:5,
-  paddingHorizontal:10,
-  marginHorizontal:5
+  flexDirection:'row',
+  justifyContent:'flex-start',
+  alignItems:'center',
+  padding:10,
   
     },
 
 catItems:{
 flex:1,
-marginTop:10,
-
-marginHorizontal:5,
-
+margin:5,
 
 },
 
-overlay:{
-display:'flex',
-justifyContent:'flex-end',
-alignItems:'center',
-backgroundColor:colors.white,
-position:'absolute',
-bottom:5,
-width:70,
-height:40,
-right:3,
-opacity: 0.5,
-
-},
 px:{
   height:25,
   width:25,
@@ -208,47 +182,14 @@ resizeMode:'contain',
 marginTop:15
   },
 
-modal:{
- width:width-120,
- height:undefined
-},
-
-modalContent:{
-  display:'flex',
-  justifyContent:'center',
-  alignItems:'center'
-},
-modalImage:{
-  height:120,
-  width:150,
-  resizeMode:'contain',
-  },
   address:{
     backgroundColor:colors.white,
-    paddingHorizontal:20,
     display:'flex',
     flexDirection:'row',
     paddingVertical:10
   },
 
-  circle:{
-    height:10,
-    width:10,
-    borderRadius:5,
-    backgroundColor:'#F14338',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    position:'absolute',
-    left:8,
-    top:-5
-
-
-},
-cart:{
-    display:'flex',
-    flexDirection:'row'
-},
+ 
 addItem:{
   height:25,
   width:25,
@@ -262,12 +203,77 @@ addItem:{
   bottom:0,
   right:0
 },
-bottomItem:{
-  display:'flex', 
-  justifyContent:'space-between', 
-  alignItems:'center', 
-  flexDirection:'row',
-  backgroundColor:'red',
+sellerImage:{
+  height:80,
+  width:80,
+  resizeMode:'cover'
+},
+companyLogo:{
+  height:100,
+  width:100,
+  backgroundColor:'#9Be471',
+  borderRadius:10,
+  display:'flex',
+  justifyContent:'center',
+  alignItems:'center'
 
-}
+},
+container:{
+  display:'flex',
+   flexDirection:'row', 
+   backgroundColor:colors.white,
+   paddingVertical:15,
+   paddingHorizontal:10
+  
+  
+  },
+  profile:{
+    width:30,
+    height:30,
+    borderRadius:15,
+    resizeMode:'contain'
+  },
+
+  circle:{
+    height:50,
+    width:50,
+    borderRadius:25,
+    backgroundColor:colors.lightSkye,
+    display:'flex',
+    justifyContent:'center',
+    alignItems:'center'
+  },
+ content:{
+    display:'flex', 
+    flexDirection:'row', 
+    justifyContent:'space-between', 
+    alignItems:'center',
+    paddingHorizontal:10, 
+    paddingBottom:10,
+    marginVertical:5
+  },
+  addMore:{
+    height:50,
+    width:50,
+    borderRadius:25,
+    display:'flex',
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:colors.primary,
+    position:'absolute',
+    bottom:10,
+    right:10,
+
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 4,
+      height: 4
+    },
+    
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+
+  }
 })

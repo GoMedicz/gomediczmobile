@@ -25,7 +25,7 @@ const height =
 
 type RootStackParamList = {
   OrderDetails: undefined;
-  Payment:undefined; 
+  Reminder:undefined; 
     BottomTabs:{
      code:string;
    }
@@ -48,18 +48,16 @@ interface item {
 
 
 const handlePayment =()=>{
-  navigation.navigate('Payment');
+  navigation.navigate('Reminder');
 }
 
 const handleNext =()=>{
-  navigation.navigate('BottomTabs', {
-    code:'cds',
-  }); 
+  navigation.navigate('Reminder'); 
 }
 
 
 const CardCategory =({item}:{item:any})=>{
-  return <Pressable style={[styles.card]}>
+  return <Pressable onPress={handleNext} style={[styles.card]}>
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
 
