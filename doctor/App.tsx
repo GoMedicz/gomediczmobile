@@ -21,7 +21,6 @@ import BottomTabs from './src/components/bottomTabs';
 import DoctorsList from './src/screens/doctors/doctorsList';
 import DoctorsDetails from './src/screens/doctors/doctorsDetails';
 import DoctorReviews from './src/screens/doctors/DoctorReviews';
-import Appointment from './src/screens/doctors/appointment';
 import Feedback from './src/screens/doctors/feedback';
 import MyAppointment from './src/screens/more/appointment/MyAppointment';
 import ChatDoctor from './src/screens/more/appointment/ChatDoctor';
@@ -34,7 +33,7 @@ import Contact from './src/screens/onboarding/Contact';
 import Terms from './src/screens/onboarding/Terms';
 import Faqs from './src/screens/onboarding/Faqs';
 import Password from './src/screens/onboarding/Password';
-import Profile from './src/screens/doctors/Profile';
+import Profiles from './src/screens/doctors/Profile';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -54,8 +53,10 @@ const StackNavigator=()=>{
  {/* <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
  */}
 
+<Stack.Screen  name='Profiles'>{(props:any) =><Profiles  {...props}  />}</Stack.Screen>
 
-<Stack.Screen  name='Profile'>{(props:any) =><Profile  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='AppointmentDetails'>{(props:any) =><AppointmentDetails  {...props}  />}</Stack.Screen>
 
  <Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>
  <Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
@@ -70,7 +71,6 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Welcome'>{(props:any) =><Welcome  {...props}  />}</Stack.Screen>
 
 
-<Stack.Screen  name='AppointmentDetails'>{(props:any) =><AppointmentDetails  {...props}  />}</Stack.Screen>
 
 
 </Stack.Navigator>
@@ -82,8 +82,12 @@ const DrawerNavigator =()=>{
   drawerContent={(props:any) => DrawerContent(props)}
   >
 
+
 <Drawer.Screen name='Homes' component={StackNavigator} /> 
+
 <Drawer.Screen name='BottomTabs' component={BottomTabs} />
+
+
  </Drawer.Navigator>
  }
 

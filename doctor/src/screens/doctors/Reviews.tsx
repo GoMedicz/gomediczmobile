@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
@@ -70,15 +70,15 @@ const handleNext =()=>{
 
     
     <View style={[{display:'flex'}, {marginLeft:15}]}>
-      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600', marginBottom:5}}>Henry Johnson</Text>
-      <Text style={styles.infoText}>For <Text style={{color:colors.dark}}>Cold Fever</Text></Text>
+      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:14, fontWeight:'600', marginBottom:5}}>Henry Johnson</Text>
+      <Text style={styles.infoText}>For <Text style={{color:MODE==='Light'?colors.dark:colors.white}}>Cold Fever</Text></Text>
     </View> 
 </View>
 
  
   <View style={[globalStyles.columnCenterBetween]}>
       <View style={[globalStyles.rowCenterCenter, {marginBottom:5}]}>
-    <Text style={{color:colors.dark, fontSize:10,  fontWeight:'700'}}>4.5</Text>
+    <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:10,  fontWeight:'700'}}>4.5</Text>
       <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
       <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
       <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
@@ -90,7 +90,7 @@ const handleNext =()=>{
 
 </View>
 
-<Text style={{fontSize:10, marginBottom:5, marginHorizontal:10, textAlign:'justify'}}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum, commodi ipsum! Dolor cum impedit at unde dignissimos</Text>
+<Text style={{fontSize:10, marginBottom:5, marginHorizontal:10, textAlign:'justify',  color:MODE==='Light'?colors.dark:colors.white}}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum, commodi ipsum! Dolor cum impedit at unde dignissimos</Text>
 
 
       </Pressable>
@@ -98,24 +98,14 @@ const handleNext =()=>{
 
 
   
-
-    
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
-
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
-    
-    <View style={styles.header}>
-      <View/> 
-        <Text style={styles.label}>Reviews</Text>
-    <View/>
-    </View>
+const HeaderComponents =()=>{
 
 
+  return (<View>
 
-    <View style={{backgroundColor:colors.white, marginBottom:5, paddingBottom:5}}>
+
+<View style={{
+    backgroundColor:MODE==='Light'?colors.white:colors.dark, marginBottom:5, paddingBottom:5}}>
 
 
 <View style={{display:'flex', flexDirection:'row'}}>
@@ -256,13 +246,33 @@ const handleNext =()=>{
 
     <Text style={styles.infoText}>Recent</Text>
 </View>
+  </View>
+
+  )
+}
+    
+  const onRefresh = useCallback(()=>{
+    setRefreshing(false)
+   // FetchContent()
+    }, [])
+
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
+    
+    <View style={styles.header}>
+      <View/> 
+        <Text style={styles.label}>Reviews</Text>
+    <View/>
+    </View>
 
 
     <View style={styles.catItems}>
 
 <FlatList 
+
+ListHeaderComponent={HeaderComponents}
 data={CATEGORY}
 numColumns={1}
+nestedScrollEnabled={true}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
@@ -271,9 +281,7 @@ renderItem={({item})=> <CardCategory key={item.id} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />
-
 </View>
-
 
 
     </View>
@@ -292,17 +300,18 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     height:60
   },
   label:{
-    fontWeight:'600',
+    fontWeight:'700',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white,
   },
  
   infoText:{
     fontSize:10,
-    color:'#9E9E9E',
+    color:MODE==='Light'?'#9E9E9E':colors.white,
     fontWeight:'500'
 
   },
@@ -311,7 +320,8 @@ const styles = StyleSheet.create({
 
 box:{
   width:width,
-  backgroundColor:colors.white,
+
+  backgroundColor:MODE==='Light'?colors.white:colors.dark,
   marginBottom:5,
   display:'flex',
   padding:10,
@@ -321,7 +331,6 @@ box:{
 catItems:{
 flex:1,
 marginHorizontal:5,
-
 },
 
 px:{
@@ -404,13 +413,13 @@ container:{
   title:{
     fontSize:20,
     fontWeight:'600',
-    color:colors.dark,
+    color:MODE==='Light'?colors.dark:colors.white,
     width:(width/2)-50
 
   },
   progress:{
     width:width-100,
-    backgroundColor:colors.lightSkye,
+    backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark,
     height:10,
     marginHorizontal:10
   },

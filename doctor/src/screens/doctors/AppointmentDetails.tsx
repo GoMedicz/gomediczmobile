@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, DATES, LANGUAGELIST, TIMES } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
@@ -73,10 +73,10 @@ const CardDate =({item}:{item:any})=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.white}]}>
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
     <Text style={styles.label}>Appointment details</Text>
     <View/>
     </View>
@@ -85,7 +85,7 @@ const CardDate =({item}:{item:any})=>{
 
 
 
-    <View style={{backgroundColor:colors.white, marginBottom:5, paddingBottom:5}}>
+    <View style={{backgroundColor:MODE==='Light'?colors.white:colors.dark, marginBottom:5, paddingBottom:5}}>
 
 
 <View style={{display:'flex', flexDirection:'row', justifyContent:'flex-start', alignItems:'flex-end' }}>
@@ -120,8 +120,8 @@ const CardDate =({item}:{item:any})=>{
 <Text style={[styles.label, {marginTop:15}]}>report212220.pdf</Text>
 
 <View style={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
-<MaterialIcon name="download" size={18} color={colors.icon}  /> 
-<Text style={{color:colors.icon, fontSize:12}}>Download</Text>
+<MaterialIcon name="visibility" size={18} color={colors.icon}  /> 
+<Text style={{color:colors.icon, marginLeft:2, fontSize:12}}>View</Text>
 </View>
 
 
@@ -142,7 +142,7 @@ const CardDate =({item}:{item:any})=>{
 <PrimaryButtonChildren
 
 handleAction={handleNext}
-style={{backgroundColor:colors.lightSkye, width:width/2}}
+style={{backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark, width:width/2}}
 >
 <View style={{display:'flex', flexDirection:'row', justifyContent:'space-evenly', alignItems:'center', width:width/2}}>
 
@@ -183,12 +183,13 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     height:60
   },
   label:{
     fontWeight:'600',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white,
   },
   infoText:{
     fontSize:12,

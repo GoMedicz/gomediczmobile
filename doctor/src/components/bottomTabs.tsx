@@ -9,13 +9,12 @@ import StackNavigator from '../navigator/stack';
 import DoctorHome from '../screens/doctors/doctorHome';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
-import Hospital from '../screens/hospital/hospital';
 
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import LabHome from '../screens/lab/LabHome';
 import AccountProfile from '../screens/doctors/AcountProfile';
 import Appointments from '../screens/home/dashboard';
 import Reviews from '../screens/doctors/Reviews';
+import { MODE } from './includes';
 
 
 const {width} = Dimensions.get('screen');
@@ -178,7 +177,7 @@ const styles = StyleSheet.create({
       paddingBottom:10,
       flexDirection:'row',
       justifyContent:'space-between',
-      backgroundColor:colors.white,
+      backgroundColor:MODE==='Light'?colors.white:colors.dark,
       shadowColor: "#000",
       shadowOffset: {
         width: 0,

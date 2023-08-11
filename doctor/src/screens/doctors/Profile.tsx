@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
@@ -57,10 +57,10 @@ const handleNext =()=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark,}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
    <Text style={styles.label}>My Profile</Text>
 <View />
     </View>
@@ -69,7 +69,7 @@ const handleNext =()=>{
 
 
 
-<View style={{display:'flex', flexDirection:'row', alignItems:'flex-end',  backgroundColor:colors.white,  paddingVertical:15}}>
+<View style={{display:'flex', flexDirection:'row', alignItems:'flex-end',  backgroundColor:MODE==='Light'?colors.white:colors.dark,  paddingVertical:15}}>
   
 
 <Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
@@ -78,7 +78,7 @@ const handleNext =()=>{
 <View style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
 
 <View style={styles.circle}>
-<MaterialIcon name="photo-camera" size={14} color={colors.white}  /> 
+<MaterialIcon name="photo-camera" size={14} color={MODE==='Light'?colors.white:colors.dark}  /> 
 </View>
 
 <Text style={[styles.label, { color:colors.primary, fontWeight:'700'}]}>Change Profile Picture</Text>
@@ -93,7 +93,8 @@ const handleNext =()=>{
 <View style={[styles.textWrapper]}>
 <MaterialIcon name="account-circle" size={15} color={colors.icon}  /> 
   <TextInput style={styles.textInput} 
-  placeholder='Dr. Joseph Williamson'
+  placeholderTextColor={MODE==='Light'?colors.dark:colors.grey}
+  placeholder='Full Name'
   />
 
 </View>
@@ -103,6 +104,7 @@ const handleNext =()=>{
 <View style={styles.textWrapper}>
 <MaterialIcon name="phone-iphone" size={15} color={colors.icon}  /> 
   <TextInput style={styles.textInput} 
+  placeholderTextColor={MODE==='Light'?colors.dark:colors.grey}
   placeholder='+1987 654 3210'
   />
 
@@ -112,7 +114,8 @@ const handleNext =()=>{
 <View style={styles.textWrapper}>
 <MaterialIcon name="mail" size={15} color={colors.icon}  /> 
   <TextInput style={styles.textInput} 
-  placeholder='drjoseph@gmail.com'
+  placeholderTextColor={MODE==='Light'?colors.dark:colors.grey}
+  placeholder='Email Address'
   />
 
 </View>
@@ -146,6 +149,7 @@ const handleNext =()=>{
 
   <View style={[styles.textWrapper,{marginVertical:5}]}>
   <TextInput style={styles.textInput} 
+   placeholderTextColor={MODE==='Light'?colors.dark:colors.grey}
   placeholder='Apple Hospital, Wallington, New York'
   />
 
@@ -155,6 +159,7 @@ const handleNext =()=>{
 
 <View style={[styles.textWrapper,{marginVertical:5}]}>
   <TextInput style={styles.textInput} 
+   placeholderTextColor={MODE==='Light'?colors.dark:colors.grey}
   placeholder='drjoseph@gmail.com'
   />
 
@@ -180,6 +185,7 @@ const handleNext =()=>{
 <MaterialIcon name="calendar-today" size={15} color={colors.icon}   /> 
 
   <TextInput style={styles.textInput} 
+   placeholderTextColor={MODE==='Light'?colors.dark:colors.grey}
   placeholder='18 years'
   />
 
@@ -191,6 +197,7 @@ const handleNext =()=>{
 <MaterialIcon name="wallet" size={15} color={colors.icon}  /> 
 
   <TextInput style={styles.textInput} 
+   placeholderTextColor={MODE==='Light'?colors.dark:colors.grey}
   placeholder='$28'
   />
 
@@ -204,8 +211,8 @@ const handleNext =()=>{
 <View style={styles.card}>
   
 <View style={[globalStyles.rowCenterBetween, {marginHorizontal:10}]}>
-<Text style={styles.infoText}>Service at</Text>
-<Text style={[styles.label, {color:colors.navyBlue}]}>ADD</Text>
+<Text style={styles.infoText}>Services</Text>
+<Text style={[styles.label, {color:colors.navyBlue}]}>EDIT</Text>
 </View>
 
 
@@ -228,7 +235,7 @@ const handleNext =()=>{
   
 <View style={[globalStyles.rowCenterBetween, {marginHorizontal:10}]}>
 <Text style={styles.infoText}>Specifications</Text>
-<Text style={[styles.label, {color:colors.navyBlue}]}>ADD</Text>
+<Text style={[styles.label, {color:colors.navyBlue}]}>EDIT</Text>
 </View>
 
 
@@ -268,17 +275,19 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     height:60
   },
   label:{
     fontWeight:'600',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white,
   },
   h3:{
     fontWeight:'600',
     fontSize:10,
-    marginVertical:3
+    marginVertical:3,
+    color:MODE==='Light'?colors.dark:colors.white,
   },
   infoText:{
     fontSize:12,
@@ -307,7 +316,7 @@ const styles = StyleSheet.create({
   },
   card:{
     display:'flex',
-     backgroundColor:colors.white, 
+     backgroundColor:MODE==='Light'?colors.white:colors.dark, 
      marginTop:10, 
      padding:10, 
      width:width
@@ -344,7 +353,7 @@ flexDirection:'row'
     width:width-40,
     marginVertical:8,
     marginHorizontal:10,
-    backgroundColor:colors.lightSkye,
+    backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark,
     display:'flex',
     flexDirection:'row',
     alignItems:'center',
@@ -354,7 +363,7 @@ flexDirection:'row'
   },
 
   textInput:{
-    color:colors.dark,
+    color:MODE==='Light'?colors.dark:colors.white,
     marginLeft:10,
     fontSize:14,
     width:width-90,
@@ -364,7 +373,7 @@ flexDirection:'row'
   about:{
     display:'flex', 
     width:width-40,
-     backgroundColor:colors.lightSkye, 
+     backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark, 
      borderRadius:10, 
      height:height/4,
      marginHorizontal:10,

@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
@@ -102,7 +102,7 @@ const CardPast =({item}:{item:any})=>{
 
 
 <View style={{marginLeft:15}}>
-      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600', }}>Henry Johnson</Text>
+      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:14, fontWeight:'600', }}>Henry Johnson</Text>
       <Text style={[styles.infoText, {marginBottom:10}]}>Chest Pain</Text>
 
       <Text style={styles.label}>12 June 2020 | 12:00 pm</Text>
@@ -111,7 +111,7 @@ const CardPast =({item}:{item:any})=>{
 
 <View style={styles.row}>
 
-  <View style={[styles.btn, {backgroundColor:colors.lightSkye}]}>
+  <View style={[styles.btn, {backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
 
   <MaterialIcon name="close" size={18} color={colors.primary}  />
   </View>
@@ -136,7 +136,7 @@ const CardPast =({item}:{item:any})=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={styles.header}>
       <View/>
@@ -217,12 +217,13 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     height:60
   },
   label:{
     fontWeight:'600',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white,
   },
  
   infoText:{
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
 
 box:{
   width:width,
-  backgroundColor:colors.white,
+  backgroundColor:MODE==='Light'?colors.white:colors.dark,
   marginBottom:5,
   display:'flex',
   padding:10,

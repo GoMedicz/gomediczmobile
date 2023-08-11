@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
@@ -27,7 +27,7 @@ const height =
 
 type RootStackParamList = {
   AccountProfile: undefined;
-  Profile:undefined; 
+  Profiles:undefined; 
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
@@ -47,7 +47,7 @@ interface item {
 
 
 const handleNext =()=>{
-  navigation.navigate('Profile');
+  navigation.navigate('Profiles');
 }
 
 
@@ -57,7 +57,7 @@ const handleNext =()=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={styles.header}>
    <Text style={styles.label}>Account</Text>
@@ -68,7 +68,7 @@ const handleNext =()=>{
 
 
 
-<View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:colors.white, paddingBottom:20, paddingTop:20}}>
+<View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:MODE==='Light'?colors.white:colors.dark, paddingBottom:20, paddingTop:20}}>
   
 <Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
 
@@ -93,7 +93,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Setup Profile</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
   </View>
 </TouchableOpacity>
 
@@ -102,7 +102,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}   />
   </View>
 </TouchableOpacity>
 
@@ -113,7 +113,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
   </View>
 </TouchableOpacity>
 
@@ -123,7 +123,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
   </View>
 </TouchableOpacity>
 
@@ -134,7 +134,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Policies</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
   </View>
 </TouchableOpacity>
 
@@ -146,7 +146,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Policies</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}   />
   </View>
 </TouchableOpacity>
 
@@ -159,7 +159,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Logout</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.grey}   />
   </View>
 </View>
 
@@ -185,12 +185,13 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     height:60
   },
   label:{
     fontWeight:'600',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white
   },
   h3:{
     fontWeight:'600',
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
   title:{
     fontSize:20,
     fontWeight:'600',
-    color:colors.dark,
+    color:MODE==='Light'?colors.dark:colors.white
 
   },
   card:{
@@ -237,7 +238,7 @@ flexDirection:'row'
   },
 
   box:{
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     width:(width/2)-15,
     padding:10,
     marginVertical:5,
