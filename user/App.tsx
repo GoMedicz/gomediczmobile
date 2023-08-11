@@ -79,20 +79,15 @@ const StackNavigator=()=>{
 
 <Stack.Screen  name='Password'>{(props:any) =><Password {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Faqs'>{(props:any) =><Faqs {...props}  />}</Stack.Screen>
-
  <Stack.Screen  name='Terms'>{(props:any) =><Terms {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Contact'>{(props:any) =><Contact {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Theme'>{(props:any) =><Theme {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Verification'>{(props:any) =><Verification {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
 
 
 <Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
-
-
 <Stack.Screen  name='Welcome'>{(props:any) =><Welcome  {...props}  />}</Stack.Screen>
-
 {/* Place All these screen that doesnt require login here  */}
   <Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>
 
@@ -102,8 +97,6 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Cart'>{(props:any) =><Cart  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='ConfirmOrder'>{(props:any) =><ConfirmOrder  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Payment'>{(props:any) =><Payment  {...props}  />}</Stack.Screen>
-
-
 <Stack.Screen  name='OrderPlaced'>{(props:any) =><OrderPlaced  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Category'>{(props:any) =><Category  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='CategoryDetails'>{(props:any) =><CategoryDetails  {...props}  />}</Stack.Screen>
@@ -118,16 +111,13 @@ const StackNavigator=()=>{
 <Stack.Screen  name='DoctorReviews'>{(props:any) =><DoctorReviews  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Appointment'>{(props:any) =><Appointment  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Feedback'>{(props:any) =><Feedback  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='HospitalDetails'>{(props:any) =><HospitalDetails  {...props}  />}</Stack.Screen>
 
 
 
 <Stack.Screen  name='TestList'>{(props:any) =><TestList  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='LabDetails'>{(props:any) =><LabDetails  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='LabMapView'>{(props:any) =><LabMapView  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='SearchLab'>{(props:any) =><SearchLab  {...props}  />}</Stack.Screen>
 
 
@@ -136,30 +126,20 @@ const StackNavigator=()=>{
 
 
 <Stack.Screen  name='MyAppointment'>{(props:any) =><MyAppointment  {...props}  />}</Stack.Screen>
-
-
 <Stack.Screen  name='ChatDoctor'>{(props:any) =><ChatDoctor  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='MyLabTest'>{(props:any) =><MyLabTest  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='AppointmentDetails'>{(props:any) =><AppointmentDetails  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='Wallet'>{(props:any) =><Wallet  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='SendMoney'>{(props:any) =><SendMoney  {...props}  />}</Stack.Screen>
 
 
 <Stack.Screen  name='ChosePayment'>{(props:any) =><ChosePayment  {...props}  />}</Stack.Screen>
-
-
 <Stack.Screen  name='MyOrder'>{(props:any) =><MyOrder  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='OrderDetails'>{(props:any) =><OrderDetails  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Reminder'>{(props:any) =><Reminder  {...props}  />}</Stack.Screen>
 
 
 <Stack.Screen  name='CreateReminder'>{(props:any) =><CreateReminder  {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='Address'>{(props:any) =><Address {...props}  />}</Stack.Screen>
 <Stack.Screen  name='AddAddress'>{(props:any) =><AddAddress {...props}  />}</Stack.Screen>
 <Stack.Screen  name='SavedItems'>{(props:any) =><SavedItems {...props}  />}</Stack.Screen>
