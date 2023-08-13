@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
@@ -97,7 +97,7 @@ const handleNext =()=>{
       
 
     
-<View style={{position:'absolute', bottom:0, backgroundColor:colors.white}}>
+<View style={{position:'absolute', bottom:0, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
 
 
 <View style={[globalStyles.rowCenterBetween, {padding:15}]}>
@@ -122,7 +122,7 @@ const handleNext =()=>{
 <PrimaryButtonChildren
 
 handleAction={handleNext}
-style={{width:width/2, backgroundColor:colors.lightSkye}}
+style={{width:width/2, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}}
 >
 
 <View style={[globalStyles.rowCenterBetween, { padding:10, width:width/2, justifyContent:'flex-start' }]}>
@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
   label:{
     fontWeight:'600',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white
   },
  
   infoText:{

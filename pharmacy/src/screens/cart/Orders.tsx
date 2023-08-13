@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST, SELLER } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 
@@ -64,7 +64,7 @@ const ItemCategory =({item}:{item:any})=>{
 
 <View style={ {marginLeft:10}}>
 
-    <Text style={{color:colors.dark, fontSize:12, fontWeight:'600', marginBottom:2}}>{item.fullname}</Text>
+    <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:12, fontWeight:'600', marginBottom:2}}>{item.fullname}</Text>
 
 
     <Text style={styles.infoText}>13 June, 11:20 am</Text>
@@ -169,7 +169,7 @@ const ItemCategory =({item}:{item:any})=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={styles.header}>
     <MaterialIcon name="menu" size={14} color={colors.dark}  /> 
@@ -218,12 +218,13 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:10,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     height:50,
   },
   label:{
     fontWeight:'600',
     fontSize:14,
+    color:MODE==='Light'?colors.dark:colors.white,
   },
  
   infoText:{
@@ -355,7 +356,7 @@ content:{
 },
 docBox:{
   width:width,
-  backgroundColor:colors.white,
+  backgroundColor:MODE==='Light'?colors.white:colors.dark,
   marginBottom:5,
   display:'flex',
   padding:10,
@@ -376,7 +377,7 @@ docBox:{
       display:'flex',
       marginBottom:5,
       padding:10,
-      backgroundColor:colors.white,
+      backgroundColor:MODE==='Light'?colors.white:colors.dark,
       
         },
 
@@ -384,13 +385,13 @@ docBox:{
          display:'flex',
          flexDirection:'row',
          justifyContent:'space-between',
-         backgroundColor:colors.white,
+         backgroundColor:MODE==='Light'?colors.white:colors.dark,
          paddingVertical:12,
          paddingHorizontal:50
         },
 
         h4:{
-          color:colors.dark, 
+          color:MODE==='Light'?colors.dark:colors.white, 
           fontSize:10, 
           fontWeight:'600', 
           marginBottom:5

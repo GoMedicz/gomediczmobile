@@ -40,6 +40,10 @@ import RiderMapView from './src/screens/cart/RiderMapView';
 import ChatDelivery from './src/screens/cart/ChatDelivery';
 import AccountProfile from './src/screens/vendor/AcountProfile';
 import StoreProfile from './src/screens/vendor/StoreProfile';
+import Insight from './src/screens/more/Insight';
+import Earnings from './src/screens/more/Earnings';
+import StoreItems from './src/screens/store/StoreItems';
+import EditItem from './src/screens/store/EditItem';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -59,7 +63,26 @@ const StackNavigator=()=>{
  {/* <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
  */}
 
+
+<Stack.Screen  name='OrderDetails'>{(props:any) =><OrderDetails  {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='AccountProfile'>{(props:any) =><AccountProfile {...props}  />}</Stack.Screen>
+
+
 <Stack.Screen  name='Orders'>{(props:any) =><Orders  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='StoreProfile'>{(props:any) =><StoreProfile {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Wallet'>{(props:any) =><Wallet {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='SendMoney'>{(props:any) =><SendMoney {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Insight'>{(props:any) =><Insight {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Earnings'>{(props:any) =><Earnings {...props}  />}</Stack.Screen>
+
+
 
 <Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
 
@@ -80,20 +103,24 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Welcome'>{(props:any) =><Welcome  {...props}  />}</Stack.Screen>
 
-<Stack.Screen  name='OrderDetails'>{(props:any) =><OrderDetails  {...props}  />}</Stack.Screen>
 
 <Stack.Screen  name='RiderMapView'>{(props:any) =><RiderMapView {...props}  />}</Stack.Screen>
 
 <Stack.Screen  name='ChatDelivery'>{(props:any) =><ChatDelivery {...props}  />}</Stack.Screen>
 
 
-<Stack.Screen  name='AccountProfile'>{(props:any) =><AccountProfile {...props}  />}</Stack.Screen>
 
-<Stack.Screen  name='Wallet'>{(props:any) =><Wallet {...props}  />}</Stack.Screen>
 
-<Stack.Screen  name='StoreProfile'>{(props:any) =><StoreProfile {...props}  />}</Stack.Screen>
 
-<Stack.Screen  name='SendMoney'>{(props:any) =><SendMoney {...props}  />}</Stack.Screen>
+
+
+
+
+
+<Stack.Screen  name='StoreItems'>{(props:any) =><StoreItems {...props}  />}</Stack.Screen>
+
+
+<Stack.Screen  name='EditItem'>{(props:any) =><EditItem {...props}  />}</Stack.Screen>
 
 </Stack.Navigator>
 

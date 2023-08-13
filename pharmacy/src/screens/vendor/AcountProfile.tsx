@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
@@ -57,7 +57,7 @@ const handleNext =()=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={styles.header}>
     <MaterialIcon name="close" size={18} color={colors.primary}  />
@@ -68,7 +68,7 @@ const handleNext =()=>{
 <ScrollView>
 
 
-<View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:colors.white, paddingBottom:5}}>
+<View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:MODE==='Light'?colors.white:colors.dark, paddingBottom:5}}>
   
 <Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
 
@@ -93,7 +93,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </TouchableOpacity>
 
@@ -101,7 +101,7 @@ const handleNext =()=>{
   <Text style={styles.label}>Store Profile</Text>
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10}]}>
   <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -112,7 +112,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Quick Payments</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -122,7 +122,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>See the progress</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey1Opacity}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -133,7 +133,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Sell Overview</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -145,7 +145,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Manage Items</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -157,7 +157,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -167,7 +167,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -177,7 +177,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -190,7 +190,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -203,7 +203,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Doctor Appointments</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -214,7 +214,7 @@ const handleNext =()=>{
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
     <Text style={[styles.infoText, {fontSize:10} ]}>Logout</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={colors.grey}  />
+    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
   </View>
 </View>
 
@@ -224,10 +224,10 @@ const handleNext =()=>{
 
 </ScrollView>
 
-<View style={{display:'flex', padding:20, backgroundColor:colors.white, flexDirection:'row', justifyContent:'space-between'}}>
+<View style={{display:'flex', padding:20, backgroundColor:MODE==='Light'?colors.white:colors.dark, flexDirection:'row', justifyContent:'space-between'}}>
   <Text style={[styles.label, {color:colors.primary, fontSize:15} ]}>Developed by:</Text>
 
-  <Text>GoMedicz logo</Text>
+  <Text style={{color:colors.grey}}>GoMedicz logo</Text>
 </View>
     </View>
   )
@@ -245,12 +245,13 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     height:50
   },
   label:{
     fontWeight:'600',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white,
   },
   h3:{
     fontWeight:'600',
@@ -279,12 +280,12 @@ const styles = StyleSheet.create({
   title:{
     fontSize:20,
     fontWeight:'600',
-    color:colors.dark,
+    color:MODE==='Light'?colors.dark:colors.white,
 
   },
   card:{
     padding:10,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     marginVertical:5
 
   },
@@ -297,7 +298,7 @@ flexDirection:'row'
   },
 
   box:{
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     width:(width/2)-15,
     padding:10,
     marginVertical:5,

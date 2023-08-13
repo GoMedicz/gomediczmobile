@@ -265,7 +265,7 @@ flexDirection:'row'
   about:{
     display:'flex', 
     width:width-20,
-     backgroundColor:colors.white, 
+     backgroundColor:MODE==='Light'?colors.white:colors.dark, 
      padding:10
     
     }

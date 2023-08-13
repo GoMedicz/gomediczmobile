@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl } from '../../../components/includes';
+import { ImagesUrl, MODE } from '../../../components/includes';
 import { globalStyles } from '../../../components/globalStyle';
 import ModalDialog from '../../../components/modal';
 import ShoppingCart from '../../../components/include/ShoppingCart';
@@ -25,7 +25,7 @@ const height =
 
 
 type RootStackParamList = {
-  ChosePayment: undefined;
+  Insight: undefined;
   SendMoney:undefined; 
   Offers:{
      code:string;
@@ -52,7 +52,7 @@ const handleCart =()=>{
 }
 
 const handleNext =()=>{
-  navigation.navigate('ChosePayment');
+  navigation.navigate('Insight');
 }
 
 
@@ -88,57 +88,76 @@ const handleNext =()=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
+  return (<View style={ {flex:1,backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={14} color={MODE==='Light'?colors.dark:colors.white}  /> 
     <Text style={styles.label}>Send to Bank</Text>
-
+<View/>
     </View>
 
 <ScrollView>
 
-    <View style={{backgroundColor:colors.white,  paddingHorizontal:10, paddingTop:20, paddingBottom:35}}>
+    <View style={{backgroundColor:MODE==='Light'?colors.white:colors.dark,  paddingHorizontal:10, paddingVertical:15}}>
     
   
 <Text style={styles.infoText}>AVAILABLE BALANCE</Text>
-      <Text style={{color:colors.dark, fontSize:25, fontWeight:'700'}}>$ 520.50</Text>
+      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:25, fontWeight:'700'}}>$ 520.50</Text>
 </View>
 
 
 
 <View style={styles.card}>
-  <Text style={[styles.infoText, {fontSize:12, marginBottom:25}]}>BANK INFO</Text>
+  <Text style={[styles.infoText, {fontSize:12, marginBottom:10}]}>BANK INFO</Text>
 
 
 <View style={[styles.inputWrapper]}>
   <Text style={[styles.label, {color:colors.grey}]}>Account Holder Name</Text>
-  <TextInput placeholder='Samantha Smith' style={styles.textInput} />
+  <TextInput placeholder='Samantha Smith' style={styles.textInput}
+  
+  placeholderTextColor={MODE==='Light'?colors.grey:colors.grey2}
+  
+  />
   </View>
 
 
   <View style={styles.inputWrapper}>
   <Text style={[styles.label, {color:colors.grey}]}>Bank Name</Text>
-  <TextInput placeholder='Samantha Smith' style={styles.textInput} />
+  <TextInput placeholder='Samantha Smith' style={styles.textInput} 
+  
+  placeholderTextColor={MODE==='Light'?colors.grey:colors.grey2}
+  
+  />
   </View>
 
 
   <View style={styles.inputWrapper}>
   <Text style={[styles.label, {color:colors.grey}]}>Branch Code</Text>
-  <TextInput placeholder='Samantha Smith' style={styles.textInput} />
+  <TextInput placeholder='Samantha Smith' style={styles.textInput} 
+  
+  
+  placeholderTextColor={MODE==='Light'?colors.grey:colors.grey2}
+  
+  />
   </View>
 
 
   <View style={styles.inputWrapper}>
   <Text style={[styles.label, {color:colors.grey}]}>Account Number</Text>
-  <TextInput placeholder='Samantha Smith' style={styles.textInput} />
+  <TextInput placeholder='Samantha Smith' style={styles.textInput}
+  
+  placeholderTextColor={MODE==='Light'?colors.grey:colors.grey2}
+  />
   </View>
 
 
 
   <View style={styles.inputWrapper}>
   <Text style={[styles.label, {color:colors.grey}]}>Amount To Transfer</Text>
-  <TextInput placeholder='Samantha Smith' style={styles.textInput} />
+  <TextInput placeholder='Samantha Smith' style={styles.textInput} 
+  
+  placeholderTextColor={MODE==='Light'?colors.grey:colors.grey2}
+  />
   </View>
 
 
@@ -173,12 +192,13 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
-    height:60
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
+    height:50
   },
   label:{
     fontWeight:'600',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white,
   },
  
   infoText:{
@@ -280,9 +300,11 @@ container:{
   },
 
 card:{
-  backgroundColor:colors.white,
-  padding:20,
-  marginVertical:5
+  backgroundColor:MODE==='Light'?colors.white:colors.dark,
+  paddingHorizontal:20,
+  paddingVertical:10,
+  marginVertical:5,
+  
 },
 
 inputWrapper:{
@@ -291,11 +313,11 @@ inputWrapper:{
 },
 textInput:{
   height:50,
-  backgroundColor:colors.lightSkye,
+  backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark,
   padding:10,
-  marginVertical:10,
+  marginVertical:5,
   borderRadius:5,
-  color:colors.grey,
+  color:MODE==='Light'?colors.grey:colors.white,
   fontWeight:'600'
 }
 })

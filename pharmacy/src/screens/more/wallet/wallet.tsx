@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl } from '../../../components/includes';
+import { ImagesUrl, MODE } from '../../../components/includes';
 import { globalStyles } from '../../../components/globalStyle';
 import ModalDialog from '../../../components/modal';
 import ShoppingCart from '../../../components/include/ShoppingCart';
@@ -87,15 +87,15 @@ const handleNext =()=>{
 
 
     return (<>
-      <View style={{backgroundColor:colors.white,  paddingHorizontal:10, paddingTop:10, paddingBottom:35}}>
+      <View style={{backgroundColor:MODE==='Light'?colors.white:colors.dark,  paddingHorizontal:10, paddingTop:10, paddingBottom:35}}>
     
   
       <Text style={styles.infoText}>AVAILABLE BALANCE</Text>
-            <Text style={{color:colors.dark, fontSize:25, fontWeight:'700'}}>$ 520.50</Text>
+            <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:25, fontWeight:'700'}}>$ 520.50</Text>
       </View>
 
-<View style={{display:'flex', flexDirection:'row', height:40, backgroundColor:colors.lightSkye, alignItems:'center', paddingHorizontal:10}}>
-  <Text style={[styles.infoText, {fontSize:12, fontWeight:'500', color:colors.dark}]}>Recent</Text>
+<View style={{display:'flex', flexDirection:'row', height:40, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark, alignItems:'center', paddingHorizontal:10}}>
+  <Text style={[styles.infoText, {fontSize:12, fontWeight:'500', color:MODE==='Light'?colors.dark:colors.grey}]}>Recent</Text>
 
  
 </View>
@@ -112,10 +112,10 @@ const handleNext =()=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="menu" size={18} color={colors.dark}  />  
+    <MaterialIcon name="menu" size={18} color={MODE==='Light'?colors.dark:colors.white}  />  
     <Text style={styles.label}>Wallet</Text>
 <View />
     </View>
@@ -158,12 +158,13 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     height:60
   },
   label:{
     fontWeight:'600',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white
   },
  
   infoText:{
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
 
 box:{
   width:width,
-  backgroundColor:colors.white,
+  backgroundColor:MODE==='Light'?colors.white:colors.dark,
   marginBottom:5,
   display:'flex',
   justifyContent:'space-between',

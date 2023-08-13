@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
@@ -89,12 +89,13 @@ const CardCategory =({item}:{item:any})=>{
    // FetchContent()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={14} color={MODE==='Light'?colors.dark:colors.white}  /> 
     <Text style={styles.label}>Order Num 221451</Text>
-    <View />
+   
+    <MaterialIcon name="more-vert" size={14} color={MODE==='Light'?colors.primary:colors.navyBlue}  />
     </View>
 
 
@@ -123,7 +124,7 @@ const CardCategory =({item}:{item:any})=>{
 
 
 
-    <View style={{ marginVertical:5, maxHeight:(height/3)+25, backgroundColor:colors.white  }}>
+    <View style={{ marginVertical:5, maxHeight:(height/3)+25, backgroundColor:MODE==='Light'?colors.white:colors.dark  }}>
       <Text style={[styles.infoText, {marginHorizontal:20, marginTop:10}]}> Ordered Items</Text>
 
       <ScrollView
@@ -145,12 +146,12 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 </View>
 
-<View style={[globalStyles.rowCenterBetween, {paddingHorizontal:10, marginBottom:0, backgroundColor:colors.white, height:50, width:width}]}>
+<View style={[globalStyles.rowCenterBetween, {paddingHorizontal:10, marginBottom:0, backgroundColor:MODE==='Light'?colors.white:colors.dark, height:50, width:width}]}>
 
   <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
 <Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />
 
-<Text style={{fontSize:12, fontWeight:'700', marginLeft:30}}>Prescription Uploaded</Text>
+<Text style={{fontSize:12, fontWeight:'700', marginLeft:30, color:MODE==='Light'?colors.dark:colors.white}}>Prescription Uploaded</Text>
 </View>
 
 <MaterialIcon name="visibility" size={18} color={colors.icon}  /> 
@@ -186,7 +187,12 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 </ScrollView>
 
-<View style={{position:'absolute', bottom:0, backgroundColor:colors.white}}>
+
+
+
+
+
+<View style={{position:'absolute', bottom:0, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
 
 
 <View style={[globalStyles.rowCenterBetween, {padding:10}]}>
@@ -231,12 +237,13 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:20,
-    backgroundColor:colors.white,
+    backgroundColor:MODE==='Light'?colors.white:colors.dark,
     height:50
   },
   label:{
     fontWeight:'600',
     fontSize:12,
+    color:MODE==='Light'?colors.dark:colors.white,
   },
   infoWrapper:{
     width:width,
@@ -257,7 +264,7 @@ card:{
   flexDirection:'row',
   alignItems:'center',
   paddingHorizontal:20,
-  backgroundColor:colors.white,
+  backgroundColor:MODE==='Light'?colors.white:colors.dark
 },
 cardImage:{
 height:40,
@@ -266,7 +273,7 @@ resizeMode:'cover',
 },
 container:{
 width:width,
-backgroundColor:colors.white,
+backgroundColor:MODE==='Light'?colors.white:colors.dark,
 marginVertical:5,
 },
 btnOk:{
@@ -341,7 +348,7 @@ modalImage:{
     justifyContent:'space-between', 
     alignItems:'center',
     padding:10,
-    backgroundColor:colors.white
+    backgroundColor:MODE==='Light'?colors.white:colors.dark
   },
   circle:{
     height:18,
