@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/GERALDINEPERSONALUSE-Italic.ttf",
+      "sha1": "b98ba540ed91b54954e03edd8af35132b72c3d2f"
+    },
+    {
+      "path": "src/assets/fonts/GrizzlyITCbyBT-Regular.ttf",
+      "sha1": "c02e4b9af7e3747e2d04300ccc41c72ece874b22"
+    },
+    {
+      "path": "src/assets/fonts/Montserrat-Bold.ttf",
+      "sha1": "bf257f6f91f6522eccea6d4f28d57bb118c98729"
+    },
+    {
+      "path": "src/assets/fonts/Mrs.Monster.ttf",
+      "sha1": "75337a04774af92a55c57bbac58a17b884c259b1"
+    }
+  ]
+}
