@@ -196,7 +196,6 @@ const handleNext =()=>{
 </View>
 
 
-
 </ScrollView>
 
 <View>
