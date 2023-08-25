@@ -2,7 +2,7 @@ import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable } from '
 import React, { useEffect, useState } from 'react'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 import colors from '../assets/colors'
-import { ImagesUrl } from '../components/includes'
+import { ImagesUrl } from './includes'
 import { useNavigation, ParamListBase } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 

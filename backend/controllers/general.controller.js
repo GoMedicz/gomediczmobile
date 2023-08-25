@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const generateAccessToken=(username)=> {
-    return jwt.sign({username}, process.env.TOKEN_SECRET, { expiresIn:  '9h' });
+    return jwt.sign({username}, process.env.TOKEN_SECRET, { expiresIn:  '20h' });
   }
   
 
@@ -40,7 +40,7 @@ const generateAccessToken=(username)=> {
 
   const getJWTToken =(req, res)=>{
 var token = generateAccessToken(req.body.username);
-return res.send({type:'success',  jwt:token, expire:'9 hours'})  
+return res.send({type:'success',  jwt:token, expire:'20 hours'})  
 }
 
 

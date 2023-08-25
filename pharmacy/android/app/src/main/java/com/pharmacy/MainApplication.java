@@ -1,4 +1,4 @@
-package com.user;
+package com.pharmacy;
 
 import android.app.Application;
 import com.facebook.react.PackageList;

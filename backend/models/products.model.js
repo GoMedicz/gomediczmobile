@@ -8,10 +8,8 @@ const getProductModel = (sequelize, { DataTypes }) => {
           autoIncrement: true,
           allowNull: false,
           },
-          
           code: {
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
+            type: DataTypes.STRING,
             allowNull: false
           },
           pharmacy_code: {
@@ -54,7 +52,6 @@ const getProductModel = (sequelize, { DataTypes }) => {
           },
           price_list: {
             type: DataTypes.JSON,
-            defaultValue: "[]",
             allowNull: true
           }
     },

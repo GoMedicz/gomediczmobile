@@ -18,7 +18,7 @@ var todayTime = new Date().toISOString().slice(0,19)
           image_url: data.image_url,
           category_name: data.category_name
 
-        }).then(res => {
+        }).then(result => {
           return res.send({type:'success', message:'Category successfully added'})
         }).catch((error) => {
          return res.send({type:'error', message:JSON.stringify(error, undefined, 2)})
@@ -30,6 +30,24 @@ var todayTime = new Date().toISOString().slice(0,19)
 
 
 
+
+const getCategory = (req, res, next) => {
+ 
+sequelize.sync().then(() => {
+     models.Category.findAll({
+      where: {
+      pharmacy_code: req.params.pharmacy_code
+  }
+  }).then(result => {
+        return res.send({type:'success', data:result})
+      }).catch((error) => {
+       return res.send({type:'error', message:JSON.stringify(error, undefined, 2)})
+      });
+    }).catch((error) => {
+      return res.send({type:'error', message:JSON.stringify(error, undefined, 2)})
+    }); 
+};
+
 const greetings = (req, res, next) => {
   
        return res.send({type:'success', message:'Welcome to backend'})
@@ -37,6 +55,7 @@ const greetings = (req, res, next) => {
 
 module.exports = {
   addNewCategory,
+  getCategory,
   greetings
 
 };

@@ -18,12 +18,6 @@ import SignIn from './src/screens/onboarding/signin';
 import Register from './src/screens/onboarding/register';
 import Verification from './src/screens/onboarding/verification';
 import BottomTabs from './src/components/bottomTabs';
-import DoctorsList from './src/screens/doctors/doctorsList';
-import DoctorsDetails from './src/screens/doctors/doctorsDetails';
-import DoctorReviews from './src/screens/doctors/DoctorReviews';
-import Feedback from './src/screens/doctors/feedback';
-import MyAppointment from './src/screens/more/appointment/MyAppointment';
-import ChatDoctor from './src/screens/more/appointment/ChatDoctor';
 import AppointmentDetails from './src/screens/doctors/AppointmentDetails';
 import Wallet from './src/screens/more/wallet/wallet';
 import SendMoney from './src/screens/more/wallet/sendMoney';
@@ -44,6 +38,7 @@ import Insight from './src/screens/more/Insight';
 import Earnings from './src/screens/more/Earnings';
 import StoreItems from './src/screens/store/StoreItems';
 import EditItem from './src/screens/store/EditItem';
+import AddItem from './src/screens/store/AddItem';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -63,6 +58,10 @@ const StackNavigator=()=>{
  {/* <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
  */}
 
+
+<Stack.Screen  name='AddItem'>{(props:any) =><AddItem {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='EditItem'>{(props:any) =><EditItem {...props}  />}</Stack.Screen>
 
 <Stack.Screen  name='OrderDetails'>{(props:any) =><OrderDetails  {...props}  />}</Stack.Screen>
 
@@ -120,7 +119,6 @@ const StackNavigator=()=>{
 <Stack.Screen  name='StoreItems'>{(props:any) =><StoreItems {...props}  />}</Stack.Screen>
 
 
-<Stack.Screen  name='EditItem'>{(props:any) =><EditItem {...props}  />}</Stack.Screen>
 
 </Stack.Navigator>
 

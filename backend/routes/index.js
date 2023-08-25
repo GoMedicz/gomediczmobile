@@ -8,6 +8,9 @@ const General = require('../controllers/general.controller');
 
 //Category controller
 router.post('/api/pharmacy/category/add_new', General.AuthenticateToken, categoryController.addNewCategory);
+
+router.get('/api/pharmacy/display_category/:pharmacy_code', General.AuthenticateToken, categoryController.getCategory);
+
 router.get('/api', categoryController.greetings);
 
 
