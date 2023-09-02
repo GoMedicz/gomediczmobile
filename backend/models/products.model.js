@@ -23,7 +23,7 @@ const getProductModel = (sequelize, { DataTypes }) => {
           },
 
           image_url: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: true
           },
           product_id: {
@@ -48,12 +48,17 @@ const getProductModel = (sequelize, { DataTypes }) => {
           },
           require_prescription: {
             type: DataTypes.BOOLEAN,
-            allowNull: false
+            defaultValue:false,
+            allowNull: true
           },
           price_list: {
             type: DataTypes.JSON,
             allowNull: true
-          }
+          },
+          status: {
+            type: DataTypes.STRING,
+            allowNull: true
+          },
     },
    {
     indexes:[

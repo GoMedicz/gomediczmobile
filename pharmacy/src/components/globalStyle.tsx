@@ -51,8 +51,17 @@ export  const globalStyles = StyleSheet.create({
         justifyContent:'space-between',
         flexDirection:'row',
         alignItems:'center',
-        paddingHorizontal:20,
+        paddingHorizontal:10,
         backgroundColor:MODE==='Light'?colors.white:colors.dark,
         height:60
       },
+      px:{
+        height:25,
+        width:25,
+        resizeMode:'cover',
+          },
+          error:{
+            borderWidth:1,
+            borderColor:colors.red,
+          },
     })

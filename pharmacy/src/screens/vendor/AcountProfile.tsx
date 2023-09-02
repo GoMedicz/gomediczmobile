@@ -1,19 +1,16 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl, MODE } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import axios from 'axios';
+import { ImagesUrl,  PHARMACY_CODE, ServerUrl, config } from '../../components/includes';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
+
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -28,57 +25,71 @@ const height =
 type RootStackParamList = {
   AccountProfile: undefined;
   StoreProfile:undefined; 
+  StoreItems:undefined;
+  Orders:undefined;
+  Theme:undefined;
+  Wallet:undefined;
+  Insight:undefined;
+  Earnings:undefined;
+  Language:undefined;
+  Faqs:undefined;
+  Terms:undefined;
+  Contact:undefined;
+
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
 
  const AccountProfile =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
-  const [refreshing, setRefreshing] = useState(false)
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE);
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
+  const [profile, setProfile] = useState({} as any)
+
+const fetchStore = async()=>{
+  let url = ServerUrl+'/api/pharmacy/display_store/'+PHARMACY_CODE
+  try{
+ await axios.get(url, config).then(response=>{
+  
+  if(response.data.type==='success'){
+    setProfile(response.data.data)
+    }else{
+      setProfile([])
+    }
+  }) 
+}catch(e){
+  console.log('error:',e)
 }
-
-
-
-const handleNext =()=>{
-  navigation.navigate('StoreProfile');
 }
-
 
     
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+useEffect(()=>{
+  fetchStore()
+}, [])
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
-    <View style={styles.header}>
+    <View style={dynamicStyle.header}>
     <MaterialIcon name="close" size={18} color={colors.primary}  />
-   <Text style={styles.label}>Account</Text>
+   <Text style={dynamicStyle.label}>Account</Text>
 <View/>
     </View>
 
 <ScrollView>
 
 
-<View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:MODE==='Light'?colors.white:colors.dark, paddingBottom:5}}>
+<View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:MODE==='Light'?colors.white:colors.dark, paddingBottom:10}}>
   
 <Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
 
 <View style={{marginLeft:5}}>
 
 <View style={{width:(width/2)-20}}>
-  <Text style={styles.title}>Dr. Joseph Williamson</Text>
+  <Text style={dynamicStyle.title}>{profile&&profile.store_name}</Text>
   </View>
 
-  <Text style={[styles.infoText, { marginTop:15}]}>+1 987 654 3210</Text>
+  <Text style={[styles.infoText, { marginTop:15, letterSpacing:2}]}>{profile&&profile.telephone}</Text>
 </View>
 </View>
 
@@ -88,135 +99,138 @@ const handleNext =()=>{
 <View style={{ marginHorizontal:10, marginVertical:5, display:'flex', flexDirection:'row', flexWrap:'wrap', justifyContent:'space-between'}}>
 
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>My Orders</Text>
+<TouchableOpacity onPress={()=>navigation.navigate('Orders')} activeOpacity={0.9} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>My Orders</Text>
 
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
+    <Text style={[styles.infoText, {fontSize:10} ]}>List of Orders</Text>
+
+<MaterialIcon name="article" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} /> 
   </View>
 </TouchableOpacity>
 
-<View style={styles.box}>
-  <Text style={styles.label}>Store Profile</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10}]}>
+
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('StoreProfile')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Store Profile</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
   <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+    
+<MaterialIcon name="store" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
 
-<View style={styles.box}>
-  <Text style={styles.label}>Wallet</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Quick Payments</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Wallet')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Wallet</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Payments</Text>
+    
+<MaterialIcon name="account-balance-wallet" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
-<View style={styles.box}>
-  <Text style={styles.label}>Insight</Text>
 
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>See the progress</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Insight')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Insight</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>See the progress</Text>
+    
+<MaterialIcon name="insert-chart" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
-
-<View style={styles.box}>
-  <Text style={styles.label}>Earnings</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Sell Overview</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Earnings')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Earnings</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Sell Overview</Text>
+    
+<MaterialIcon name="monetization-on" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
 
-
-<View style={styles.box}>
-  <Text style={styles.label}>My Items</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Manage Items</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('StoreItems')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>My Items</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Manage Items</Text>
+    
+<MaterialIcon name="add-box" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
 
 
-<View style={styles.box}>
-  <Text style={styles.label}>Change Language</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Language')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Change Language</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
+    
+<MaterialIcon name="language" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
-<View style={styles.box}>
-  <Text style={styles.label}>Change Theme</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Theme')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Change Theme</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
+    
+<MaterialIcon name="palette" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
-<View style={styles.box}>
-  <Text style={styles.label}>T&C</Text>
 
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Terms')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>T&C</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
+    
+<MaterialIcon name="article" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
 
 
 
-<View style={styles.box}>
-  <Text style={styles.label}>Contact Us</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Contact')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Contact Us</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
+    
+<MaterialIcon name="mail" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
 
-
-
-<View style={styles.box}>
-  <Text style={styles.label}>FAQs</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Doctor Appointments</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Faqs')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>FAQs</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Answer</Text>
+    
+<MaterialIcon name="feedback" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
 
 
 
-<View style={styles.box}>
-  <Text style={styles.label}>Logout</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Logout</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.white}  />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('StoreItems')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Logout</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>See you soon</Text>
+    
+<MaterialIcon name="logout" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
+
+
 
 </View>
 
@@ -225,7 +239,7 @@ const handleNext =()=>{
 </ScrollView>
 
 <View style={{display:'flex', padding:20, backgroundColor:MODE==='Light'?colors.white:colors.dark, flexDirection:'row', justifyContent:'space-between'}}>
-  <Text style={[styles.label, {color:colors.primary, fontSize:15} ]}>Developed by:</Text>
+  <Text style={[dynamicStyle.label, {color:colors.primary, fontSize:15} ]}>Developed by:</Text>
 
   <Text style={{color:colors.grey}}>GoMedicz logo</Text>
 </View>
@@ -238,26 +252,6 @@ export default AccountProfile
 
 const styles = StyleSheet.create({
 
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    height:50
-  },
-  label:{
-    fontWeight:'600',
-    fontSize:12,
-    color:MODE==='Light'?colors.dark:colors.white,
-  },
-  h3:{
-    fontWeight:'600',
-    fontSize:10,
-    marginVertical:3
-  },
   infoText:{
     fontSize:12,
     color:'#9E9E9E',
@@ -266,43 +260,10 @@ const styles = StyleSheet.create({
   },
 
   profile:{
-    width:110,
+    width:150,
     height:110,
     resizeMode:'contain'
   },
 
-  row:{
-    display:'flex',
-    flexDirection:'row',
-    padding:10,
-    justifyContent:'space-between'
-  },
-  title:{
-    fontSize:20,
-    fontWeight:'600',
-    color:MODE==='Light'?colors.dark:colors.white,
 
-  },
-  card:{
-    padding:10,
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    marginVertical:5
-
-  },
-  hospital:{
-paddingVertical:10,
-display:'flex',
-justifyContent:'space-between',
-alignItems:'center',
-flexDirection:'row'
-  },
-
-  box:{
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    width:(width/2)-15,
-    padding:10,
-    marginVertical:5,
-    borderRadius:5
-
-  }
 })

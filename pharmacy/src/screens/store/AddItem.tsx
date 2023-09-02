@@ -7,11 +7,13 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
 import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { ImagesUrl, MODE, PHARMACY_CODE, STAFF_CODE, ServerUrl, config } from '../../components/includes';
+import { ImagesUrl,  PHARMACY_CODE, STAFF_CODE, ServerUrl, config } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import { PrimaryButton } from '../../components/include/button';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Loader from '../../components/loader';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 
 const {width} = Dimensions.get('screen');
@@ -33,19 +35,27 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AddItem'>;
 
  const AddItem =({ route, navigation }:Props)=> {
 
+  const MODE = useZustandStore(store => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
   const [loading, setLoading] = useState(false)
+
 const Initials ={
   code: 'p'+Math.random().toString(36).substring(2, 9),
   pharmacy_code:PHARMACY_CODE,
   staff_code: STAFF_CODE,
   image_url: '',
+  image_file:'',
   product_id: '',
   product_name:'',
   category_code: '',
   subcategory_code: '',
   description: '',
   require_prescription: false,
+  price:'',
+  qty:''
 }
+
+const [items, setItems] = useState([] as any);
 
 const [modalType, setModalType] = useState('load')
 const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -82,6 +92,9 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
   }
   const fetchCategory = async()=>{
     let url = ServerUrl+'/api/pharmacy/display_category/'+PHARMACY_CODE
+    try{
+
+    
    await axios.get(url, config).then(response=>{
       if(response.data.type==='success'){
         setCategory(response.data.data)
@@ -89,33 +102,36 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
         setCategory([])
       }
     }) 
+  }catch(e){
+    console.log('error:',e)
+  }
   }
 
 
 
- const handleCameraLaunch = () => {
+ const handleCameraLaunch = async() => {
     const options:any = {
       mediaType: 'photo',
       includeBase64: false,
       maxHeight: 2000,
       maxWidth: 2000,
     };
-  
-    launchCamera(options, response => {
+    
+    await launchCamera(options, response => {
       if (response.didCancel) {
         console.log('User cancelled camera');
       } else if (response.errorCode) {
-        console.log('Camera Error: ', response.errorMessage);
+        console.log('Camera Error: ', response);
       } else {
-        /* let imageUri = response.uri || response.assets?.[0]?.uri;
-        setSelectedImage(imageUri); */
-        console.log(response);
+        let imageUri =  response.assets?.[0]?.uri;
+        console.log(imageUri);
       }
     });
+
   }
 
 
-  const openImagePicker = () => {
+  const openImagePicker = async() => {
     const options:any = {
       mediaType: 'photo',
       includeBase64: false,
@@ -123,17 +139,20 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
       maxWidth: 2000,
     };
 
-    launchImageLibrary(options, (response) => {
+   await launchImageLibrary(options, (response) => {
       if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorMessage) {
-        console.log('Image picker error: ', response.errorMessage);
+       // console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+       // console.log('Image picker error: ', response.errorMessage);
       } else {
-       // let imageUri = response.assets || response.assets?.[0]?.uri;
-        //setSelectedImage(imageUri);
-        console.log(response)
+        let imageUri:any =  response.assets?.[0]?.uri;
+        let imageFile:any =  response.assets?.[0];
+
+        setDrugs({...drugs, image_url:imageUri, image_file:imageFile})
+
       }
     });
+
   };
 
 const list = {
@@ -165,18 +184,11 @@ if(quantity.length!==1){
  }
 
 
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    {label:'All', value:'All'},
-    {label:'Completed', value:'Completed'},
-    {label:'Canceled', value:'Canceled'},
-    {label:'Pending', value:'Pending'},
-    {label:'Dispatch', value:'Dispatch'},
-  ]); 
-
-
-
  const handleChangeQty =(name:string, code:string, text:string)=>{
+
+  if(name==='price'){
+    text = text.replace(/[^0-9]/g, "").substring(0, 10)
+  }
   
   const newQuantity = quantity.map((data:any)=>{
       if(data.code === code){
@@ -187,11 +199,12 @@ if(quantity.length!==1){
           return data;
   })
   setQuantity(newQuantity)
+  setErrors({...errors, [name]:''})
 }
 
 
-const handleNext =()=>{
-  navigation.navigate('StoreItems');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 
@@ -218,6 +231,18 @@ const handleNext =()=>{
     }
 
       
+    const newQuantity = quantity.map((data:any)=>{
+      if(data.price===''){
+        error.price= 'Please enter price';
+        formIsValid = false;
+          };
+          if(data.qty===''){
+            error.qty= 'Please enter quantity';
+            formIsValid = false;
+              };
+  })
+
+
     if(!formIsValid){
       setErrors(error) 
       }
@@ -229,13 +254,14 @@ const handleNext =()=>{
       
       const fd = new FormData();
       Object.entries(drugs).forEach(([key, value]) => {
-              fd.append(key, String(value));
+              fd.append(key, value);
           });
       fd.append('price_list',  JSON.stringify(quantity, null, 2))
 
       let url = ServerUrl+'/api/pharmacy/product/add_new';
          axios.post(url, fd, config)
          .then(response =>{
+          console.log(response.data)
            if(response.data.type === 'success'){
             //setLoading(false)
            
@@ -252,7 +278,9 @@ const handleNext =()=>{
                 // setErrors({...errors, errorMessage:error.message})
                  setLoading(false)
                  }).finally(()=>{
-                 setDrugs(Initials)
+                /*  setDrugs({...Initials,
+                code:'p'+Math.random().toString(36).substring(2, 9)})
+                 GenerateRow() */
                  })
                 }
     }
@@ -266,9 +294,9 @@ const handleNext =()=>{
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
-    <View style={globalStyles.header}>
-    <MaterialIcon name="arrow-back-ios" size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
-   <Text style={styles.label}>Add Item</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
+   <Text style={dynamicStyle.label}>Add Item</Text>
 
     <View />
     </View>
@@ -285,30 +313,34 @@ showsVerticalScrollIndicator={false}
 
 
 
-<View style={styles.imageWrapper}>
+<View style={[styles.imageWrapper, {
+     backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
   
-<Image source={{ uri:ImagesUrl+"/no.png"}} style={styles.profile} />
+<Image source={{ uri:drugs.image_url?drugs.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 
-<View style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
+<TouchableOpacity onPress={openImagePicker} style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
 
 <View style={styles.circle}>
 <MaterialIcon name="photo-camera" size={14} color={MODE==='Light'?colors.white:colors.dark}  /> 
 </View>
+<View >
+<Text style={[dynamicStyle.label, { color:colors.primary, fontWeight:'600'}]}>Change Image</Text>
+</View>
 
-<Pressable onPress={openImagePicker}>
-<Text style={[styles.label, { color:colors.primary, fontWeight:'600'}]}>Change Image</Text>
-</Pressable>
+</TouchableOpacity>
 
 </View>
 
-</View>
 
+<View style={[styles.card, {paddingTop:20, 
+     backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+<Text style={[dynamicStyle.label, {paddingVertical:5, fontWeight:'500'}]}>Product ID</Text>
+<View style={[styles.textWrapper, {
+    backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}, errors.product_id?styles.error:[]]}> 
 
-<View style={[styles.card, {paddingTop:20}]}>
-<Text style={[styles.infoText, {paddingVertical:5}]}>Product ID</Text>
-<View style={[styles.textWrapper, errors.product_id?styles.error:[]]}> 
-  <TextInput style={styles.textInput} 
+  <TextInput style={[styles.textInput, {
+    color:MODE==='Light'?colors.dark:colors.white}]}  
   placeholderTextColor={colors.grey}
   placeholder='e.g 1234'
   value={drugs.product_id}
@@ -321,11 +353,12 @@ showsVerticalScrollIndicator={false}
 </View>
 
 
+<Text style={[dynamicStyle.label, {paddingVertical:5, fontWeight:'500'}]}>Product Name</Text>
 
-<Text style={[styles.infoText, {paddingVertical:5}]}>Product Name</Text>
-
-<View style={[styles.textWrapper, errors.product_name?styles.error:[]]}>
-  <TextInput style={styles.textInput} 
+<View style={[styles.textWrapper, {
+    backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}, errors.product_name?styles.error:[]]}>
+  <TextInput style={[styles.textInput, {
+    color:MODE==='Light'?colors.dark:colors.white}]} 
   placeholderTextColor={colors.grey}
   placeholder='e.g paracetamol'
 
@@ -343,8 +376,9 @@ showsVerticalScrollIndicator={false}
 
 
 
-<View style={[styles.card, {marginVertical:5}]}>
-<Text style={[styles.infoText, {paddingVertical:5}]}>Item Category</Text>
+<View style={[styles.card, {marginVertical:5, 
+     backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+<Text style={[dynamicStyle.label, {paddingVertical:5, fontWeight:'500'}]}>Item Category</Text>
 
   <DropDownPicker
       open={isCategoryOpen}
@@ -355,17 +389,17 @@ showsVerticalScrollIndicator={false}
                 })} 
       setItems={setItems}
       setOpen={setIsCategoryOpen}
-      setValue={setValue}
+      setValue={setItems}
 
       onSelectItem={(item:any) => handleChange('category_code', item.value)}
       onChangeValue={(value:any) =>{
         //console.log('My value change o')
       }}
-      style={styles.selectWrapper}
+      style={[dynamicStyle.selectWrapper, errors.category_code? styles.error:[]]}
       textStyle={{
         fontSize:12
       }}
-      labelStyle={[styles.selectText, errors.category_code?styles.error:[]]}
+      labelStyle={[dynamicStyle.selectText]}
       placeholder="Select an item"
       placeholderStyle={{
         color: colors.grey
@@ -374,9 +408,9 @@ showsVerticalScrollIndicator={false}
       modalTitle="Select an item"
       modalAnimationType="slide"
       listMode='MODAL'
-      ArrowUpIconComponent={({style}) => <MaterialIcon name='arrow-drop-up' size={18} color={MODE==='Light'?colors.grey2:colors.dark} />}
+      ArrowUpIconComponent={({style}) => <MaterialIcon name='arrow-drop-up' size={18} color={MODE==='Light'?colors.grey2:colors.white} />}
 
-      ArrowDownIconComponent={({style}) => <MaterialIcon name='arrow-drop-down' size={18} color={MODE==='Light'?colors.grey2:colors.dark} />}
+      ArrowDownIconComponent={({style}) => <MaterialIcon name='arrow-drop-down' size={18} color={MODE==='Light'?colors.grey2:colors.white} />}
       
       theme={MODE==='Light'?"LIGHT":"DARK"}
       dropDownDirection="AUTO"
@@ -386,8 +420,7 @@ showsVerticalScrollIndicator={false}
 
 
 
-
-<Text style={[styles.infoText, {paddingVertical:5}]}>Sub Category</Text>
+<Text style={[dynamicStyle.label, {paddingVertical:5, fontWeight:'500'}]}>Sub Category</Text>
 
 
 <DropDownPicker
@@ -399,25 +432,25 @@ showsVerticalScrollIndicator={false}
                 })}
       setItems={setItems}
       setOpen={setIsSubCategoryOpen}
-      setValue={setValue}
+      setValue={setItems}
       onSelectItem={(item:any) => handleChange('subcategory_code', item.value)}
       onChangeValue={(value:any) =>{}}
-      style={styles.selectWrapper}
+      style={[dynamicStyle.selectWrapper]}
       textStyle={{
         fontSize:12
       }}
       modalTitle="Select an item"
       modalAnimationType="slide"
       listMode='MODAL'
-      labelStyle={styles.selectText}
+      labelStyle={dynamicStyle.selectText}
       placeholder="Select an item"
       placeholderStyle={{
         color: colors.grey
       }}
 
-      ArrowUpIconComponent={({style}) => <MaterialIcon name='arrow-drop-up' size={18} color={MODE==='Light'?colors.grey2:colors.dark} />}
+      ArrowUpIconComponent={({style}) => <MaterialIcon name='arrow-drop-up' size={18} color={MODE==='Light'?colors.grey2:colors.white} />}
 
-      ArrowDownIconComponent={({style}) => <MaterialIcon name='arrow-drop-down' size={18} color={MODE==='Light'?colors.grey2:colors.dark} />}
+      ArrowDownIconComponent={({style}) => <MaterialIcon name='arrow-drop-down' size={18} color={MODE==='Light'?colors.grey2:colors.white} />}
       
       theme={MODE==='Light'?"LIGHT":"DARK"}
       dropDownDirection="AUTO"
@@ -428,15 +461,17 @@ showsVerticalScrollIndicator={false}
 
 
 
-<View style={[styles.card, {marginVertical:5}]}>
+<View style={[styles.card, {marginVertical:5, 
+     backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
   
-<Text style={[styles.infoText]}>Description</Text>
+<Text style={[dynamicStyle.label, { fontWeight:'500'}]}>Description</Text>
 
 <View style={[]}>
 
   <TextInput
   multiline={true}
-  style={[styles.about, styles.label, {fontWeight:'500'}]}
+  style={[styles.about, dynamicStyle.label, {fontWeight:'500', 
+  backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}
   value={drugs.description}
   
   autoCapitalize='none'
@@ -469,13 +504,14 @@ showsVerticalScrollIndicator={false}
 </View>
 
 
-<View style={[styles.card, {marginVertical:5}]}>
+<View style={[styles.card, {marginVertical:5, 
+     backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
   
-<Text style={[styles.infoText, {fontWeight:'600'}]}>Set Pricing</Text>
+<Text style={dynamicStyle.label}>Set Pricing</Text>
 
 <View style={[globalStyles.rowCenterBetween, {marginTop:10}]}>
-  <Text style={[styles.infoText, {width:width/2}]}>Pricing</Text>
-  <Text style={[styles.infoText, {width:width/2}]}>Quantity</Text>
+  <Text style={[dynamicStyle.label, {width:width/2, fontWeight:'500'}]}>Pricing</Text> 
+  <Text style={[dynamicStyle.label, {width:width/2, fontWeight:'500'}]}>Quantity</Text>
 </View>
 
 
@@ -484,7 +520,8 @@ showsVerticalScrollIndicator={false}
 
   <TextInput 
   placeholder='e.g 3.50' 
-  style={styles.qty} 
+  
+  style={[dynamicStyle.qty, errors.price?styles.error:[]]}
   placeholderTextColor={colors.grey}
   value={item.price}
   keyboardType='numeric' 
@@ -499,7 +536,7 @@ showsVerticalScrollIndicator={false}
 
   <TextInput 
     placeholder='e.g Pack of 4'
-   style={styles.qty} 
+   style={[dynamicStyle.qty, errors.qty?styles.error:[]]} 
    placeholderTextColor={colors.grey}
   value={item.qty}
   
@@ -543,23 +580,6 @@ export default AddItem
 
 const styles = StyleSheet.create({
 
-  label:{
-    fontWeight:'700',
-    fontSize:12,
-    color:MODE==='Light'?colors.dark:colors.white,
-  },
-  h3:{
-    fontWeight:'600',
-    fontSize:10,
-    marginVertical:3,
-    color:MODE==='Light'?colors.dark:colors.white,
-  },
-  infoText:{
-    fontSize:12,
-    color: MODE==='Light'?colors.grey3:colors.white,
-    fontWeight:'500'
-
-  },
 
   profile:{
     width:120,
@@ -570,40 +590,12 @@ const styles = StyleSheet.create({
     backgroundColor:colors.white
   },
 
-  row:{
-    display:'flex',
-    flexDirection:'row',
-    padding:10,
-    justifyContent:'space-between'
-  },
-  title:{
-    fontSize:20,
-    fontWeight:'600',
-    color:colors.dark,
-
-  },
   card:{
     display:'flex',
-     backgroundColor:MODE==='Light'?colors.white:colors.dark, 
      padding:10, 
      width:width
     },
-  hospital:{
-paddingVertical:10,
-display:'flex',
-justifyContent:'space-between',
-alignItems:'center',
-flexDirection:'row'
-  },
 
-  box:{
-    backgroundColor:colors.white,
-    width:(width/2)-15,
-    padding:10,
-    marginVertical:5,
-    borderRadius:5
-
-  },
   circle:{
     height:25,
     width:25,
@@ -619,14 +611,12 @@ flexDirection:'row'
 error:{
   borderWidth:1,
   borderColor:colors.red,
-
 },
 
   textWrapper:{
     height:45,
     width:width-20,
     marginVertical:8,
-    backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark,
     display:'flex',
     flexDirection:'row',
     alignItems:'center',
@@ -635,7 +625,6 @@ error:{
   },
 
   textInput:{
-    color:MODE==='Light'?colors.dark:colors.white,
     fontSize:14,
     fontWeight:'600',
     width:width-60,
@@ -644,8 +633,7 @@ error:{
   },
   about:{
     display:'flex', 
-    width:width-20,
-     backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark, 
+    width:width-20, 
      padding:10,
      borderRadius:10,
      marginVertical:10,
@@ -688,18 +676,6 @@ shadowRadius: 2,
 elevation: 5,
   },
 
-
-
-  qty:{
-    width:(width/2)-20,
-    height:45,
-    backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark,
-    borderRadius:10,
-    padding:10,
-    color:MODE==='Light'?colors.dark:colors.white,
-    marginVertical:5,
-
-  },
   addItem:{
     height:35,
     width:35,
@@ -710,33 +686,13 @@ elevation: 5,
     alignItems:'center',
     marginLeft:5
     
-
-
   },
   imageWrapper:{
     display:'flex', 
     flexDirection:'row', 
     alignItems:'flex-end',
      justifyContent:'flex-start', 
-     paddingHorizontal:30, 
-     backgroundColor:MODE==='Light'?colors.white:colors.dark, paddingVertical:5
+     paddingHorizontal:30, paddingVertical:5
     },
- 
-    selectWrapper:{
-      height:45,
-      width:width-20,
-      marginVertical:8,
-      backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark, 
-      alignItems:'center',
-      padding:10,
-      borderRadius:5,
-      borderWidth:0
-      
-    },
-    selectText:{
-      color:MODE==='Light'?colors.grey1:colors.white,
-      fontSize:14,
-      fontWeight:'600',
    
-    },
 })

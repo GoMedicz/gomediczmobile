@@ -1,17 +1,15 @@
 
 import React, { useCallback, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl, MODE } from '../../../components/includes';
-import { globalStyles } from '../../../components/globalStyle';
-import ModalDialog from '../../../components/modal';
-import ShoppingCart from '../../../components/include/ShoppingCart';
+import { CATEGORY } from '../../../components/data';
+import { CURRENCY} from '../../../components/includes';
+import { useZustandStore } from '../../../api/store';
+import { dynamicStyles } from '../../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -25,44 +23,38 @@ const height =
 
 type RootStackParamList = {
   Wallet: undefined;
-  SendMoney:undefined; 
-  Offers:{
-     code:string;
-   }
+  SendMoney:undefined;
+  AccountProfile:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Wallet'>;
  const Wallet =({ route, navigation }:Props)=> {
 
+
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE);
+
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
 
 
+  const handleBack =()=>{
+    navigation.navigate('AccountProfile');
+  }
 
-const handleCart =()=>{
+const handleSend =()=>{
   navigation.navigate('SendMoney');
 }
-
-const handleNext =()=>{
-  navigation.navigate('SendMoney');
-}
-
-
 
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <Pressable  style={[styles.box, {
+      backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
 
   <View>
-      <Text style={styles.label}>Well Life Store</Text>
+      <Text style={dynamicStyle.label}>Well Life Store</Text>
       <Text style={styles.infoText}>4 Items | 30 Jun 2018, 11:59 am</Text>
       </View>
 
@@ -91,7 +83,7 @@ const handleNext =()=>{
     
   
       <Text style={styles.infoText}>AVAILABLE BALANCE</Text>
-            <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:25, fontWeight:'700'}}>$ 520.50</Text>
+            <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:25, fontWeight:'700'}}>{CURRENCY} 520.50</Text>
       </View>
 
 <View style={{display:'flex', flexDirection:'row', height:40, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark, alignItems:'center', paddingHorizontal:10}}>
@@ -99,9 +91,9 @@ const handleNext =()=>{
 
  
 </View>
-<View style={styles.addMoney}>
+<TouchableOpacity style={styles.addMoney} onPress={handleSend} activeOpacity={0.8}>
     <Text style={{color:colors.white, fontSize:12, fontWeight:'500'}}>Send to Bank</Text>
-  </View>
+  </TouchableOpacity>
   </>
     )
   }
@@ -114,9 +106,9 @@ const handleNext =()=>{
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="menu" size={18} color={MODE==='Light'?colors.dark:colors.white}  />  
-    <Text style={styles.label}>Wallet</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="menu" size={18} onPress={handleBack} color={MODE==='Light'?colors.dark:colors.white}  />  
+    <Text style={dynamicStyle.label}>Wallet</Text>
 <View />
     </View>
 
@@ -151,22 +143,7 @@ export default Wallet
 
 const styles = StyleSheet.create({
 
-  header:{
 
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    height:60
-  },
-  label:{
-    fontWeight:'600',
-    fontSize:12,
-    color:MODE==='Light'?colors.dark:colors.white
-  },
- 
   infoText:{
     fontSize:10,
     color:'#9E9E9E',
@@ -174,11 +151,8 @@ const styles = StyleSheet.create({
 
   },
 
-
-
 box:{
   width:width,
-  backgroundColor:MODE==='Light'?colors.white:colors.dark,
   marginBottom:5,
   display:'flex',
   justifyContent:'space-between',
@@ -195,78 +169,6 @@ marginHorizontal:5,
 
 },
 
-px:{
-  height:25,
-  width:25,
-  resizeMode:'cover',
-    },
-catImage:{
-height:(height/2)*0.2,
-width:(width/2)-40,
-resizeMode:'contain',
-marginTop:15
-  },
-
-  address:{
-    backgroundColor:colors.white,
-    display:'flex',
-    flexDirection:'row',
-    paddingVertical:10
-  },
-
- 
-addItem:{
-  height:25,
-  width:25,
-  backgroundColor:colors.primary,
-  borderBottomRightRadius:5,
-  borderTopLeftRadius:5,
-  display:'flex',
-  alignItems:'center',
-  justifyContent:'center',
-  position:'absolute',
-  bottom:0,
-  right:0
-},
-sellerImage:{
-  height:80,
-  width:80,
-  resizeMode:'cover'
-},
-companyLogo:{
-  height:100,
-  width:100,
-  backgroundColor:'#9Be471',
-  borderRadius:10,
-  display:'flex',
-  justifyContent:'center',
-  alignItems:'center'
-
-},
-container:{
-  display:'flex',
-   flexDirection:'row', 
-   backgroundColor:colors.white,
-   paddingVertical:15,
-   paddingHorizontal:10
-  
-  
-  },
-  profile:{
-    width:30,
-    height:30,
-    borderRadius:15,
-    resizeMode:'contain'
-  },
- content:{
-    display:'flex', 
-    flexDirection:'row', 
-    justifyContent:'space-between', 
-    alignItems:'center',
-    paddingHorizontal:10, 
-    paddingBottom:10,
-    marginVertical:5
-  },
   addMoney:{
     height:45,
     backgroundColor:colors.primary,

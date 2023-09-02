@@ -13,11 +13,12 @@ app.use(cors({
 }))
 
 
+
 // for parsing application/json data
-app.use(express.json()); 
+app.use(express.json({limit:'50mb'})); 
 
 // for parsing application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true, limit:'50mb' })); 
 
 // for parsing multipart/form-data
 app.use(upload.array());

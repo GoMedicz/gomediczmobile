@@ -77,19 +77,21 @@ const StackNavigator=()=>{
  {/* <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
  */} 
 
+<Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Password'>{(props:any) =><Password {...props}  />}</Stack.Screen>
-<Stack.Screen  name='Faqs'>{(props:any) =><Faqs {...props}  />}</Stack.Screen>
- <Stack.Screen  name='Terms'>{(props:any) =><Terms {...props}  />}</Stack.Screen>
+<Stack.Screen  name='Terms'>{(props:any) =><Terms {...props}  />}</Stack.Screen>
+<Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
+ <Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Contact'>{(props:any) =><Contact {...props}  />}</Stack.Screen>
+<Stack.Screen  name='Faqs'>{(props:any) =><Faqs {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Theme'>{(props:any) =><Theme {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Verification'>{(props:any) =><Verification {...props}  />}</Stack.Screen>
-<Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
+ 
 
 
-<Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Welcome'>{(props:any) =><Welcome  {...props}  />}</Stack.Screen>
 {/* Place All these screen that doesnt require login here  */}
-  <Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>
+ 
 
 
 
@@ -152,7 +154,8 @@ const DrawerNavigator =()=>{
   return  <Drawer.Navigator  screenOptions={{ headerShown: false }}
   drawerContent={(props:any) => DrawerContent(props)}
   >
-  <Drawer.Screen name='Homes' component={StackNavigator} /> 
+
+<Drawer.Screen name='Homes' component={StackNavigator} /> 
   <Drawer.Screen name='BottomTabs' component={BottomTabs} />
  </Drawer.Navigator>
  }

@@ -55,19 +55,21 @@ const StackNavigator=()=>{
 
 <Stack.Screen  name='Profiles'>{(props:any) =><Profiles  {...props}  />}</Stack.Screen>
 
+<Stack.Screen  name='Theme'>{(props:any) =><Theme {...props}  />}</Stack.Screen>
 
+<Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>
+<Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
+<Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='AppointmentDetails'>{(props:any) =><AppointmentDetails  {...props}  />}</Stack.Screen>
 
- <Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>
- <Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
+
+
  <Stack.Screen  name='Password'>{(props:any) =><Password {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Faqs'>{(props:any) =><Faqs {...props}  />}</Stack.Screen>
 
  <Stack.Screen  name='Terms'>{(props:any) =><Terms {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Contact'>{(props:any) =><Contact {...props}  />}</Stack.Screen>
-<Stack.Screen  name='Theme'>{(props:any) =><Theme {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Verification'>{(props:any) =><Verification {...props}  />}</Stack.Screen>
-<Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Welcome'>{(props:any) =><Welcome  {...props}  />}</Stack.Screen>
 
 
@@ -84,9 +86,7 @@ const DrawerNavigator =()=>{
 
 
 <Drawer.Screen name='Homes' component={StackNavigator} /> 
-
 <Drawer.Screen name='BottomTabs' component={BottomTabs} />
-
 
  </Drawer.Navigator>
  }

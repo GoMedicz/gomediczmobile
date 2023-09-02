@@ -1,16 +1,15 @@
 
 import React, { useCallback, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST, SELLER } from '../../components/data';
-import { ImagesUrl, MODE } from '../../components/includes';
-import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
+import { DOCTORS } from '../../components/data';
+import { ImagesUrl} from '../../components/includes';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -25,29 +24,24 @@ const height =
 type RootStackParamList = {
   OrderDetails: undefined;
   Orders:undefined; 
-  DrugDetails:{
-     code:string;
-   }
+  AccountProfile:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Orders'>;
  const Orders =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+  const [current, setCurrent] = useState('Present')
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE)
 
 
 
-const handleCart =()=>{
- //navigation.navigate('OrderDetails');
-}
+
+
 
 const handleNext =()=>{
   navigation.navigate('OrderDetails');
@@ -56,7 +50,8 @@ const handleNext =()=>{
 
 
 const ItemCategory =({item}:{item:any})=>{
-  return <Pressable onPress={handleNext} style={[styles.docBox]}>
+  return <Pressable onPress={handleNext} style={[styles.docBox,{
+    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
 <View style={{display:'flex', flexDirection:'row'}}>
 <Image source={{ uri:ImagesUrl+"/doctors/"+item.image }} style={styles.profile} />
@@ -70,16 +65,19 @@ const ItemCategory =({item}:{item:any})=>{
     <Text style={styles.infoText}>13 June, 11:20 am</Text>
 
 <View style={{marginTop:30}}>
-    <Text style={styles.h4}>Salospir 100mg Tablet</Text>
-    <Text style={styles.h4}>Non Drosy Lerinrin Tablet</Text>
-    <Text style={styles.h4}>Xenical 120mg Tablet</Text>
+    <Text style={[styles.h4,{
+          color:MODE==='Light'?colors.dark:colors.white}]}>Salospir 100mg Tablet</Text>
+     <Text style={[styles.h4,{
+          color:MODE==='Light'?colors.dark:colors.white}]}>Non Drosy Lerinrin Tablet</Text>
+  <Text style={[styles.h4,{
+          color:MODE==='Light'?colors.dark:colors.white}]}>Xenical 120mg Tablet</Text>
     </View>
 
   </View> 
   </View>
 
   <View >
-    <Text style={[styles.label, {fontSize:12, color:colors.rating}]}>PENDING </Text>
+    <Text style={[dynamicStyle.label, {fontSize:12, color:colors.rating}]}>PENDING </Text>
     <Text style={[styles.infoText]}>$18.00 | COD </Text>
     </View>
 
@@ -89,79 +87,14 @@ const ItemCategory =({item}:{item:any})=>{
     </Pressable>
   }
 
-
-  const Clinic =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.clinic]}>
-
-
-
-<View style={globalStyles.rowCenterBetween}>
-<View >
-<Text style={{fontSize:12, fontWeight:'600'}}>{item.title}</Text>
-<Text style={[styles.infoText, {fontSize:10}]}>{item.address}</Text>
-</View>
+  const handleBack =()=>{
+    navigation.navigate('AccountProfile');
+  }
 
 
-
-
-<View style={globalStyles.rowCenterCenter} >
-
-<Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.clinicImage} />
-<Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.clinicImage} />
-
-</View>
-</View>
-
-
-
-
-
-<View style={[globalStyles.rowCenterBetween, {marginTop:10}]}>
-
-<View style={globalStyles.rowCenterCenter}>
-<MaterialIcon name="location-on" size={10} color={colors.grey}  />
-<Text style={[styles.infoText, {fontSize:8}]}>Walter street, Wallington, New York</Text>
-</View>
-
-
-<View style={globalStyles.rowCenterCenter}>
-<MaterialIcon name="call" size={8} color={colors.primary}  />
-<Text style={{fontSize:8, marginLeft:10, color:colors.primary, fontWeight:'600'}}>Call Now</Text>
-</View>
-
-</View>
-
-
-</Pressable>
-    }
-
-
-  const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
-
-<View style={{display:'flex', alignItems:'flex-end'}}>
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.px} />
-</View>
-
-<Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
-
-<View style={{marginTop:15}}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>Allerygy Relief</Text>
-
-      <Text style={{color:colors.dark, fontSize:10,  fontWeight:'600'}}>Tablet</Text>
-
-      <Text style={{color:colors.dark, fontSize:12,  fontWeight:'700', marginTop:10}}>$3.50</Text>
-      </View>
-
-  <View style={styles.addItem}>
-<MaterialIcon name="add" size={18} color={colors.white}  />
-      </View>
-
-      </Pressable>
-    }
-
-
-  
+  const handleSwitch =(data:string)=>{
+    setCurrent(data)
+  }
 
     
   const onRefresh = useCallback(()=>{
@@ -169,18 +102,27 @@ const ItemCategory =({item}:{item:any})=>{
    // FetchContent()
     }, [])
 
+
+  
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="menu" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Recent Orders</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon onPress={handleBack} name="menu" size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
+    <Text style={dynamicStyle.label}>Recent Orders</Text>
     
     <View/>
     </View>
 
-    <View style={styles.headerItem}>
-      <Text style={[styles.label, {color:colors.grey, fontWeight:'700'}]}>New Orders</Text>
-      <Text style={[styles.label, {color:colors.navyBlue}]}>Past Orders</Text>
+    <View style={[styles.headerItem, {
+         backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+      <TouchableOpacity activeOpacity={0.8} onPress={()=>handleSwitch('Present')}>
+      <Text style={[dynamicStyle.label, {color:current==='Present'?colors.navyBlue:colors.grey, fontWeight:'700'}]}>New Orders</Text>
+      </TouchableOpacity>
+
+
+      <TouchableOpacity activeOpacity={0.8} onPress={()=>handleSwitch('Past')}>
+      <Text style={[dynamicStyle.label, {color: current==='Past'?colors.navyBlue:colors.grey}]}>Past Orders</Text>
+      </TouchableOpacity>
     </View>
 
 
@@ -210,22 +152,6 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 export default Orders
 
 const styles = StyleSheet.create({
-
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:10,
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    height:50,
-  },
-  label:{
-    fontWeight:'600',
-    fontSize:14,
-    color:MODE==='Light'?colors.dark:colors.white,
-  },
  
   infoText:{
     fontSize:10,
@@ -234,129 +160,21 @@ const styles = StyleSheet.create({
 
   },
 
-
-
-box:{
-  height:(height/3)-40,
-  width:(width/2)-15,
-  backgroundColor:colors.white,
-  borderRadius:10,
-  marginBottom:10,
-  display:'flex',
-  paddingVertical:5,
-  paddingHorizontal:10,
-  marginHorizontal:5
-  
-    },
-
 catItems:{
 flex:1,
 marginTop:10,
 
 
 },
-overlay:{
-display:'flex',
-justifyContent:'flex-end',
-alignItems:'center',
-backgroundColor:colors.white,
-position:'absolute',
-bottom:5,
-width:70,
-height:40,
-right:3,
-opacity: 0.5,
 
-},
-px:{
-  height:25,
-  width:25,
-  resizeMode:'cover',
-    },
-catImage:{
-height:(height/2)*0.2,
-width:(width/2)-40,
-resizeMode:'contain',
-marginTop:15
-  },
-
-modal:{
- width:width-120,
- height:undefined
-},
-
-modalContent:{
-  display:'flex',
-  justifyContent:'center',
-  alignItems:'center'
-},
-modalImage:{
-  height:120,
-  width:150,
-  resizeMode:'contain',
-  },
-  address:{
-    backgroundColor:colors.white,
-    paddingHorizontal:20,
-    display:'flex',
-    flexDirection:'row',
-    paddingVertical:10
-  },
-
-  circle:{
-    height:10,
-    width:10,
-    borderRadius:5,
-    backgroundColor:'#F14338',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    position:'absolute',
-    left:8,
-    top:-5
-
-
-},
-cart:{
-    display:'flex',
-    flexDirection:'row'
-},
-addItem:{
-  height:25,
-  width:25,
-  backgroundColor:colors.primary,
-  borderBottomRightRadius:5,
-  borderTopLeftRadius:5,
-  display:'flex',
-  alignItems:'center',
-  justifyContent:'center',
-  position:'absolute',
-  bottom:0,
-  right:0
-},
-bottomItem:{
-  display:'flex', 
-  justifyContent:'space-between', 
-  alignItems:'center', 
-  flexDirection:'row',
-  backgroundColor:'red',
-
-},
 profile:{
   width:40,
   height:40,
   borderRadius:5,
   resizeMode:'contain'
 },
-content:{
-  display:'flex', 
-  flexDirection:'row', 
-  justifyContent:'space-between', 
-  alignItems:'center', 
-},
 docBox:{
   width:width,
-  backgroundColor:MODE==='Light'?colors.white:colors.dark,
   marginBottom:5,
   display:'flex',
   padding:10,
@@ -364,34 +182,16 @@ docBox:{
   justifyContent:'space-between'
   
     },
-    clinicImage:{
-      height:45,
-      width:75,
-      borderRadius:5,
-      marginLeft:5,
-      resizeMode:'cover'
-
-    },
-    clinic:{
-      width:width,
-      display:'flex',
-      marginBottom:5,
-      padding:10,
-      backgroundColor:MODE==='Light'?colors.white:colors.dark,
-      
-        },
-
+  
         headerItem:{
          display:'flex',
          flexDirection:'row',
          justifyContent:'space-between',
-         backgroundColor:MODE==='Light'?colors.white:colors.dark,
          paddingVertical:12,
          paddingHorizontal:50
         },
 
         h4:{
-          color:MODE==='Light'?colors.dark:colors.white, 
           fontSize:10, 
           fontWeight:'600', 
           marginBottom:5

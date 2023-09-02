@@ -2,19 +2,14 @@ import { View, StyleSheet, Dimensions, Text } from 'react-native'
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import  Icon  from 'react-native-vector-icons/Feather';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import colors from '../assets/colors';
-import StackNavigator from '../navigator/stack';
-import DoctorHome from '../screens/doctors/doctorHome';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
-
 
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import AccountProfile from '../screens/doctors/AcountProfile';
-import Appointments from '../screens/home/dashboard';
-import Reviews from '../screens/doctors/Reviews';
+import AccountProfile from '../screens/vendor/AcountProfile';
+
 import { MODE } from './includes';
+import StoreProfile from '../screens/vendor/StoreProfile';
 
 
 const {width} = Dimensions.get('screen');
@@ -141,8 +136,7 @@ const BottomTabs =()=> {
 
       >
 
-<Tab.Screen  name='Appointments'>{(props:any) =><Appointments {...props}  />}</Tab.Screen>
-<Tab.Screen  name='Reviews'>{(props:any) =><Reviews {...props}  />}</Tab.Screen>
+<Tab.Screen  name='Reviews'>{(props:any) =><StoreProfile {...props}  />}</Tab.Screen>
 <Tab.Screen  name='Accounts'>{(props:any) =><AccountProfile {...props}  />}</Tab.Screen>
 
 

@@ -7,8 +7,6 @@ import colors from '../../assets/colors'
 
 const ShoppingCart = ({num, handleAction, style}:{num?:number, handleAction?:()=>void, style?: StyleProp<ViewStyle>}) => {
 
-
-
   return (
     <Pressable onPress={handleAction} style={[styles.cart, style]}>
 

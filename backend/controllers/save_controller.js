@@ -119,6 +119,8 @@ module.exports.loginUser =(app, connection)=>{
       }else{
                con.query(sql, [data.email], (err, result)=>{ 
              con.release();
+
+             
 if(result.length !==0){ 
 
          var compare = bcrypt.compareSync(data.password, String(result[0].password));

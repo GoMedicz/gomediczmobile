@@ -127,12 +127,12 @@ const handleNext =()=>{
 <Text style={{fontSize:14, fontWeight:'600', color:colors.primary}}>Skip Login</Text>
 </View>
 
- <ModalDialog
+{/*  <ModalDialog
  isModalVisible={true}
  > 
 
 <Text>Hello </Text>
- </ModalDialog>
+ </ModalDialog> */}
 
   </ScrollView>
 

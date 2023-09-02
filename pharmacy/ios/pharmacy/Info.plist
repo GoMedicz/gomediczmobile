@@ -38,6 +38,11 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 
+<!-- 
+<key>NSPhotoLibraryUsageDescription</key>
+<key>NSCameraUsageDescription</key>
+<string>Allow access to the photo library</string> -->
+
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -61,14 +66,6 @@
 		<string>Montserrat-Bold.ttf</string>
 		<string>Mrs.Monster.ttf</string>
 	</array>
-
-
-
-  <key>NSPhotoLibraryUsageDescription</key>
-    <string>$(PRODUCT_NAME) would like access to your photo gallery</string>
-    <key>NSCameraUsageDescription</key>
-    <string>$(PRODUCT_NAME) would like to use your camera</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
 
 
 	<key>UILaunchStoryboardName</key>

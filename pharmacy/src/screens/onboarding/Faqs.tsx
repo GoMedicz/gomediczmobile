@@ -9,6 +9,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { LANGUAGELIST, THEME } from '../../components/data';
 import { PrimaryButton } from '../../components/include/button';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -35,6 +37,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Faqs'>;
   const [Languages, setLanguages] = useState(THEME)
   const [refreshing, setRefreshing] = useState(false)
 
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE)
+
 interface item {
   title:string,
   isDefault:string,
@@ -42,48 +47,21 @@ interface item {
 }
 
 
-const handleSelect =(item:item)=>{
-
-const LIST = [...Languages].map((rs:item)=>{
-                   
-  if( rs.id === item.id){
-      return {...rs, isDefault:item.isDefault ==='No'?'Yes':'Yes'}
-  }
-
-    return {...rs, isDefault:'No'}
-  
-    })
-   setLanguages(LIST)
-}
 
 
-
-const Checkbox =({item}:{item:item})=>{
-  return <TouchableOpacity activeOpacity={0.9} style={styles.checkboxWrapper}
-  onPress={()=>handleSelect(item)}
- 
-  >
-<View style={styles.checkbox}>
-  <View style={[item.isDefault==='Yes'? styles.checked:[]]} />
-</View>
-<Text style={styles.label}>{item.title}</Text>
-</TouchableOpacity>
-  
-}
-
-const handleNext =()=>{
-  navigation.navigate('Welcome');
+const handleBack =()=>{
+  navigation.goBack();
 }
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
    // FetchContent()
     }, [])
 
-  return (<View style={{flex:1, backgroundColor:colors.lightSkye}}>
+  return (<SafeAreaView style={{flex:1, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>FAQs</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white} /> 
+    <Text style={dynamicStyle.label}>FAQs</Text>
     
     <View/>
     </View>
@@ -91,41 +69,48 @@ const handleNext =()=>{
     <View style={[ {flex:1,  marginTop:0}]}>
 
 
-<View style={styles.itemWrapper}>
-<Text style={styles.h2}> 1. How to Login to App?</Text>
+<View style={[styles.itemWrapper, {
+    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+<Text style={dynamicStyle.h2}> 1. How to Login to App?</Text>
 </View>
 
 
-<View style={styles.itemWrapper}>
-<Text style={styles.h2}> 2. How to book an appointment?</Text>
-<Text style={styles.h5}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde excepturi, repellendus laboriosam quas veniam, deleniti a soluta ipsam cum porro ea temporibus ipsum? Eius maxime nostrum deserunt error nulla laborum.</Text>
+<View style={[styles.itemWrapper, {
+    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+<Text style={dynamicStyle.h2}> 2. How to book an appointment?</Text>
+<Text style={dynamicStyle.h5}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde excepturi, repellendus laboriosam quas veniam, deleniti a soluta ipsam cum porro ea temporibus ipsum? Eius maxime nostrum deserunt error nulla laborum.</Text>
 </View>
 
-<View style={styles.itemWrapper}>
-<Text style={styles.h2}> 3. How to cancel an appointment?</Text>
+<View style={[styles.itemWrapper, {
+    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+<Text style={dynamicStyle.h2}> 3. How to cancel an appointment?</Text>
 </View>
 
-<View style={styles.itemWrapper}>
-<Text style={styles.h2}> 4. What if i fail to book?</Text>
+<View style={[styles.itemWrapper, {
+    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+<Text style={dynamicStyle.h2}> 4. What if i fail to book?</Text>
 </View>
 
-<View style={styles.itemWrapper}>
-<Text style={styles.h2}> 5. How to make payment?</Text>
+<View style={[styles.itemWrapper, {
+    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+<Text style={dynamicStyle.h2}> 5. How to make payment?</Text>
 </View>
 
-<View style={styles.itemWrapper}>
-<Text style={styles.h2}> 6. Payment modes Available?</Text>
+<View style={[styles.itemWrapper, {
+    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+<Text style={dynamicStyle.h2}> 6. Payment modes Available?</Text>
 </View>
 
-<View style={styles.itemWrapper}>
-<Text style={styles.h2}> 7. How to Pay?</Text>
+<View style={[styles.itemWrapper, {
+    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
+<Text style={dynamicStyle.h2}> 7. How to Pay?</Text>
 </View>
 
 </View> 
 
 </ScrollView>
 
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -206,7 +191,6 @@ const styles = StyleSheet.create({
   itemWrapper:{
     marginBottom:4,
     padding:10,
-    backgroundColor:colors.white,
     width:width
   }
 

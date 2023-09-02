@@ -78,7 +78,7 @@ const handleNext =()=>{
     style={styles.mapView}
     
     >
-{/* 
+
 
   <View  style={styles.box}>
 
@@ -132,7 +132,7 @@ const handleNext =()=>{
     }}
     title='Accept Delivery (0:15)'
     />
-      </View> */}
+      </View> 
 
 <View style={{width:width-20, alignItems:'flex-end', marginTop:40}}>
 <View style={styles.cart}>
@@ -140,7 +140,7 @@ const handleNext =()=>{
 </View>
 </View>
 
-<View  style={styles.box}>
+{/* <View  style={styles.box}>
 
 
 <View style={{width:width-40, padding:10}}>
@@ -214,7 +214,7 @@ const handleNext =()=>{
     handleAction={handleNext}
     title='Mark as Picked'
     />
-      </View>
+      </View> */}
 
 
     </ImageBackground>

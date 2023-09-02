@@ -1,18 +1,15 @@
 
 import React, { useCallback, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, ImageBackground } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, ImageBackground } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl, MODE } from '../../components/includes';
+import { ImagesUrl} from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
+import { PrimaryButtonChildren } from '../../components/include/button';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -36,8 +33,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'RiderMapView'>;
  const RiderMapView =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE)
 
 interface item {
   title:string,
@@ -46,10 +45,6 @@ interface item {
 }
 
 
-
-const handleCart =()=>{
-  navigation.navigate('ChatDelivery');
-}
 
 const handleNext =()=>{
   navigation.navigate('ChatDelivery');
@@ -107,7 +102,7 @@ const handleNext =()=>{
 <Image source={{ uri:ImagesUrl+"/doctors/doc1.png" }} style={styles.profile} />
 
 <View style={{marginLeft:10}}>
-  <Text style={styles.label}>George Anderson</Text>
+  <Text style={dynamicStyle.label}>George Anderson</Text>
   <Text style={styles.infoText}>Delivery Partner Assign</Text>
   </View>
   </View>
@@ -149,11 +144,6 @@ style={{width:width/2}}
     </ImageBackground>
 
 
-
-
-
-
-
     </View>
   )
 }
@@ -162,22 +152,6 @@ style={{width:width/2}}
 export default RiderMapView
 
 const styles = StyleSheet.create({
-
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:colors.white,
-    height:60
-  },
-  label:{
-    fontWeight:'600',
-    fontSize:12,
-    color:MODE==='Light'?colors.dark:colors.white
-  },
  
   infoText:{
     fontSize:10,
@@ -185,8 +159,6 @@ const styles = StyleSheet.create({
     fontWeight:'500'
 
   },
-
-
 
 box:{
   width:width-100,
@@ -197,31 +169,6 @@ box:{
   
     },
 
-catItems:{
-
-position:'absolute',
-bottom:30,
-
-},
-
-px:{
-  height:25,
-  width:25,
-  resizeMode:'cover',
-    },
-catImage:{
-height:(height/2)*0.2,
-width:(width/2)-40,
-resizeMode:'contain',
-marginTop:15
-  },
-
-  address:{
-    backgroundColor:colors.white,
-    display:'flex',
-    flexDirection:'row',
-    paddingVertical:10
-  },
 mapView:{
 
   height:height,
@@ -229,56 +176,10 @@ mapView:{
 
 },
  
-addItem:{
-  height:25,
-  width:25,
-  backgroundColor:colors.primary,
-  borderBottomRightRadius:5,
-  borderTopLeftRadius:5,
-  display:'flex',
-  alignItems:'center',
-  justifyContent:'center',
-  position:'absolute',
-  bottom:0,
-  right:0
-},
-sellerImage:{
-  height:80,
-  width:80,
-  resizeMode:'cover'
-},
-companyLogo:{
-  height:100,
-  width:100,
-  backgroundColor:'#9Be471',
-  borderRadius:10,
-  display:'flex',
-  justifyContent:'center',
-  alignItems:'center'
-
-},
-container:{
-  display:'flex',
-   flexDirection:'row', 
-   backgroundColor:colors.white,
-   paddingVertical:15,
-   paddingHorizontal:10
-  
-  
-  },
   profile:{
     width:40,
     height:40,
     borderRadius:5,
     resizeMode:'contain'
   },
- content:{
-    display:'flex', 
-    flexDirection:'row', 
-    justifyContent:'space-between', 
-    alignItems:'center',
-    paddingHorizontal:10, 
-    paddingBottom:10,
-    marginVertical:5
-  }
 })

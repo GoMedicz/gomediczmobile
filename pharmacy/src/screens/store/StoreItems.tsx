@@ -1,17 +1,16 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import axios from 'axios';
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl, MODE } from '../../components/includes';
+import { CURRENCY, ImagesUrl, PHARMACY_CODE, ServerUrl, config } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -25,8 +24,9 @@ const height =
 
 type RootStackParamList = {
   StoreItems: undefined;
-  EditItem:undefined; 
-  Reviews:{
+  AddItem:undefined; 
+  AccountProfile:undefined;
+  EditItem:{
      code:string;
    }
    };
@@ -34,8 +34,8 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'StoreItems'>;
  const StoreItems =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+  const MODE = useZustandStore(store => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
   const [refreshing, setRefreshing] = useState(false)
 
 interface item {
@@ -44,75 +44,105 @@ interface item {
   id:number
 }
 
-
-
-const handleCart =()=>{
-  navigation.navigate('EditItem');
-}
+const [content, setContent]= useState([] as any)
 
 const handleNext =()=>{
-  navigation.navigate('EditItem');
+  navigation.navigate('AddItem');
 }
 
+const handleBack =()=>{
+  navigation.goBack();
+}
 
+const handleEdit =(code:string)=>{
+  navigation.navigate(
+  'EditItem', {
+    code:code
 
+    }
+  );
+}
 
-  const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+  const CardItem =({item}:{item:any})=>{
+    return <TouchableOpacity activeOpacity={0.8} onPress={()=>handleEdit(item.code)}  style={[dynamicStyle.boxCart]} >
 
 <View style={styles.catImageWrapper}>
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.px} />
+  <View style={styles.flexEnd}>
+  {item.require_prescription?
+<Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={globalStyles.px} />:[]}
+</View>
 
-<Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage}  />
+<Image source={{ uri:ImagesUrl+"/products/"+item.image_url}} style={styles.catImage}  />
 </View>
 
 <View style={{marginTop:15, marginHorizontal:10}}>
-      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:12, fontWeight:'600'}}>Allerygy Relief</Text>
+      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:12, fontWeight:'600'}}>{item.product_name}</Text>
 
-      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:10,  fontWeight:'600'}}>Tablet</Text>
+      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:10,  fontWeight:'600'}}>{item.category_name}</Text>
 
      
       </View>
 
   <View style={styles.addItem}>
-  <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:12,  fontWeight:'700'}}>$3.50</Text>
+  <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:12,  fontWeight:'700'}}>{CURRENCY}3.50</Text>
 <Text style={styles.infoText}>119 sold</Text>
       </View>
 
-      </Pressable>
+      </TouchableOpacity>
+    }
+
+  
+    const fetchProducts = async()=>{
+      let url = ServerUrl+'/api/pharmacy/display_products/'+PHARMACY_CODE
+      try{
+  
+     await axios.get(url, config).then(response=>{
+    
+        if(response.data.type==='success'){
+          setContent(response.data.data)
+        }else{
+          setContent([])
+        }
+      }).finally(()=>{
+        setRefreshing(false)
+      }) 
+    }catch(e){
+      console.log('error:',e)
+    }
     }
 
 
-  
 
-    
   const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
+    setRefreshing(true)
+    fetchProducts()
     }, [])
 
+
+
+    useEffect(()=>{
+      fetchProducts()
+    },[])
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="menu" size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
-    <Text style={styles.label}>My Items</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="menu" onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
+    <Text style={dynamicStyle.label}>My Items</Text>
     <MaterialIcon name="search" size={18} color={MODE==='Light'?colors.dark:colors.white}  />
     </View>
 
 
 
-
-
-    <View style={styles.catItems}>
+<View style={styles.catItems}>
 
 <FlatList 
-data={CATEGORY}
+data={content}
 numColumns={2}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+renderItem={({item})=> <CardItem key={item.id} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />
@@ -120,12 +150,11 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 </View>
 
 
+
+
 <TouchableOpacity onPress={handleNext} style={styles.circle}>
-  
 <MaterialIcon name="add" size={18} color={colors.white}  /> 
 </TouchableOpacity>
-
-
     </View>
   )
 }
@@ -135,42 +164,13 @@ export default StoreItems
 
 const styles = StyleSheet.create({
 
-  header:{
 
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    height:50
-  },
-  label:{
-    fontWeight:'600',
-    fontSize:12,
-    color:MODE==='Light'?colors.dark:colors.white,
-  },
- 
   infoText:{
     fontSize:10,
     color:'#9E9E9E',
     fontWeight:'500'
 
   },
-
-
-
-box:{
-  height:(height/3)-30,
-  width:(width/2)-15,
-  backgroundColor:MODE==='Light'?colors.white:colors.dark,
-  borderRadius:10,
-  marginBottom:10,
-  display:'flex',
-  marginHorizontal:5
-  
-    },
-
 catItems:{
 flex:1,
 marginTop:10,
@@ -178,15 +178,9 @@ marginHorizontal:5,
 
 },
 
-px:{
-  height:25,
-  width:25,
-  resizeMode:'cover',
-    },
-
 catImageWrapper:{
 height:(height/2)*0.35,
-width:(width/2)-20,
+width:(width/2)-15,
 backgroundColor:colors.white,
 borderTopLeftRadius:10,
 borderTopRightRadius:10,
@@ -197,13 +191,6 @@ borderTopRightRadius:10,
     width:(width/2)-20,
     resizeMode:'contain'
       },
-  address:{
-    backgroundColor:colors.white,
-    display:'flex',
-    flexDirection:'row',
-    paddingVertical:10
-  },
-
  
 addItem:{
   
@@ -212,29 +199,6 @@ justifyContent:'space-between',
 flexDirection:'row',
 margin:10,
 },
-sellerImage:{
-  height:80,
-  width:80,
-  resizeMode:'cover'
-},
-companyLogo:{
-  height:100,
-  width:100,
-  backgroundColor:'#9Be471',
-  borderRadius:10,
-  display:'flex',
-  justifyContent:'center',
-  alignItems:'center'
-
-},
-container:{
-  display:'flex',
-   flexDirection:'row', 
-   backgroundColor:colors.white,
-   paddingVertical:15,
-   paddingHorizontal:10
-
-  },
   circle:{
     height:50,
     width:50,
@@ -255,5 +219,11 @@ shadowOffset: {
 shadowOpacity: 0.25,
 shadowRadius: 2,
 elevation: 5,
+  },
+  flexEnd:{
+    display:'flex',
+    width:(width/2)-20,
+    justifyContent:'flex-end',
+    alignItems:'flex-end'
   }
 })

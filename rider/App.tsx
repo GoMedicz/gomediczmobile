@@ -58,13 +58,13 @@ const StackNavigator=()=>{
  */}
 
 
-<Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
-
-<Stack.Screen  name='AccountProfile'>{(props:any) =><AccountProfile {...props}  />}</Stack.Screen>
-
 <Stack.Screen  name='OrderDelivered'>{(props:any) =><OrderDelivered  {...props}  />}</Stack.Screen>
 
 <Stack.Screen  name='Dashboard'>{(props:any) =><Dashboard  {...props}  />}</Stack.Screen>
+<Stack.Screen  name='AccountProfile'>{(props:any) =><AccountProfile {...props}  />}</Stack.Screen>
+<Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
+
+
 
 
 <Stack.Screen  name='AcceptDelivery'>{(props:any) =><AcceptDelivery  {...props}  />}</Stack.Screen>
