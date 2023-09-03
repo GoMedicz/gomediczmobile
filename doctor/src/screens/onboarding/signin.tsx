@@ -1,14 +1,15 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, StatusBar } from 'react-native'
-
+import { Image, StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity, StatusBar } from 'react-native'
+import axios from 'axios';
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import { FlatList, RefreshControl, ScrollView, TextInput } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { ScrollView, TextInput } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, ServerUrl, config } from '../../components/includes';
+import Loader from '../../components/loader';
+import { getData, storeData } from '../../components/globalFunction';
+import { globalStyles } from '../../components/globalStyle';
 
 
 const {width} = Dimensions.get('screen');
@@ -23,16 +24,12 @@ const height =
 
 type RootStackParamList = {
   SignIn: undefined;
-    Language:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+  BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
  const SignIn =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
 
 interface item {
@@ -42,19 +39,109 @@ interface item {
 }
 
 
+const [modalType, setModalType] = useState('load')
+  const [loading, setLoading] = useState(false)
+const [user, setUser] = useState({
+  passwordFocus:false,
+  telephoneFocus:false,
+  isSecure:true,
+  telephone:'',
+  password:'',
 
-const handleBack =()=>{
-  navigation.navigate('Language');
-}
+})
 
 const handleNext =()=>{
-  //navigation.navigate('Welcome');
+  navigation.navigate('BottomTabs');  
 }
 
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+const [errors, setErrors] = useState({
+  telephone:'',
+  password:'',
+  errorMessage:''
+});
+
+const handleFocus =(name:string)=>{
+  setUser({...user, [name]:true})
+}
+
+const handleBlur =(name:string)=>{
+  setUser({...user, [name]:false})
+}
+
+
+
+const handleChange =(name:string, text:string)=>{
+  if(name==='telephone'){
+    text = text.replace(/[^0-9]/g, "").substring(0, 11)
+  }
+  setUser({...user, [name]:text})
+  setErrors({...errors, [name]:'', errorMessage:''})
+}
+
+
+
+const handleSubmit =()=>{
+  let error = {
+    password:'', 
+    telephone:'',  
+    errorMessage:'',
+  }
+
+  var errormessage = [];
+let msg = 'This field is required';
+
+if(!user.telephone){
+  error.telephone = "Please enter password.";
+   errormessage.push('Please enter password.');
+}
+
+        if(!user.password){
+          error.password = "Please enter password.";
+           errormessage.push('Please enter password.');
+       }
+
+        setErrors(error)
+        if (errormessage.length===0) {
+
+setLoading(true)
+
+
+const fd = new FormData();
+Object.entries(user).forEach(([key, value]) => {
+        fd.append(key, value);
+    });
+
+    let url = ServerUrl+'/api/login_vendor';
+   axios.post(url, fd, config)
+   .then(response =>{
+    setLoading(false)
+
+     if(response.data.type === 'success'){
+
+      storeData('jwt', response.data.jwt)
+      storeData('code', response.data.code)
+
+         navigation.navigate('BottomTabs');  
+               } else{
+                 //unable to create account please retry
+                 setUser({...user, passwordFocus:true})
+          setErrors({...errors, errorMessage: response.data.message, password:response.data.message})
+               }   
+           })
+           .catch((error)=>{
+           setErrors({...errors, errorMessage:error.message})
+           setLoading(false)
+           }).finally(()=>{
+            setUser({...user,
+              passwordFocus:false,
+              telephoneFocus:false,
+              isSecure:true,
+              password:'',
+            })
+           })
+          }
+}
+
 
   return (<View style={{backgroundColor:'#F4F8Fb', flex:1}}>
     <StatusBar
@@ -64,16 +151,26 @@ const handleNext =()=>{
         showHideTransition={'slide'}
         hidden={false}
       />
-    <ScrollView >
 
 
-<View style={{backgroundColor:colors.primary, flex:1}}>
+    <Loader isModalVisible={loading} 
+    type={modalType}
+    action={()=>setLoading(false)}
+     />
+
+
+    <ScrollView 
+    showsVerticalScrollIndicator={false}
+    >
+
+
+<View style={{backgroundColor:colors.primary, height:(height/2)+60}}>
 
     <View style={styles.logoWrapper}>
     <Image source={{ uri:ImagesUrl+"/logo3.png" }} style={styles.logo} />
     <Text style={styles.label}>go<Text style={{fontWeight:'800', fontFamily:'arial'}}>Medicz </Text></Text>
 
-  <Text style={[styles.buttonText, {color:colors.navyBlue, fontSize:12, marginVertical:5}]}>DOCTOR</Text>
+  <Text style={[styles.buttonText, {color:colors.navyBlue, fontSize:12, marginVertical:5, letterSpacing:1}]}>DOCTOR</Text>
     </View>
    
 <View style={styles.row}>
@@ -83,19 +180,49 @@ const handleNext =()=>{
 
 
 
-<View style={styles.loginWrapper}>
-{/* <View style={styles.textWrapper}>
-<MaterialIcon name="phone-iphone" size={18} color={colors.icon}  /> 
-  <TextInput placeholder='Enter Mobile Number' 
-  placeholderTextColor={'#959595'}
-  style={styles.textInput} />
-</View> */}
+<View style={[styles.loginWrapper]}>
 
-<View style={styles.textWrapper}>
+<View style={[styles.textWrapper, errors.telephone?globalStyles.error:[]]}>
 <MaterialIcon name="phone-iphone" size={18} color={colors.icon}  /> 
   <TextInput placeholder='Enter Mobile Number' 
   placeholderTextColor={'#959595'}
-  style={styles.textInput} />
+  style={styles.textInput} 
+  
+  keyboardType='number-pad' 
+  autoFocus={true}
+  autoCorrect={false}
+value={user.telephone}
+onChangeText={text=>handleChange('telephone', text)}
+onBlur={()=>handleBlur('telephoneFocus')}
+onFocus={()=>handleFocus('telephoneFocus')}
+  
+  />
+</View>
+
+
+<View style={[styles.textWrapper, {marginTop:10}, errors.password?globalStyles.error:[]]}>
+<MaterialIcon name="lock" size={18} color={colors.icon}  /> 
+  <TextInput placeholder='Password' 
+  placeholderTextColor={'#959595'}
+  style={styles.textInput}
+  
+  
+  autoCapitalize='none'
+  keyboardType='email-address' 
+   secureTextEntry={user.isSecure}
+   autoCorrect={false}
+   value={user.password}
+   onChangeText={text =>handleChange('password', text)}
+  onBlur={()=>handleBlur('passwordFocus')}
+  onFocus={()=>handleFocus('passwordFocus')}
+  
+  />
+
+
+<MaterialIcon 
+        name={user.isSecure?'visibility-off':'visibility'} 
+        onPress={()=>setUser({...user, isSecure:!user.isSecure})} 
+        size={20}  color={colors.grey} />  
 </View>
 
 <TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.button}>
@@ -104,33 +231,25 @@ const handleNext =()=>{
 </View> 
 
 
-<View style={[styles.loginWrapper, {marginTop:30}]}>
-<Text style={{fontSize:14, fontWeight:'600'}}>Or quick continue with</Text>
+<View style={[styles.loginWrapper, {marginVertical:5}]}>
+<Text style={{fontSize:12, fontWeight:'600'}}>OR </Text>
 </View>
 
 
 <View style={styles.socialWrapper}>
-
-  <View style={styles.facebook}>
-
-  <Image source={{ uri:ImagesUrl+"/icons/facebook.png" }} style={styles.icon} />
-
-<Text style={{fontSize:14,  marginLeft:35,fontWeight:'600', color:colors.white}}>Facebook</Text>
-  </View>
-
 
   <View style={styles.gmail}>
 
   <Image source={{ uri:ImagesUrl+"/icons/google.png" }} style={styles.icon} />
 
 
-<Text style={{fontSize:15, marginLeft:15, fontWeight:'600'}}>Gmail</Text>
+<Text style={{fontSize:15, marginLeft:15, fontWeight:'600', color:colors.grey}}>Continue with Google</Text>
 
 </View>
 </View>
 
-<View style={[styles.loginWrapper, {marginTop:20}]}>
-<Text style={{fontSize:14, fontWeight:'600', color:colors.primary}}>Skip Login</Text>
+<View style={[styles.loginWrapper]}>
+<Text style={{fontSize:10, fontWeight:'600', color:colors.primary}}>Skip Login</Text>
 </View>
 
 
@@ -198,13 +317,6 @@ alignItems:'center',
   borderRadius:5,
 },
 
-contentWrapper:{
-width:width,
-display:'flex',
-justifyContent:'center',
-alignItems:'center',
-
-},
 
 
 buttonText:{
@@ -224,19 +336,11 @@ textWrapper:{
   backgroundColor:colors.white,
   borderRadius:5,
   top:-20,
-  elevation:10,
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 1
-  },
-  shadowOpacity: 0.25,
-  shadowRadius: 2,
 },
 
 textInput:{
 marginLeft:15,
-width:width-80,
+width:width-90,
 fontWeight:'600',
 color:colors.dark,
 fontSize:12
@@ -246,38 +350,29 @@ fontSize:12
 socialWrapper:{
   display:'flex',
   flexDirection:'row',
-  marginTop:20,
+  marginVertical:10,
   justifyContent:'space-between',
   width:width,
   paddingHorizontal:10
 },
 
-facebook:{
-display:'flex',
-flexDirection:'row',
-height:45,
-backgroundColor:'#4167B2',
-alignItems:'center',
-
-justifyContent:'center',
-width:(width/2)-20,
-borderRadius:5,
-},
 
 gmail:{
   display:'flex',
   flexDirection:'row',
   height:45,
-  backgroundColor:colors.white,
+  backgroundColor:'transparent',
+  borderWidth:1,
+  borderColor:colors.grey1Opacity,
 alignItems:'center',
 justifyContent:'center',
-width:(width/2)-20,
+width:width-20,
 borderRadius:5,
 },
 
 icon:{
-  height:20,
-  width:20,
+  height:10,
+  width:10,
   resizeMode:'contain'
 },
 })

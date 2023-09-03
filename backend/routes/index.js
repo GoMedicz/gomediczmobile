@@ -1,4 +1,6 @@
 const express = require('express');
+
+var multer  = require('multer')
 const router  = express.Router();
 const {General, categoryController, ProductController, StoreController, UserController  } = require('../controllers/index');
 
@@ -18,10 +20,9 @@ router.post('/api/generate_token', General.getJWTToken);
 
 
 //Products Controller
-  
-router.post('/api/pharmacy/product/add_new', General.AuthenticateToken, General.uploadProductImage, ProductController.AddNewProduct);
 
 
+router.post('/api/pharmacy/product/add_new',  General.AuthenticateToken,General.uploadProductImage,  ProductController.AddNewProduct);
 
 
 router.get('/api/pharmacy/display_products/:pharmacy_code', General.AuthenticateToken, ProductController.getProducts);
@@ -30,7 +31,6 @@ router.get('/api/pharmacy/product/view/:pharmacy_code/:code', General.Authentica
 
 
 router.post('/api/pharmacy/product/update', General.AuthenticateToken, ProductController.UpdateProduct);
-
 
 
 
@@ -46,8 +46,6 @@ router.post('/api/pharmacy/store/update', General.AuthenticateToken, StoreContro
 
 
  
-
-
 
 //User Controller
 router.post('/api/user/add_new', General.AuthenticateToken, UserController.AddNewUser);

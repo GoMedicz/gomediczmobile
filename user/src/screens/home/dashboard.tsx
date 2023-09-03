@@ -24,7 +24,9 @@ const height =
 type RootStackParamList = {
   Dashboard: undefined;
   Cart:undefined;
-    Language:undefined; 
+  Category:undefined; 
+  StoreItems:undefined;
+  Offers:undefined;
     BottomTabs:{
      code:string;
    }
@@ -44,13 +46,20 @@ interface item {
 }
 
 
+const handleCategory =()=>{
+  navigation.navigate('Category');
+}
 
 const handleCart =()=>{
   navigation.navigate('Cart');
 }
 
-const handleNext =()=>{
-  //navigation.navigate('Welcome');
+const handleOffer =()=>{
+  navigation.navigate('Offers');
+}
+
+const handlePharmacy =()=>{
+  navigation.navigate('StoreItems');
 }
 
   const onRefresh = useCallback(()=>{
@@ -62,17 +71,17 @@ const CATCOLOR = ['','#4CD1BC', '#75B4FC', '#FC9680', '#9BE471', '#585AE1', '#FF
 const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', '#9BE471' ]
 
     const CardCategory =({item}:{item:any})=>{
-        return <Pressable style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
+        return <TouchableOpacity activeOpacity={0.8} onPress={handleCategory} style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
 
           <Text style={{color:colors.white, fontSize:10, marginLeft:15, marginTop:15, fontWeight:'600'}}>{item.title}</Text>
 
           <Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
-          </Pressable>
+          </TouchableOpacity>
         }
 
 
         const CardOffer =({item}:{item:any})=>{
-            return <Pressable style={[styles.offer, {backgroundColor:OFFERCOLOR[item.id]} ]}>
+            return <TouchableOpacity activeOpacity={0.8} onPress={handleOffer}  style={[styles.offer, {backgroundColor:OFFERCOLOR[item.id]} ]}>
     
             <View>
               <Text style={{color:colors.white, fontSize:14,  marginTop:15, fontWeight:'700'}}>{item.title}</Text>
@@ -82,12 +91,12 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
              </View>
 
               <Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.offerImage} />
-              </Pressable>
+              </TouchableOpacity>
             }
 
 
             const Seller =({item}:{item:any})=>{
-                return <Pressable style={[styles.seller]}>
+                return <TouchableOpacity activeOpacity={0.8} onPress={handlePharmacy} style={[styles.seller]}>
         
 
         <Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.sellerImage} />
@@ -107,7 +116,7 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
 
 
     
-                   </Pressable>
+                   </TouchableOpacity>
                 }
 
 

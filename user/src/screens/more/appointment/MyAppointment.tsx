@@ -48,8 +48,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('Cart');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -80,15 +80,15 @@ const handleNext =()=>{
         <Text style={styles.label}>14 June 2020 | 2:30 pm </Text>
 
       <View style={{display:'flex', flexDirection:'row'}}>
-      <MaterialIcon name="call" size={12} color={colors.icon} style={{marginRight:15}}  />
-      <MaterialIcon name="chat" size={12} color={colors.icon} />
+      <MaterialIcon name="call" size={14} color={colors.icon} style={{marginRight:15}}  />
+      <MaterialIcon name="chat" size={14} color={colors.icon} />
       </View>
       </View>
     </View> 
 </View>
 
  
-  <FontAwesome5Icon name="bars" size={12} color={colors.icon} style={{position:'absolute', top:0, right:0}}  />
+<MaterialIcon  name="more-vert" size={14} color={colors.icon} style={{position:'absolute', top:0, right:0}}  />
  
 </View>
 
@@ -109,7 +109,7 @@ const handleNext =()=>{
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back" size={18} onPress={handleBack} color={colors.dark}  /> 
     <Text style={styles.label}>My appointments</Text>
 
     <View/>

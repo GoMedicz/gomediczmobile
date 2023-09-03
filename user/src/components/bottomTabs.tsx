@@ -1,4 +1,4 @@
-import { View, StyleSheet, Text } from 'react-native'
+import { View, StyleSheet, Text, Dimensions } from 'react-native'
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -9,10 +9,12 @@ import StackNavigator from '../navigator/stack';
 import DoctorHome from '../screens/doctors/doctorHome';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
+import { MODE } from './includes';
 import Hospital from '../screens/hospital/hospital';
 import LabHome from '../screens/lab/LabHome';
 import AccountProfile from '../screens/more/AcountProfile';
 
+const {width} = Dimensions.get('screen');
 
 const Tab = createBottomTabNavigator();
 
@@ -75,8 +77,7 @@ function CustomButton({ state, descriptors, navigation }:any) {
               onLongPress={onLongPress}
            
             >
-            
-              <View style={[styles.tabButton, label==='add'?styles.centerButton:[]]}>
+             <View style={[styles.tabButton, isFocused?styles.selected:[], label==='add'?styles.centerButton:[]]}>
       
                <FontAwesome5Icon name={
                 label==="Medicine"?"pills":
@@ -172,13 +173,11 @@ const styles = StyleSheet.create({
       
     },
     btnWrapper:{
-      height:40,
+      height:50,
       paddingBottom:10,
-      paddingTop:8,
-     paddingHorizontal:20,
       flexDirection:'row',
       justifyContent:'space-between',
-      backgroundColor:colors.white,
+      backgroundColor:MODE==='Light'?colors.white:colors.dark,
       shadowColor: "#000",
       shadowOffset: {
         width: 0,
@@ -191,10 +190,13 @@ const styles = StyleSheet.create({
     },
     tabButton:{
       justifyContent:'center',
-      alignItems:'center'
+      alignItems:'center',
+      height:50,
+      width:width/5
     },
     selected:{
-
-
+      borderTopWidth:2,
+      borderTopColor:colors.primary,
+      
     }
   })

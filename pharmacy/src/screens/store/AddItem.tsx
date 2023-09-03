@@ -7,7 +7,7 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
 import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { ImagesUrl,  PHARMACY_CODE, STAFF_CODE, ServerUrl, config } from '../../components/includes';
+import { ImagesUrl,  PHARMACY_CODE, STAFF_CODE, ServerUrl, configFile, config } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import { PrimaryButton } from '../../components/include/button';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -44,7 +44,7 @@ const Initials ={
   pharmacy_code:PHARMACY_CODE,
   staff_code: STAFF_CODE,
   image_url: '',
-  image_file:'',
+  image_file:{uri:'', name:'', type:''},
   product_id: '',
   product_name:'',
   category_code: '',
@@ -146,10 +146,9 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
        // console.log('Image picker error: ', response.errorMessage);
       } else {
         let imageUri:any =  response.assets?.[0]?.uri;
-        let imageFile:any =  response.assets?.[0];
-
+        let imageFile:any = response.assets?.[0]
         setDrugs({...drugs, image_url:imageUri, image_file:imageFile})
-
+console.log(imageFile)
       }
     });
 
@@ -246,22 +245,24 @@ const handleBack =()=>{
     if(!formIsValid){
       setErrors(error) 
       }
-  
+
   
   if(formIsValid) {
       
       setLoading(true)
       
+    
+
       const fd = new FormData();
       Object.entries(drugs).forEach(([key, value]) => {
               fd.append(key, value);
           });
       fd.append('price_list',  JSON.stringify(quantity, null, 2))
 
+
       let url = ServerUrl+'/api/pharmacy/product/add_new';
-         axios.post(url, fd, config)
+         axios.post(url, fd, configFile)
          .then(response =>{
-          console.log(response.data)
            if(response.data.type === 'success'){
             //setLoading(false)
            
@@ -278,9 +279,9 @@ const handleBack =()=>{
                 // setErrors({...errors, errorMessage:error.message})
                  setLoading(false)
                  }).finally(()=>{
-                /*  setDrugs({...Initials,
+                setDrugs({...Initials,
                 code:'p'+Math.random().toString(36).substring(2, 9)})
-                 GenerateRow() */
+                 GenerateRow() 
                  })
                 }
     }

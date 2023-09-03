@@ -1,5 +1,6 @@
 import { Dimensions, StyleSheet } from "react-native";
 import colors from "../assets/colors";
+import { MODE } from "./includes";
 
 const {width} = Dimensions.get('screen');
 
@@ -43,4 +44,24 @@ export  const globalStyles = StyleSheet.create({
         justifyContent:'center',
          alignItems:'center' 
       },
+
+      header:{
+  
+        display:'flex',
+        justifyContent:'space-between',
+        flexDirection:'row',
+        alignItems:'center',
+        paddingHorizontal:10,
+        backgroundColor:MODE==='Light'?colors.white:colors.dark,
+        height:60
+      },
+      px:{
+        height:25,
+        width:25,
+        resizeMode:'cover',
+          },
+          error:{
+            borderWidth:1,
+            borderColor:colors.red,
+          },
     })

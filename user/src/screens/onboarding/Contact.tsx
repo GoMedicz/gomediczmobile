@@ -1,15 +1,16 @@
 
 import React, { useCallback, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
+import { ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { LANGUAGELIST, THEME } from '../../components/data';
 import { PrimaryButton } from '../../components/include/button';
 import { ImagesUrl } from '../../components/includes';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -32,9 +33,11 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Contact'>;
  const Contact =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(THEME)
   const [refreshing, setRefreshing] = useState(false)
+
+
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE)
 
 interface item {
   title:string,
@@ -43,74 +46,53 @@ interface item {
 }
 
 
-const handleSelect =(item:item)=>{
 
-const LIST = [...Languages].map((rs:item)=>{
-                   
-  if( rs.id === item.id){
-      return {...rs, isDefault:item.isDefault ==='No'?'Yes':'Yes'}
-  }
 
-    return {...rs, isDefault:'No'}
-  
-    })
-   setLanguages(LIST)
+
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 
-
-const Checkbox =({item}:{item:item})=>{
-  return <TouchableOpacity activeOpacity={0.9} style={styles.checkboxWrapper}
-  onPress={()=>handleSelect(item)}
- 
-  >
-<View style={styles.checkbox}>
-  <View style={[item.isDefault==='Yes'? styles.checked:[]]} />
-</View>
-<Text style={styles.label}>{item.title}</Text>
-</TouchableOpacity>
-  
-}
-
-const handleNext =()=>{
-  navigation.navigate('Welcome');
-}
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
    // FetchContent()
     }, [])
 
-  return (<View style={{flex:1, backgroundColor:colors.white}}>
+  return (<SafeAreaView style={{flex:1, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Support</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="arrow-back"  onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
+    <Text style={dynamicStyle.label}>Support</Text>
     
     <View/>
     </View>
 <ScrollView>
 
 <View style={{paddingHorizontal:10}}>
-  <Text style={styles.h1}>How may we</Text>
-  <Text style={styles.h1}>help you?</Text>
-  <Text style={[styles.label, {marginTop:20, color:colors.grey}]}>Let us know yours queries & feedbacks</Text>
+  <Text style={[styles.h1, {color:MODE==='Light'?colors.dark:colors.white}]}>How may we</Text>
+  <Text style={[styles.h1, {color:MODE==='Light'?colors.dark:colors.white}]}>help you?</Text>
+  <Text style={[dynamicStyle.label, {marginTop:20, color:colors.grey}]}>Let us know yours queries & feedbacks</Text>
 </View>
 
 
 
 
 <View style={{marginVertical:50}}>
-<View style={styles.inputWrapper}>
+<View style={[styles.inputWrapper, {
+    backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
 
 <MaterialIcon name="mail" size={14} color={colors.icon}  /> 
   <TextInput 
   placeholder='Email Address'
   placeholderTextColor={colors.grey}
-  style={styles.inputText}
+  style={[styles.inputText,{
+    color:MODE==='Light'?colors.dark:colors.white} ]}
   />
 </View>
 
-<View style={styles.textAreaWrapper}>
+<View style={[styles.textAreaWrapper, {
+    backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
 <MaterialIcon name="edit" size={14} color={colors.icon}  /> 
 
 <TextInput 
@@ -118,9 +100,9 @@ const handleNext =()=>{
 placeholder='Write your message'
 multiline={true}
 numberOfLines={10}
-style={styles.textArea}
+style={[styles.textArea, {
+  color:MODE==='Light'?colors.dark:colors.white}]}
 placeholderTextColor={colors.grey}
-
 
 />
 </View>
@@ -150,77 +132,14 @@ style={{width:width-20, marginHorizontal:10, borderRadius:5, marginVertical:50}}
   <Image source={{ uri:ImagesUrl+"/reception.png" }} style={styles.doctorLogo} /> 
 
   </View>
-    </View>
+    </SafeAreaView>
   )
 }
 
 export default Contact
 
 const styles = StyleSheet.create({
-  checkboxWrapper:{
-    display:'flex',
-    flexDirection:'row',
-    alignItems:'center',
-    marginBottom:30
-  },
-
-  checkbox:{
-    height:20,
-    width:20,
-    borderRadius:10,
-    borderWidth:2,
-    borderColor:colors.skye,
-    marginRight:30,
-    display:'flex',
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'center'
-  },
-  checked:{
-    height:10,
-    width:10,
-    borderRadius:10,
-    backgroundColor:colors.skye
-  },
-  textWrapper:{
-    width:width,
-    display:'flex',
-    justifyContent:'center',
-    alignItems:'center',
-    marginTop:15
-  },
-  title:{
-  fontSize:16,
-  fontWeight:'600',
-  color:colors.dark,
-
-  },
-  label:{
-    fontSize:12,
-    fontWeight:'600',
-    color:colors.dark,
-
-  },
-
-  button:{
-    width:width,
-    display:'flex',
-    justifyContent:'center',
-    alignItems:'center',
-    height:50,
-    backgroundColor:colors.primary,
-    bottom:0,
-  },
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:colors.white,
-    height:60,
-  },
+ 
   textAreaWrapper:{
     width:width-20,
     marginHorizontal:10,
@@ -228,7 +147,6 @@ const styles = StyleSheet.create({
     padding:10,
     height:80,
     marginTop:10,
-    backgroundColor:colors.lightSkye,
     display:'flex',
     flexDirection:'row',
     
@@ -244,7 +162,6 @@ const styles = StyleSheet.create({
   },
   inputText:{
     width:width-50,
-    color:colors.dark,
     marginLeft:10
 
   },
@@ -254,7 +171,6 @@ const styles = StyleSheet.create({
     display:'flex',
     marginHorizontal:10,
     height:45,
-    backgroundColor:colors.lightSkye,
     borderRadius:5,
     alignItems:'center',
     padding:10,

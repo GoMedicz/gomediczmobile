@@ -50,7 +50,7 @@ const handleCart =()=>{
 }
 
 const handleNext =()=>{
-  navigation.navigate('Wallet');
+  navigation.goBack();
 }
 
 
@@ -90,7 +90,7 @@ const CardDate =({item}:{item:any})=>{
 
 <View style={{display:'flex', flexDirection:'row', justifyContent:'flex-start', alignItems:'flex-end' }}>
   
-<Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
+<Image source={{ uri:ImagesUrl+"/profile_5.png"}} style={styles.profile} />
 
 <Text style={styles.title}>Samantha Smith</Text>
 

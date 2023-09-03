@@ -49,8 +49,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('Cart');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -73,7 +73,7 @@ const handleNext =()=>{
   return (<SafeAreaView style={[ {flex:1, backgroundColor:colors.white}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios"  onPress={handleBack} size={18} color={colors.dark}  /> 
     <Text style={styles.label}>Create Pill Reminders</Text>
 
     <View/>

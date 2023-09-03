@@ -57,10 +57,10 @@ const handleBack =()=>{
    // FetchContent()
     }, [])
 
-  return (<SafeAreaView style={{flex:1, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
+  return (<View style={{flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.dark}}>
     
     <View style={dynamicStyle.header}>
-    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white} /> 
+    <MaterialIcon name="arrow-back" onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white} /> 
     <Text style={dynamicStyle.label}>FAQs</Text>
     
     <View/>
@@ -110,7 +110,7 @@ const handleBack =()=>{
 
 </ScrollView>
 
-    </SafeAreaView>
+    </View>
   )
 }
 

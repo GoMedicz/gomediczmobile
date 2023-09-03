@@ -43,7 +43,9 @@ interface item {
   id:number
 }
 
-
+const handleBack =()=>{
+  navigation.goBack();
+}
 
 const handleCart =()=>{
   navigation.navigate('Cart');
@@ -94,13 +96,13 @@ const handleNext =()=>{
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={colors.dark}  /> 
     <Text style={styles.label}>Health Care</Text>
     
     
     <Pressable onPress={handleCart} style={styles.cart}>
 
-<MaterialIcon name="shopping-cart" size={14} color={colors.dark}  /> 
+<MaterialIcon name="shopping-cart" size={18} color={colors.dark}  /> 
     <View style={styles.circle}>
         <Text style={{color:colors.white, fontSize:8, fontWeight:'500'}}>1</Text>
     </View>

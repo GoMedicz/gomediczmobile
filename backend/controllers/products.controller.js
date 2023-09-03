@@ -55,8 +55,6 @@ if(!formIsValid){
   return res.send({type:'error', message:'Some fields are required'})
   }else{
 
-
-
     sequelize.sync().then(() => {
         models.Products.create({
 

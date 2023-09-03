@@ -23,7 +23,8 @@ const height =
 
 type RootStackParamList = {
   Register: undefined;
-    Language:undefined; 
+  SignIn:undefined;
+  Verification:undefined; 
     BottomTabs:{
      code:string;
    }
@@ -43,14 +44,15 @@ interface item {
 }
 
 
-
 const handleBack =()=>{
-  navigation.navigate('Language');
+  navigation.navigate('SignIn');
 }
+
 
 const handleNext =()=>{
-  //navigation.navigate('Welcome');
+  navigation.navigate('Verification');
 }
+
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
@@ -62,7 +64,7 @@ const handleNext =()=>{
 
     <View style={styles.header}>
 
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={14} color={colors.dark}  /> 
 
     <Text style={styles.label}>Register Now</Text>
     <View />

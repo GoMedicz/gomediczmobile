@@ -47,8 +47,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('Cart');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -56,58 +56,6 @@ const handleNext =()=>{
     code:'cds',
   });  
 }
-
-
-
-
-  const CardCategory =({item}:{item:any})=>{
-    return <View style={{backgroundColor:colors.white, marginBottom:5}}>
-      
-    <Pressable onPress={handleNext} style={[styles.box]}>
-
-      <Text style={[styles.infoText, {color:colors.dark}]}>Cardiology Departments </Text>
-
-      <MaterialIcon name="keyboard-arrow-down" size={18} color={colors.primary}  />
-      </Pressable>
-
-
-      <View style={[styles.content, {backgroundColor:colors.white}]}>
-
-<View style={globalStyles.rowCenterCenter}>
-<Image source={{ uri:ImagesUrl+"/doctors/"+item.image }} style={styles.profile} />
-
-    
-    <View style={[{display:'flex'}, {marginLeft:2}]}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600', marginBottom:2}}>{item.fullname}</Text>
-
-
-      <Text style={styles.infoText}>Cardiac Surgeon <Text style={{color:colors.grey, opacity:0.5}}>at</Text> Apple Hospital</Text>
-
-
-<View style={{display:'flex', flexDirection:'row', alignItems:'center', marginTop:10}}>
-      <Text style={[styles.infoText, {marginRight:5}]}>Exp. <Text style={{color:colors.dark}}>22 years</Text> </Text>
-      <Text style={[styles.infoText]}>Fees <Text style={{color:colors.dark}}>$30</Text></Text>
-
-      <View style={[globalStyles.rowCenterCenter]}>
-      <View style={[globalStyles.rowCenterCenter]}>
-      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
-      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
-      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
-      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
-      <MaterialIcon name="star" size={12} color={colors.grey}  />
-      </View>
-      <Text style={styles.infoText}>(20)</Text>
-  </View> 
-
-      </View>
-    </View> 
-</View>
-
-
-
-</View>
-      </View>
-    }
 
 
   
@@ -121,7 +69,7 @@ const handleNext =()=>{
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
 
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
     
     <MaterialIcon name="phone" size={18} color={colors.primary}  /> 
     </View>

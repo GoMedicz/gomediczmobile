@@ -8,12 +8,14 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl, MODE } from '../../components/includes';
+import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
 import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -26,8 +28,17 @@ const height =
 
 
 type RootStackParamList = {
+  Dashboard:undefined;
   AccountProfile: undefined;
-  Profiles:undefined; 
+  Profile:undefined; 
+  Theme:undefined;
+  Wallet:undefined;
+  Insight:undefined;
+  Earnings:undefined;
+  Language:undefined;
+  Faqs:undefined;
+  Terms:undefined;
+  Contact:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
@@ -38,16 +49,22 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE);
+
 interface item {
   title:string,
   isDefault:string,
   id:number
 }
 
-
+const handleClose =()=>{
+  navigation.navigate('Dashboard');
+}
 
 const handleNext =()=>{
-  navigation.navigate('Profiles');
+  navigation.navigate('Profile');
 }
 
 
@@ -59,9 +76,9 @@ const handleNext =()=>{
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="close" size={18} color={MODE==='Light'?colors.primary:colors.grey}  />
-   <Text style={styles.label}>Account</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="close" size={18} onPress={handleClose} color={MODE==='Light'?colors.primary:colors.grey}  />
+   <Text style={dynamicStyle.label}>Account</Text>
 <View/>
     </View>
 
@@ -77,7 +94,7 @@ const handleNext =()=>{
 <View style={{marginLeft:10}}>
 
 <View style={{width:(width/2)-40}}>
-  <Text style={styles.title}>Dr. Joseph Williamson</Text>
+  <Text style={dynamicStyle.title}>Dr. Joseph Williamson</Text>
   </View>
 
   <Text style={[styles.infoText, { marginTop:15}]}>+1 987 654 3210</Text>
@@ -90,93 +107,64 @@ const handleNext =()=>{
 <View style={{ marginHorizontal:10, marginVertical:5, display:'flex', flexDirection:'row', flexWrap:'wrap', justifyContent:'space-between'}}>
 
 
-
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>Wallet</Text>
-
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Wallet')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Wallet</Text>
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Quick Payments</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
-  </View>
-</TouchableOpacity>
-
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>Insight</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Ride Overview</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}   />
+  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Payments</Text>
+    
+<MaterialIcon name="account-balance-wallet" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
 </TouchableOpacity>
 
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>My Profile</Text>
-
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Insight')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Insight</Text>
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Setup Profile</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
+  <Text style={[styles.infoText, {fontSize:10} ]}>See the progress</Text>
+    
+<MaterialIcon name="insert-chart" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
 </TouchableOpacity>
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>Change Language</Text>
 
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Profile')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Profile</Text>
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}   />
+  <Text style={[styles.infoText, {fontSize:10} ]}>Setup Profile</Text>
+    
+<MaterialIcon name="person" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
 </TouchableOpacity>
 
 
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>Change Theme</Text>
-
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Language')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Change Language</Text>
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
+  <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
+    
+<MaterialIcon name="language" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
 </TouchableOpacity>
 
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>Contact Us</Text>
-
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Theme')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Change Theme</Text>
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
-  </View>
-</TouchableOpacity>
-
-
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>About Us</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
-  </View>
-</TouchableOpacity>
-
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>T&C</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Policies</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}  />
+  <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
+    
+<MaterialIcon name="palette" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
 </TouchableOpacity>
 
 
 
-
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.box}>
-  <Text style={styles.label}>FAQs</Text>
-
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Terms')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>T&C</Text>
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Policies</Text>
-    <FontAwesome5Icon name="wallet" size={20} color={MODE==='Light'?colors.grey1Opacity:colors.grey}   />
+  <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
+    
+<MaterialIcon name="article" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
 </TouchableOpacity>
 
@@ -184,14 +172,36 @@ const handleNext =()=>{
 
 
 
-<View style={styles.box}>
-  <Text style={styles.label}>Logout</Text>
-
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>Logout</Text>
-    <FontAwesome5Icon name="wallet" size={25} color={MODE==='Light'?colors.grey1Opacity:colors.grey}   />
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Contact')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Contact Us</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
+    
+<MaterialIcon name="mail" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>
-</View>
+</TouchableOpacity>
+
+
+
+<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Faqs')} style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>FAQs</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Answer</Text>
+    
+<MaterialIcon name="feedback" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
+  </View>
+</TouchableOpacity>
+
+
+
+<TouchableOpacity activeOpacity={0.8}  style={dynamicStyle.box}>
+  <Text style={dynamicStyle.label}>Logout</Text>
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
+  <Text style={[styles.infoText, {fontSize:10} ]}>See you soon</Text>
+    
+<MaterialIcon name="logout" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
+  </View>
+</TouchableOpacity>
 
 </View>
 
@@ -199,12 +209,13 @@ const handleNext =()=>{
 </ScrollView>
 
 <View>
-<View style={styles.boxRider}>
+<View style={[styles.boxRider, {
+  backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
 
 <MaterialIcon name="circle" size={14} color={colors.green}  />
 
-<Text style={[styles.label, {marginHorizontal:10}]}> You're Online</Text>
+<Text style={[dynamicStyle.label, {marginHorizontal:10}]}> You're Online</Text>
 
 <MaterialIcon name="keyboard-arrow-up" size={20} color={MODE==='Light'?colors.dark:colors.white}  />
 </View>
@@ -219,21 +230,6 @@ export default AccountProfile
 
 const styles = StyleSheet.create({
 
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    height:60
-  },
-  label:{
-    fontWeight:'600',
-    fontSize:12,
-    color:MODE==='Light'?colors.dark:colors.white
-  },
   h3:{
     fontWeight:'600',
     fontSize:10,
@@ -259,12 +255,6 @@ const styles = StyleSheet.create({
     padding:10,
     justifyContent:'space-between'
   },
-  title:{
-    fontSize:20,
-    fontWeight:'600',
-    color:MODE==='Light'?colors.dark:colors.white
-
-  },
   card:{
     padding:10,
     backgroundColor:colors.white,
@@ -279,18 +269,10 @@ alignItems:'center',
 flexDirection:'row'
   },
 
-  box:{
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    width:(width/2)-15,
-    padding:10,
-    marginVertical:5,
-    borderRadius:5
 
-  },
 
 boxRider:{
   width:width-10,
-  backgroundColor:MODE==='Light'?colors.white:colors.dark,
   display:'flex',
   flexDirection:'row',
   justifyContent:'center',

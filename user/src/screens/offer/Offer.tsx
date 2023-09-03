@@ -44,7 +44,9 @@ interface item {
   id:number
 }
 
-
+const handleBack =()=>{
+  navigation.goBack();
+}
 
 const handleCart =()=>{
   navigation.navigate('Doctors');
@@ -94,7 +96,7 @@ const handleNext =()=>{
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={18} color={colors.dark}  /> 
     <Text style={styles.label}>Offers</Text>
 
     <View/>

@@ -43,17 +43,15 @@ interface item {
   id:number
 }
 
-
-
-const handlePayment =()=>{
-  navigation.navigate('Category');
-}
-
 const handleNext =()=>{
   navigation.navigate('BottomTabs', {
     code:'cds',
   }); 
 }
+
+
+
+
 
 
 
@@ -103,7 +101,7 @@ const handleNext =()=>{
 <View style={styles.container}>
 
 
-<TouchableOpacity onPress={handlePayment} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, } ]}>
+<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, } ]}>
   <Text style={globalStyles.buttonText}>Continue Shopping</Text> 
 </TouchableOpacity>
 

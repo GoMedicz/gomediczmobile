@@ -47,8 +47,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('SavedItems');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -57,24 +57,6 @@ const handleNext =()=>{
 
 
 
-
-  const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
-
-    
-<Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>City Cure Labs</Text>
-
-<View style={{display:'flex', flexDirection:'row', marginTop:5}}>
-<MaterialIcon name="add-location" size={14} color={colors.grey}  />
-<Text style={[styles.infoText]}>Wallington Bridge</Text>
-</View>
-
-
-<Text style={[styles.infoText, {marginTop:10, color:colors.navyBlue}]}>120+ Tests available</Text>
-
-
-      </Pressable>
-    }
 
 
   
@@ -88,8 +70,8 @@ const handleNext =()=>{
   return (<SafeAreaView style={[ {flex:1, backgroundColor:colors.white}]}>
     
     <View style={styles.header}>
-      <View style={{display:'flex', flexDirection:'row'}}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+      <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
+    <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
     <Text style={[styles.label, {marginLeft:10}]}>Cancel</Text>
     </View>
 

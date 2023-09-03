@@ -320,7 +320,7 @@ const handleBack =()=>{
             
             setModalType('Updated')
             
-            setLoading(false)
+            //setLoading(false)
 
             setTimeout(() => {
            handleNext()
@@ -336,7 +336,7 @@ const handleBack =()=>{
                 // setErrors({...errors, errorMessage:error.message})
                  setLoading(false)
                  }).finally(()=>{
-                  setLoading(false)
+                 // setLoading(false)
                  })
                 }
     }

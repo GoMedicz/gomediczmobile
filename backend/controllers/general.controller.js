@@ -1,5 +1,6 @@
 
 var multer  = require('multer')
+const path = require("path");
 var jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 // get config vars
@@ -38,16 +39,33 @@ const uploadProductImage =(req, res, next)=>{
   var storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, '../public/images/products/')
+
     },
     filename: function (req, file, cb) {
-      cb(null, file.fieldname)
+      cb(null, file.originalname)
+
     }
   })
-  var upload = multer({ storage: storage, limits:{
+
+  const fileFilter = (req, file, cb) => {
+    // reject a file
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype == "image/jpg") {
+      cb(null, true);
+        } else {
+            cb(null, false);
+            return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+        }
+  };
+
+  //upload.fields([{name:'logoImage', maxCount:1}, {name:'favicon', maxCount:1}, {name:'signature', maxCount:1}])
+
+   var upload = multer({ storage: storage, limits:{
     fieldSize: 25 * 1024 * 1024
-  } }).single('image_file')
+  }}).single("image_file"); 
+  
   next() 
 }
+
 
   const AuthenticateToken =(req, res, next)=> {
     const authHeader = req.headers['authorization']
@@ -68,7 +86,6 @@ const uploadProductImage =(req, res, next)=>{
 var token = generateAccessToken(req.body.username);
 return res.send({type:'success',  jwt:token, expire:'20 hours'})  
 }
-
 
 
   module.exports = {

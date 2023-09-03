@@ -24,7 +24,9 @@ const height =
 
 type RootStackParamList = {
   LabHome: undefined;
+  Offers:undefined;
   TestList:undefined;
+  SearchLab:undefined;
   DoctorsList:undefined; 
     BottomTabs:{
      code:string;
@@ -44,14 +46,19 @@ interface item {
   id:number
 }
 
-
+const handleOffer =()=>{
+  navigation.navigate('Offers');
+}
+const handleTest =()=>{
+  navigation.navigate('TestList');
+}
 
 const handleCart =()=>{
   navigation.navigate('TestList');
 }
 
 const handleNext =()=>{
-  navigation.navigate('DoctorsList');
+  navigation.navigate('SearchLab');
 }
 
   const onRefresh = useCallback(()=>{
@@ -62,7 +69,7 @@ const handleNext =()=>{
 const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', '#9BE471' ]
 
     const CardCategory =({item}:{item:any})=>{
-        return <Pressable style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
+        return <TouchableOpacity activeOpacity={0.8} onPress={handleTest} style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
 
           <Text style={{color:colors.white, fontSize:10, marginLeft:15, marginTop:15, fontWeight:'600'}}>{item.title}</Text>
 
@@ -70,12 +77,12 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
           <FontAwesome5Icon name={item.image} size={50} color={colors.grey4}  />
           </View>
 
-          </Pressable>
+          </TouchableOpacity>
         }
 
 
         const CardOffer =({item}:{item:any})=>{
-            return <Pressable style={[styles.offer, {backgroundColor:OFFERCOLOR[item.id]} ]}>
+            return <TouchableOpacity activeOpacity={0.8} onPress={handleOffer} style={[styles.offer, {backgroundColor:OFFERCOLOR[item.id]} ]}>
     
             <View>
               <Text style={{color:colors.white, fontSize:14,  marginTop:15, fontWeight:'700'}}>{item.title}</Text>
@@ -85,7 +92,7 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
              </View>
 
               <Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.offerImage} />
-              </Pressable>
+              </TouchableOpacity>
             }
 
 

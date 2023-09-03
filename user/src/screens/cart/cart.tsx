@@ -44,10 +44,10 @@ interface item {
 }
 
 
-
 const handleBack =()=>{
-  navigation.navigate('ConfirmOrder');
+  navigation.goBack();
 }
+
 
 const handleConfirm =()=>{
   navigation.navigate('ConfirmOrder');
@@ -98,7 +98,7 @@ const CardCategory =({item}:{item:any})=>{
   return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={18} color={colors.dark}  /> 
     <Text style={styles.label}>My Cart</Text>
     <View />
     </View>

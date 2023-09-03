@@ -125,6 +125,7 @@ const handleNext =()=>{
 
 
     <PrimaryButton 
+    handleAction={handleNext}
     style={{
       borderBottomLeftRadius:10,
       borderBottomRightRadius:10,

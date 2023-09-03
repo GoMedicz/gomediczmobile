@@ -12,6 +12,8 @@ import { ImagesUrl } from '../../../components/includes';
 import { globalStyles } from '../../../components/globalStyle';
 import ModalDialog from '../../../components/modal';
 import ShoppingCart from '../../../components/include/ShoppingCart';
+import { useZustandStore } from '../../../api/store';
+import { dynamicStyles } from '../../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -38,6 +40,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Reminder'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+
+  const MODE = useZustandStore((store:any) => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
+
+
 interface item {
   title:string,
   isDefault:string,
@@ -46,8 +53,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('CreateReminder');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -90,9 +97,9 @@ const handleNext =()=>{
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Pill Reminders</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="arrow-back" onPress={handleBack} size={18} color={colors.dark}  /> 
+    <Text style={dynamicStyle.label}>Pill Reminders</Text>
 
     <View/>
     </View>

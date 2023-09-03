@@ -14,6 +14,8 @@ import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
 import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -38,6 +40,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE);
+
 interface item {
   title:string,
   isDefault:string,
@@ -46,8 +52,8 @@ interface item {
 
 
 
-const handleNext =()=>{
-  navigation.navigate('MyAppointment');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 
@@ -59,9 +65,9 @@ const handleNext =()=>{
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark,}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
-   <Text style={styles.label}>My Profile</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="arrow-back" onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
+   <Text style={dynamicStyle.label}>My Profile</Text>
 <View />
     </View>
 
@@ -256,6 +262,7 @@ const handleNext =()=>{
 
 <View>
   <PrimaryButton
+  handleAction={handleBack}
   title='Update'
   />
 </View>

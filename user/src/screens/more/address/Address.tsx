@@ -47,8 +47,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('AddAddress');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -86,7 +86,7 @@ const ICON = ['', 'home', 'office', 'domain',  'pages', 'verified']
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back" onPress={handleBack} size={18} color={colors.dark}  /> 
     <Text style={styles.label}>Saved Addresses</Text>
 
     <View/>

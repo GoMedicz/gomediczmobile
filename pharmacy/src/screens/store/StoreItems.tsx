@@ -97,7 +97,7 @@ const handleEdit =(code:string)=>{
       try{
   
      await axios.get(url, config).then(response=>{
-    
+   
         if(response.data.type==='success'){
           setContent(response.data.data)
         }else{

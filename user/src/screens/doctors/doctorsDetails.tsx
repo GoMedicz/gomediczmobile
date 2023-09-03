@@ -27,6 +27,7 @@ const height =
 type RootStackParamList = {
   DoctorsDetails: undefined;
   DoctorReviews:undefined; 
+  Appointment:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DoctorsDetails'>;
@@ -44,11 +45,15 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('DoctorReviews');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
-const handleNext =()=>{
+const handleAppointment =()=>{
+  navigation.navigate('Appointment');
+}
+
+const handleReview =()=>{
   navigation.navigate('DoctorReviews');
 }
 
@@ -65,8 +70,8 @@ const handleNext =()=>{
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <MaterialIcon name="bookmark-outline" size={14} color={colors.dark}  /> 
+    <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={18} color={colors.dark}  /> 
+    <MaterialIcon name="bookmark-outline" size={18} color={colors.dark}  /> 
 
     </View>
 
@@ -217,7 +222,7 @@ const handleNext =()=>{
 
 <PrimaryButtonChildren
 
-handleAction={handleNext}
+handleAction={handleAppointment}
 >
 
 <View style={globalStyles.rowCenterCenter}>

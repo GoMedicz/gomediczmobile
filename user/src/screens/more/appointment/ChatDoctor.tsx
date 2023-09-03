@@ -46,8 +46,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('MyLabTest');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -56,24 +56,6 @@ const handleNext =()=>{
 
 
 
-
-  const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
-
-    
-<Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>City Cure Labs</Text>
-
-<View style={{display:'flex', flexDirection:'row', marginTop:5}}>
-<MaterialIcon name="add-location" size={14} color={colors.grey}  />
-<Text style={[styles.infoText]}>Wallington Bridge</Text>
-</View>
-
-
-<Text style={[styles.infoText, {marginTop:10, color:colors.navyBlue}]}>120+ Tests available</Text>
-
-
-      </Pressable>
-    }
 
 
   
@@ -87,7 +69,7 @@ const handleNext =()=>{
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
     <Text style={styles.label}>Dr. Joseph Williams</Text>
     <View/>
     </View>

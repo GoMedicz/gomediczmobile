@@ -113,7 +113,7 @@ useEffect(()=>{
 <TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('StoreProfile')} style={dynamicStyle.box}>
   <Text style={dynamicStyle.label}>Store Profile</Text>
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
+  <Text style={[styles.infoText, {fontSize:10} ]}>Setup Profile</Text>
     
 <MaterialIcon name="store" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
   </View>

@@ -43,7 +43,9 @@ interface item {
   id:number
 }
 
-
+const handleBack =()=>{
+  navigation.goBack();
+}
 
 const handlePayment =()=>{
   navigation.navigate('Payment');
@@ -95,7 +97,7 @@ const CardDate =({item}:{item:any})=>{
     
     <ScrollView>
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
     <Text style={styles.label}>Confirm Booking</Text>
     <View />
     </View>

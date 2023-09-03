@@ -44,7 +44,51 @@ interface item {
   id:number
 }
 
+const Header = ()=>{
+  return(
+<View style={{backgroundColor:colors.white, padding:10}}>
+<Text style={[styles.infoText]}>Hello, Sam Smith,</Text>
 
+    <Text style={styles.h1}>Find Hospital</Text> 
+
+
+    <View style={styles.textWrapper}>
+    <MaterialIcon name="search" size={14} color={colors.icon}  /> 
+  <TextInput placeholder='Search Hospital' 
+  placeholderTextColor={'#959595'}
+  style={styles.textInput} />
+</View>
+
+
+
+<View style={styles.contentWrapper}>
+
+<Text style={styles.infoText}>Shop by category</Text>
+
+<Text style={[styles.infoText,{color:colors.primary}]}>View all</Text>
+</View>
+
+<View style={{ marginVertical:15}}>
+<FlatList 
+data={DOCTORSCATEGORY}
+horizontal
+showsHorizontalScrollIndicator={false}
+snapToInterval={width-20}
+snapToAlignment='center'
+decelerationRate="fast"
+renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+
+/>
+
+</View>
+
+<View style={[styles.contentWrapper, {marginVertical:12} ]}>
+<Text style={[styles.infoText,{fontSize:12} ]}>Hospitals near you</Text>
+<MaterialIcon name="map" size={20} color={colors.grey}  /> 
+</View>
+</View>
+  )
+}
 
 const handleCart =()=>{
   navigation.navigate('HospitalDetails');
@@ -127,7 +171,7 @@ const CardCategory =({item}:{item:any})=>{
                 }
 
 
-  return (<SafeAreaView style={[ { backgroundColor:colors.white}]}>
+  return (<SafeAreaView style={[ { backgroundColor:colors.white, flex:1}]}>
     
     <StatusBar barStyle={'light-content'} />
     <View style={styles.header}>
@@ -139,65 +183,17 @@ const CardCategory =({item}:{item:any})=>{
 
     </View>
 
-    <ScrollView>
+   
 
-    <Text style={[styles.infoText,{marginHorizontal:20, marginTop:10}]}>Hello, Sam Smith,</Text>
-
-    <Text style={styles.h1}>Find Hospital</Text> 
-
-
-    <View style={styles.textWrapper}>
-    <MaterialIcon name="search" size={14} color={colors.icon}  /> 
-  <TextInput placeholder='Search Hospital' 
-  placeholderTextColor={'#959595'}
-  style={styles.textInput} />
-</View>
-
-
-
-<View style={styles.contentWrapper}>
-
-<Text style={styles.infoText}>Shop by category</Text>
-
-<Text style={[styles.infoText,{color:colors.primary}]}>View all</Text>
-</View>
-
-<View style={{marginLeft:20, marginVertical:15}}>
-<FlatList 
-data={DOCTORSCATEGORY}
-horizontal
-showsHorizontalScrollIndicator={false}
-snapToInterval={width-20}
-snapToAlignment='center'
-decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
-
-/>
-
-</View>
-
-<View style={[styles.contentWrapper, {marginVertical:12} ]}>
-<Text style={[styles.infoText,{fontSize:12} ]}>Hospitals near you</Text>
-<MaterialIcon name="map" size={20} color={colors.grey}  /> 
-</View>
-
-
-
-<ScrollView
-  horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%', flex:1}}
->
 <FlatList 
 data={SELLER}
 snapToInterval={width}
-contentContainerStyle={{ padding:5, backgroundColor:colors.lightSkye}}
+ListHeaderComponent={<Header />}
+contentContainerStyle={{  backgroundColor:colors.lightSkye}}
 showsHorizontalScrollIndicator={false}
 renderItem={({item})=> <Clinic key={item.id} item={item} />}
 
-
 />
-</ScrollView>
-</ScrollView>
 
 
     </SafeAreaView>
@@ -233,12 +229,11 @@ const styles = StyleSheet.create({
 
   },
 contentWrapper:{
-  width:width-40,
+  width:width-20,
   display:'flex',
   justifyContent:'space-between',
   flexDirection:'row',
   alignItems:'center',
-  marginHorizontal:20,
   marginTop:10
   
 },
@@ -258,10 +253,9 @@ textWrapper:{
   display:'flex',
   flexDirection:'row',
   alignItems:'center',
-  width:width-40,
+  width:width-20,
   height:45,
   paddingHorizontal:10,
-  marginHorizontal:20,
   backgroundColor:'#F4F8FB',
   borderRadius:5,
   marginBottom:10
@@ -304,8 +298,7 @@ h1:{
     fontWeight:'700',
     color:colors.dark,
     marginTop:10,
-    marginBottom:20,
-    marginHorizontal:20,
+    marginBottom:20
   },
 
   box:{

@@ -23,7 +23,8 @@ const height =
 
 type RootStackParamList = {
   Verification: undefined;
-    Language:undefined; 
+    Register:undefined; 
+    Password:undefined; 
     BottomTabs:{
      code:string;
    }
@@ -42,17 +43,19 @@ interface item {
   id:number
 }
 
-
-
 const handleBack =()=>{
-  navigation.navigate('Language');
+  navigation.navigate('Register');
 }
 
 const handleNext =()=>{
+  navigation.navigate('Password');
+}
+
+/* const handleNext =()=>{
   navigation.navigate('BottomTabs', {
     code:'cds',
   }); 
-}
+} */
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
@@ -64,7 +67,7 @@ const handleNext =()=>{
 
     <View style={styles.header}>
 
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={14} color={colors.dark}  /> 
 
     <Text style={styles.label}>Phone Verification</Text>
     <View />

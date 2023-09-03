@@ -46,8 +46,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('DoctorReviews');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -77,7 +77,7 @@ const CardDate =({item}:{item:any})=>{
   return (<View style={[ {flex:1, backgroundColor:colors.white}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={colors.dark}  /> 
     <Text style={[styles.label, {fontSize:18}]}>Select Date & Time</Text>
 <View/>
     </View>

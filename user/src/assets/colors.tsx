@@ -1,14 +1,19 @@
 const colors = {
+
+  //background
+  lightDark: '#1C2023',
+
+  
     //Primary Colors
   skye:'#1F97F7',
   white: "#FFFFFF",
   primary:'#5a5ce3',
-  dark:'#131415',
+  dark:'#000',
   icon:'#24C0F7',
   grey:'#9E9E9E',
   lightSkye:'#F4F8FB',
-navyBlue:'#35c2F5',
-
+  navyBlue:'#35c2F5',
+  rating:'#EEA31E',
 
     black: "#000000",
     red:'#CC3636',

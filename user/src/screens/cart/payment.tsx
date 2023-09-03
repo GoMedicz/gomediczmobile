@@ -46,7 +46,7 @@ interface item {
 
 
 const handleBack =()=>{
-  navigation.navigate('Language');
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -55,19 +55,6 @@ const handleNext =()=>{
   }); 
 }
 
-
-const CardCategory =({item}:{item:any})=>{
-  return <Pressable style={[styles.card]}>
-
-<View style={styles.circle}>
-
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />
-</View>
-
-<Text style={styles.label}>{item.title}</Text> 
-
-    </Pressable>
-  }
 
 
   const onRefresh = useCallback(()=>{
@@ -78,17 +65,13 @@ const CardCategory =({item}:{item:any})=>{
   return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
     <Text style={styles.label}>Select Payment Method</Text>
     <View />
     </View>
 
 
 <ScrollView>
-
-
-
-
 
 <View style={styles.address}>
 

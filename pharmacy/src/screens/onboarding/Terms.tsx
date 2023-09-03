@@ -54,9 +54,9 @@ return (<SafeAreaView style={{flex:1, backgroundColor:MODE==='Light'?colors.whit
 
 
 <ScrollView>
-    <View style={[ {flex:1, marginHorizontal:25, marginTop:0}]}>
+    <View style={[ {flex:1, marginHorizontal:10, marginTop:0}]}>
 
-<Text style={[dynamicStyle.label, {fontWeight:'500', marginVertical:10}]}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem animi laboriosam similique hic quaerat, fugit quo quae, molestias modi quod temporibus saepe reiciendis exercitationem, ea quia reprehenderit totam soluta pariatur? Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum natus repudiandae vel dignissimos facere itaque. Ea atque corporis quia, nemo nulla, laborum unde officiis, ducimus assumenda placeat reprehenderit enim vitae!</Text>
+<Text style={[dynamicStyle.label, {fontWeight:'500', marginVertical:10, textAlign:'justify'}]}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem animi laboriosam similique hic quaerat, fugit quo quae, molestias modi quod temporibus saepe reiciendis exercitationem, ea quia reprehenderit totam soluta pariatur? Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum natus repudiandae vel dignissimos facere itaque. Ea atque corporis quia, nemo nulla, laborum unde officiis, ducimus assumenda placeat reprehenderit enim vitae!</Text>
 
 
 <Text style={[dynamicStyle.label, {fontWeight:'500', marginVertical:10}]}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem animi laboriosam similique hic quaerat, fugit quo quae, molestias modi quod temporibus saepe reiciendis exercitationem, ea quia reprehenderit totam soluta pariatur? Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum natus repudiandae vel dignissimos facere itaque. Ea atque corporis quia, nemo nulla, laborum unde officiis, ducimus assumenda placeat reprehenderit enim vitae!</Text>

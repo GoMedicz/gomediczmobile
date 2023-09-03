@@ -1,14 +1,16 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { LANGUAGELIST, THEME } from '../../components/data';
+import { THEME } from '../../components/data';
 import { PrimaryButton } from '../../components/include/button';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -30,10 +32,12 @@ type RootStackParamList = {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Theme'>;
  const Theme =({ route, navigation }:Props)=> {
-
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(THEME)
+  const themeItem = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(themeItem)
+  const [themes, setThemes] = useState(THEME)
   const [refreshing, setRefreshing] = useState(false)
+
+  const setStoreTheme = useZustandStore(s => s.setTheme);
 
 interface item {
   title:string,
@@ -41,10 +45,9 @@ interface item {
   id:number
 }
 
-
 const handleSelect =(item:item)=>{
 
-const LIST = [...Languages].map((rs:item)=>{
+const LIST = [...themes].map((rs:item)=>{
                    
   if( rs.id === item.id){
       return {...rs, isDefault:item.isDefault ==='No'?'Yes':'Yes'}
@@ -53,7 +56,7 @@ const LIST = [...Languages].map((rs:item)=>{
     return {...rs, isDefault:'No'}
   
     })
-   setLanguages(LIST)
+    setThemes(LIST)
 }
 
 
@@ -66,24 +69,58 @@ const Checkbox =({item}:{item:item})=>{
 <View style={styles.checkbox}>
   <View style={[item.isDefault==='Yes'? styles.checked:[]]} />
 </View>
-<Text style={styles.label}>{item.title}</Text>
+<Text style={dynamicStyle.label}>{item.title}</Text>
 </TouchableOpacity>
   
 }
 
+const handleBack =()=>{
+    navigation.goBack();
+  }
+
+  
 const handleNext =()=>{
-  navigation.navigate('Welcome');
+const rs = themes.filter((item:any)=>item.isDefault==='Yes')
+setStoreTheme(rs[0].title)
+  navigation.goBack();
 }
+
+
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
    // FetchContent()
     }, [])
 
-  return (<SafeAreaView style={{flex:1, backgroundColor:colors.white}}>
+
+const changeDefaultTheme =()=>{
+  let options = THEME;
+
+
+   let ls = [];
+   for (var i = 0, l = options.length; i < l; i++) {
+    ls.push(
+      {
+        id:options[i].id,
+        title:options[i].title,
+        isDefault:options[i].title===themeItem?'Yes':'No'
+      }
+        )
+  }
+
+  setThemes(ls) 
+}
+
+
+
+useEffect(()=>{
+  changeDefaultTheme()
+},[THEME])
+
+  return (<SafeAreaView style={{flex:1, backgroundColor:themeItem==='Light'?colors.white:colors.dark}}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Change Theme</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={themeItem==='Light'?colors.dark:colors.white} /> 
+    <Text style={dynamicStyle.label}>Change Theme</Text>
     
     <View/>
     </View>
@@ -94,7 +131,7 @@ const handleNext =()=>{
 contentContainerStyle={{ marginTop:5 }}
 showsVerticalScrollIndicator={false}
 numColumns={1}
-data={Languages}
+data={themes}
 renderItem ={({item})=><Checkbox item={item} key={item.id} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
@@ -140,43 +177,6 @@ const styles = StyleSheet.create({
     borderRadius:10,
     backgroundColor:colors.skye
   },
-  textWrapper:{
-    width:width,
-    display:'flex',
-    justifyContent:'center',
-    alignItems:'center',
-    marginTop:15
-  },
-  title:{
-  fontSize:16,
-  fontWeight:'600',
-  color:colors.dark,
 
-  },
-  label:{
-    fontSize:12,
-    fontWeight:'600',
-    color:colors.dark,
-
-  },
-
-  button:{
-    width:width,
-    display:'flex',
-    justifyContent:'center',
-    alignItems:'center',
-    height:50,
-    backgroundColor:colors.primary,
-    bottom:0,
-  },
-  header:{
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:colors.white,
-    height:60,
-  },
-
+  
 })

@@ -1,13 +1,15 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity } from 'react-native'
-import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
+import { StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity } from 'react-native'
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { LANGUAGELIST } from '../../components/data';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
+import { PrimaryButton } from '../../components/include/button';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -21,7 +23,7 @@ const height =
 
 type RootStackParamList = {
     Language: undefined;
-    Welcome:undefined; 
+    SignIn:undefined; 
     BottomTabs:{
      code:string;
    }
@@ -29,6 +31,12 @@ type RootStackParamList = {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Language'>;
  const Language =({ route, navigation }:Props)=> {
+
+  const languageItem = useZustandStore(s => s.language);
+
+  const setStoreLanguage = useZustandStore(s => s.setLanguage);
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE)
 
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
@@ -65,27 +73,59 @@ const Checkbox =({item}:{item:item})=>{
 <View style={styles.checkbox}>
   <View style={[item.isDefault==='Yes'? styles.checked:[]]} />
 </View>
-<Text style={styles.label}>{item.title}</Text>
+<Text style={dynamicStyle.label}>{item.title}</Text>
 </TouchableOpacity>
   
 }
 
 const handleNext =()=>{
-  navigation.navigate('Welcome');
-}
+  const rs = Languages.filter((item:any)=>item.isDefault==='Yes')
+  setStoreLanguage(rs[0].title)
+    navigation.goBack();
+  }
+
+  
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
    // FetchContent()
     }, [])
 
-  return (<SafeAreaView style={{flex:1, backgroundColor:colors.white}}>
+
+
+const changeDefaultLanguage =()=>{
+  let options = LANGUAGELIST;
+
+
+   let ls = [];
+   for (var i = 0, l = options.length; i < l; i++) {
+    ls.push(
+      {
+        id:options[i].id,
+        title:options[i].title,
+        isDefault:options[i].title===languageItem?'Yes':'No'
+      }
+        )
+  }
+
+  setLanguages(ls) 
+}
+
+
+
+useEffect(()=>{
+  changeDefaultLanguage()
+},[LANGUAGELIST])
+
+  return (<SafeAreaView style={{flex:1, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
     
+    <View style={dynamicStyle.header}>
+    <View/>
+    <Text style={dynamicStyle.label}>Change Language</Text>
+    <View/>
+    </View>
 
-    <View style={styles.textWrapper} >
-      <Text style={styles.title}>Change Language</Text>
-      </View>
 
-    <View style={[ {flex:1, marginLeft:25, marginTop:20}]}>
+    <View style={[ {flex:1, marginLeft:25, marginTop:0}]}>
 
 <FlatList
 contentContainerStyle={{ marginTop:5 }}
@@ -99,9 +139,13 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 </View> 
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.button}>
-  <Text style={[styles.label, {color:colors.white}]}>Continue</Text>
-</TouchableOpacity>
+<PrimaryButton
+handleAction={handleNext}
+title='Continue'
+style={{bottom:0}}
+/>
+
+
 
     </SafeAreaView>
   )
@@ -135,34 +179,7 @@ const styles = StyleSheet.create({
     borderRadius:10,
     backgroundColor:colors.skye
   },
-  textWrapper:{
-    width:width,
-    display:'flex',
-    justifyContent:'center',
-    alignItems:'center',
-    marginTop:15
-  },
-  title:{
-  fontSize:16,
-  fontWeight:'600',
-  color:colors.dark,
 
-  },
-  label:{
-    fontSize:15,
-    fontWeight:'600',
-    color:colors.dark,
 
-  },
-
-  button:{
-    width:width,
-    display:'flex',
-    justifyContent:'center',
-    alignItems:'center',
-    height:50,
-    backgroundColor:colors.primary,
-    bottom:0,
-  }
 
 })

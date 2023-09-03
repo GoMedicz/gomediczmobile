@@ -28,9 +28,7 @@ const height =
 type RootStackParamList = {
   Reviews: undefined;
   ConfirmBooking:undefined; 
- SearchLab:{
-     code:string;
-   }
+ SearchLab:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SearchLab'>;
@@ -48,8 +46,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('ConfirmBooking');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -87,7 +85,7 @@ const handleNext =()=>{
     
     <View style={{width:width, backgroundColor:colors.white}}>
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark} onPress={handleBack}  /> 
     <Text style={[styles.label, {marginLeft:30} ]}>City Cure Labs</Text>
     
     
@@ -129,6 +127,7 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 <PrimaryButtonChildren
 style={{position:'absolute', bottom:0}}
+handleAction={handleNext}
 >
 
   <View style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexDirection:'row', width:width, paddingHorizontal:20}}>

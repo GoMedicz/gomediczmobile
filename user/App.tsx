@@ -74,8 +74,8 @@ const StackNavigator=()=>{
  
  {/* //place all screen that doesnt require bottom tab here  */}
  
- {/* <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
- */} 
+  <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
+  
 
 <Stack.Screen  name='SignIn'>{(props:any) =><SignIn  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Password'>{(props:any) =><Password {...props}  />}</Stack.Screen>

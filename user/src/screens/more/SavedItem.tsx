@@ -11,6 +11,8 @@ import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST, SELLER } from '../
 import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -37,6 +39,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'SavedItems'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+
+  const MODE = useZustandStore((store:any) => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
+
+
 interface item {
   title:string,
   isDefault:string,
@@ -45,8 +52,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('Cart');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -182,9 +189,9 @@ const DoctorsCategory =({item}:{item:any})=>{
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Saved</Text>
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="arrow-back" size={18} onPress={handleBack} color={colors.dark}  /> 
+    <Text style={dynamicStyle.label}>Saved</Text>
     
     <View/>
     </View>

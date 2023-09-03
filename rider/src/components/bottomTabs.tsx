@@ -6,14 +6,11 @@ import  Icon  from 'react-native-vector-icons/Feather';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import colors from '../assets/colors';
 import StackNavigator from '../navigator/stack';
-import DoctorHome from '../screens/doctors/doctorHome';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
 
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import AccountProfile from '../screens/doctors/AcountProfile';
 import Appointments from '../screens/home/dashboard';
-import Reviews from '../screens/doctors/Reviews';
 import { MODE } from './includes';
 
 
@@ -142,8 +139,8 @@ const BottomTabs =()=> {
       >
 
 <Tab.Screen  name='Appointments'>{(props:any) =><Appointments {...props}  />}</Tab.Screen>
-<Tab.Screen  name='Reviews'>{(props:any) =><Reviews {...props}  />}</Tab.Screen>
-<Tab.Screen  name='Accounts'>{(props:any) =><AccountProfile {...props}  />}</Tab.Screen>
+{/* <Tab.Screen  name='Reviews'>{(props:any) =><Reviews {...props}  />}</Tab.Screen> */}
+{/* <Tab.Screen  name='Accounts'>{(props:any) =><AccountProfile {...props}  />}</Tab.Screen> */}
 
 
       </Tab.Navigator>

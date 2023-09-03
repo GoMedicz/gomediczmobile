@@ -24,6 +24,7 @@ const height =
 
 type RootStackParamList = {
   DoctorHome: undefined;
+  Offers:undefined;
   Cart:undefined;
   DoctorsList:undefined; 
     BottomTabs:{
@@ -44,7 +45,13 @@ interface item {
   id:number
 }
 
+const handleOffer =()=>{
+  navigation.navigate('Offers');
+}
 
+const handleDoctor =()=>{
+  navigation.navigate('DoctorsList');
+}
 
 const handleCart =()=>{
   navigation.navigate('Cart');
@@ -62,7 +69,7 @@ const handleNext =()=>{
 const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', '#9BE471' ]
 
     const CardCategory =({item}:{item:any})=>{
-        return <Pressable style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
+        return <TouchableOpacity activeOpacity={0.8} onPress={handleDoctor} style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
 
           <Text style={{color:colors.white, fontSize:10, marginLeft:15, marginTop:15, fontWeight:'600'}}>{item.title}</Text>
 
@@ -70,12 +77,12 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
           <FontAwesome5Icon name="user-md" size={50} color={colors.grey4}  />
           </View>
 
-          </Pressable>
+          </TouchableOpacity>
         }
 
 
         const CardOffer =({item}:{item:any})=>{
-            return <Pressable style={[styles.offer, {backgroundColor:OFFERCOLOR[item.id]} ]}>
+            return <TouchableOpacity activeOpacity={0.8} onPress={handleOffer} style={[styles.offer, {backgroundColor:OFFERCOLOR[item.id]} ]}>
     
             <View>
               <Text style={{color:colors.white, fontSize:14,  marginTop:15, fontWeight:'700'}}>{item.title}</Text>
@@ -85,7 +92,7 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
              </View>
 
               <Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.offerImage} />
-              </Pressable>
+              </TouchableOpacity>
             }
 
 

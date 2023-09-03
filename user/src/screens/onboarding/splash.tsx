@@ -20,7 +20,8 @@ const height =
 
 type RootStackParamList = {
    Splash: undefined;
-   Login:undefined; 
+   SignIn:undefined; 
+   Welcome:undefined;
   };
   
   type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
@@ -38,7 +39,7 @@ type RootStackParamList = {
             duration: 2000,
             useNativeDriver: true
         }
-        ).start(()=>navigation.replace('Login')); 
+        ).start(()=>navigation.replace('SignIn')); 
       }, [animationOpacity])
     
     
@@ -56,11 +57,17 @@ type RootStackParamList = {
     }
    
 
-  return (<SafeAreaView style={{flex:1, backgroundColor:colors.white}}>
+  return (<SafeAreaView style={{flex:1, backgroundColor:colors.primary}}>
 
      <View style={styles.flexCenter}>
       <FadeInView>
-      <Image source={{ uri:ImagesUrl+"/logo.png" }} style={styles.logo} />
+
+      <View style={styles.logoWrapper}>
+    <Image source={{ uri:ImagesUrl+"/logo3.png" }} style={styles.logo} />
+    <Text style={styles.label}>go<Text style={{fontWeight:'800', fontFamily:'arial'}}>Medicz </Text></Text>
+
+    </View>
+
       </FadeInView>
       </View>
 </SafeAreaView>
@@ -78,10 +85,24 @@ const styles = StyleSheet.create({
     flex:1
    
   },
-  logo:{
-    height:200,
-    width:200,
-    resizeMode:'contain',
-  },
+  
+ logo:{
+  height:60,
+  width:60,
+  resizeMode:'contain'
+ },
+
+ logoWrapper:{
+  width:width,
+  display:'flex',
+  justifyContent:'center',
+  alignItems:'center',
+
+ },
+ label:{
+  color:colors.white,
+  fontSize:18,
+  marginTop:10,
+ },
 
 })

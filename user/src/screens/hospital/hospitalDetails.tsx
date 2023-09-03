@@ -27,7 +27,7 @@ const height =
 type RootStackParamList = {
   HospitalDetails: undefined;
   Cart:undefined; 
-  Appointment:{
+  BottomTabs:{
      code:string;
    }
    };
@@ -47,12 +47,12 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('Cart');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
-  navigation.navigate('Appointment', {
+  navigation.navigate('BottomTabs', {
     code:'cds',
   }); 
 }
@@ -130,7 +130,7 @@ const handleNext =()=>{
     
     >
       <View style={{marginTop:40 }}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.white}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} color={colors.white} onPress={handleBack} /> 
     </View>
 
     </ImageBackground>
@@ -230,7 +230,7 @@ renderItem={({item})=> <CardCategory key={item.id} item={item} />}
 
 </ScrollView>
 
-<PrimaryButtonChildren style={{position:'absolute', bottom:0}}>
+<PrimaryButtonChildren handleAction={handleNext} style={{position:'absolute', bottom:0}}>
   <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
 
   <MaterialIcon name="call" size={14} color={colors.white}  />

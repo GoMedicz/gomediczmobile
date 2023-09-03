@@ -45,8 +45,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('Wallet');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -54,19 +54,6 @@ const handleNext =()=>{
 }
 
 
-const CardDate =({item}:{item:any})=>{
-  return <Pressable style={styles.box}>
-<Text style={[styles.infoText, {fontSize:10}]}>{item.day}</Text>
-<Text style={styles.date}>{item.date}</Text>
-    </Pressable>
-  }
-  
-
-  const CardTime =({item}:{item:any})=>{
-    return <Pressable style={[styles.timeBox]}>
-  <Text style={styles.time}>{item.time}</Text>
-      </Pressable>
-    }
     
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
@@ -76,7 +63,7 @@ const CardDate =({item}:{item:any})=>{
   return (<View style={[ {flex:1, backgroundColor:colors.white}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={colors.dark}  /> 
     <Text style={styles.label}>Appointment details</Text>
     <MaterialIcon name="menu" size={18} color={colors.primary}  /> 
     </View>

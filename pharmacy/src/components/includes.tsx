@@ -13,9 +13,16 @@ export const STAFF_CODE = 'staff_002'
 export const CURRENCY = '₦'
 
 
-const Token ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im9wZXllbWlhZGVtb24iLCJpYXQiOjE2OTM1ODgyNjAsImV4cCI6MTY5MzY2MDI2MH0.M7JZW4XYh7gsLLiprOLc2y5c2TEZ2Yf1oc2EKClvQVE';
+const Token ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im9wZXllbWlhZGVtb24iLCJpYXQiOjE2OTM2ODY0NjUsImV4cCI6MTY5Mzc1ODQ2NX0.AwNcBBgqGKX9yN-2IG2hBNxZu7BB9sr3bTCVjde1y9w';
 
 export const config = {
+    headers: {
+        'content-type': 'multipart/form-data', 
+        'Authorization': `Bearer ${Token}`
+    }
+}
+
+export const configFile = {
     headers: {
         'content-type': 'multipart/form-data', 
         'Authorization': `Bearer ${Token}`

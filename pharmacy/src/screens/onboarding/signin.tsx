@@ -105,13 +105,12 @@ setLoading(true)
 
 const fd = new FormData();
 Object.entries(user).forEach(([key, value]) => {
-        fd.append(key, String(value));
+        fd.append(key, value);
     });
 
     let url = ServerUrl+'/api/login_vendor';
    axios.post(url, fd, config)
    .then(response =>{
-
     setLoading(false)
 
      if(response.data.type === 'success'){

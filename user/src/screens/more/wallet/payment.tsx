@@ -47,7 +47,7 @@ interface item {
 
 
 const handleBack =()=>{
-  navigation.navigate('Language');
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -79,7 +79,7 @@ const CardCategory =({item}:{item:any})=>{
   return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={14} onPress={handleBack} color={colors.dark}  /> 
     <Text style={styles.label}>Add Money</Text>
     <View />
     </View>

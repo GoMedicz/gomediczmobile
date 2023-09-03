@@ -18,13 +18,8 @@ import SignIn from './src/screens/onboarding/signin';
 import Register from './src/screens/onboarding/register';
 import Verification from './src/screens/onboarding/verification';
 import BottomTabs from './src/components/bottomTabs';
-import DoctorsList from './src/screens/doctors/doctorsList';
-import DoctorsDetails from './src/screens/doctors/doctorsDetails';
-import DoctorReviews from './src/screens/doctors/DoctorReviews';
-import Feedback from './src/screens/doctors/feedback';
 import MyAppointment from './src/screens/more/appointment/MyAppointment';
 import ChatDoctor from './src/screens/more/appointment/ChatDoctor';
-import AppointmentDetails from './src/screens/doctors/AppointmentDetails';
 import Wallet from './src/screens/more/wallet/wallet';
 import SendMoney from './src/screens/more/wallet/sendMoney';
 import ChosePayment from './src/screens/more/wallet/payment';
@@ -33,11 +28,12 @@ import Contact from './src/screens/onboarding/Contact';
 import Terms from './src/screens/onboarding/Terms';
 import Faqs from './src/screens/onboarding/Faqs';
 import Password from './src/screens/onboarding/Password';
-import Profiles from './src/screens/doctors/Profile';
 import Dashboard from './src/screens/rider/Dashboard';
 import AcceptDelivery from './src/screens/rider/AcceptDelivery';
 import OrderDelivered from './src/screens/rider/OrderDelivered';
 import AccountProfile from './src/screens/rider/AcountProfile';
+import Insight from './src/screens/more/Insight';
+import Profile from './src/screens/rider/Profile';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -54,8 +50,8 @@ const StackNavigator=()=>{
  
  {/* //place all screen that doesnt require bottom tab here  */}
  
- {/* <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
- */}
+  <Stack.Screen  name='Splash'>{(props:any) =><Splash  {...props}  />}</Stack.Screen>
+
 
 
 <Stack.Screen  name='OrderDelivered'>{(props:any) =><OrderDelivered  {...props}  />}</Stack.Screen>
@@ -73,7 +69,6 @@ const StackNavigator=()=>{
 
 
 
-<Stack.Screen  name='AppointmentDetails'>{(props:any) =><AppointmentDetails  {...props}  />}</Stack.Screen>
 
  <Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>
  <Stack.Screen  name='Password'>{(props:any) =><Password {...props}  />}</Stack.Screen>
@@ -85,6 +80,14 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Verification'>{(props:any) =><Verification {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Register'>{(props:any) =><Register {...props}  />}</Stack.Screen>
 <Stack.Screen  name='Welcome'>{(props:any) =><Welcome  {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Insight'>{(props:any) =><Insight {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Wallet'>{(props:any) =><Wallet {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='SendMoney'>{(props:any) =><SendMoney {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Profile'>{(props:any) =><Profile {...props}  />}</Stack.Screen>
 
 
 

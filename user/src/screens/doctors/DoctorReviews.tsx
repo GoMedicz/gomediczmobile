@@ -26,7 +26,7 @@ const height =
 type RootStackParamList = {
   DoctorReviews: undefined;
   Cart:undefined; 
-  Appointment:{
+  BottomTabs:{
      code:string;
    }
    };
@@ -46,12 +46,16 @@ interface item {
 
 
 
+const handleBack =()=>{
+  navigation.goBack();
+}
+
 const handleCart =()=>{
   navigation.navigate('Cart');
 }
 
 const handleNext =()=>{
-  navigation.navigate('Appointment', {
+  navigation.navigate('BottomTabs', {
     code:'cds',
   }); 
 }
@@ -108,7 +112,7 @@ const handleNext =()=>{
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
     <Text style={styles.label}>Reviews</Text>
 
     <View/>

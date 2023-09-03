@@ -13,6 +13,8 @@ import { globalStyles } from '../../../components/globalStyle';
 import ModalDialog from '../../../components/modal';
 import ShoppingCart from '../../../components/include/ShoppingCart';
 import { PrimaryButton } from '../../../components/include/button';
+import { useZustandStore } from '../../../api/store';
+import { dynamicStyles } from '../../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -39,6 +41,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'SendMoney'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+  const MODE = useZustandStore((store:any) => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
+
+
 interface item {
   title:string,
   isDefault:string,
@@ -47,8 +53,8 @@ interface item {
 
 
 
-const handleCart =()=>{
- // navigation.navigate('Cart');
+const handleBack =()=>{
+ navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -90,11 +96,11 @@ const handleNext =()=>{
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark}  /> 
     <Text style={styles.label}>Send to Bank</Text>
 
-    <MaterialIcon name="menu" size={14} color={colors.grey}  /> 
+    <MaterialIcon name="more-vert" size={18} color={colors.dark}  /> 
     </View>
 
 <ScrollView>

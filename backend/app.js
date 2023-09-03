@@ -5,7 +5,9 @@ const session = require('express-session')
 const multer = require('multer');
 const path = require('path');
 const routes = require('./routes/index');
-const upload = multer();
+const upload = multer({limits:{
+  fieldSize: 25 * 1024 * 1024
+}}); 
 
 const app = express();
 app.use(cors({
@@ -19,6 +21,7 @@ app.use(express.json({limit:'50mb'}));
 
 // for parsing application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true, limit:'50mb' })); 
+
 
 // for parsing multipart/form-data
 app.use(upload.array());

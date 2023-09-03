@@ -46,8 +46,8 @@ interface item {
 
 
 
-const handleCart =()=>{
-  navigation.navigate('Cart');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -118,7 +118,7 @@ const handleNext =()=>{
     <View style={styles.header}>
       
       <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-    <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
     <TextInput placeholder='Search' style={styles.textInput} />
     </View>
 

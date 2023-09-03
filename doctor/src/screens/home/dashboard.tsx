@@ -26,9 +26,7 @@ const height =
 type RootStackParamList = {
   Appointments: undefined;
   Cart:undefined; 
-  Offers:{
-     code:string;
-   }
+  AppointmentDetails:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Appointments'>;
@@ -51,9 +49,7 @@ const handleCart =()=>{
 }
 
 const handleNext =()=>{
-  navigation.navigate('Offers', {
-    code:'cds',
-  }); 
+  navigation.navigate('AppointmentDetails'); 
 }
 
 

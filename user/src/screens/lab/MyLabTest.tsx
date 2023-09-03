@@ -48,7 +48,7 @@ interface item {
 
 
 
-const handleCart =()=>{
+const handleBack =()=>{
   navigation.navigate('Cart');
 }
 
@@ -68,7 +68,7 @@ const handleNext =()=>{
 <View style={styles.content}>
 
 <View style={globalStyles.rowCenterCenter}>
-<Image source={{ uri:ImagesUrl+"/doctors/"+item.image }} style={styles.profile} />
+<Image source={{ uri:ImagesUrl+"/hospital/hos.jpeg"}} style={styles.profile} />
 
     
     <View style={[{display:'flex'}, {marginHorizontal:5, flex:1, justifyContent:'center'}]}>
@@ -109,7 +109,7 @@ const handleNext =()=>{
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back" onPress={handleBack} size={18} color={colors.dark}  /> 
     <Text style={[styles.label, {fontSize:14}]}>My Lab Tests</Text>
 
     <View/>

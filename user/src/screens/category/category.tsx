@@ -45,8 +45,8 @@ interface item {
 
 
 
-const handlePayment =()=>{
-  navigation.navigate('Payment');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -89,7 +89,7 @@ const CardItem =({item}:{item:any})=>{
   return (<View style={[ {flex:1, backgroundColor:colors.white}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={18} color={colors.dark}  /> 
     <Text style={styles.label}>Shop by Category</Text>
     <View />
     </View>

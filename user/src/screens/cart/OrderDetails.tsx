@@ -12,6 +12,8 @@ import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -39,6 +41,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'OrderDetails'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+
+  const MODE = useZustandStore((store:any) => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
+
+
 interface item {
   title:string,
   isDefault:string,
@@ -47,8 +54,8 @@ interface item {
 
 
 
-const handlePayment =()=>{
-  navigation.navigate('Reminder');
+const handleBack =()=>{
+  navigation.goBack();
 }
 
 const handleNext =()=>{
@@ -90,10 +97,11 @@ const CardCategory =({item}:{item:any})=>{
 
   return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Order Num 221451</Text>
-    <View />
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={colors.dark}  /> 
+    <Text style={dynamicStyle.label}>Order Num 221451</Text>
+   
+    <MaterialIcon name="more-vert" onPress={handleBack} size={18} color={colors.dark}  />
     </View>
 
 

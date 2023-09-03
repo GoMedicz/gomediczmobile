@@ -22,6 +22,7 @@ const getProductModel = (sequelize, { DataTypes }) => {
             allowNull: false
           },
 
+          
           image_url: {
             type: DataTypes.TEXT,
             allowNull: true
