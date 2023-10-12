@@ -54,7 +54,7 @@ boxCart:{
   
     },
   textWrapper:{
-    height:45,
+    height:50,
     width:width-40,
     marginVertical:8,
     marginHorizontal:10,
@@ -72,7 +72,6 @@ boxCart:{
     marginLeft:10,
     fontSize:14,
     width:width-90,
-    
 
   },
   

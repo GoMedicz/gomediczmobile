@@ -12,6 +12,8 @@ import { PrimaryButton } from '../../../components/include/button';
 import { useZustandStore } from '../../../api/store';
 import { dynamicStyles } from '../../../components/dynamicStyles';
 import { CURRENCY, PHARMACY_CODE, STAFF_CODE } from '../../../components/includes';
+import { FormatNumber } from '../../../components/globalFunction';
+import { globalStyles } from '../../../components/globalStyle';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -104,14 +106,14 @@ const handleChange =(name:string, text:string)=>{
     <View style={{backgroundColor:MODE==='Light'?colors.white:colors.dark,  paddingHorizontal:10, paddingVertical:15}}>
     
   
-<Text style={styles.infoText}>AVAILABLE BALANCE</Text>
-      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:25, fontWeight:'700'}}>{CURRENCY} 520.50</Text>
+<Text style={globalStyles.infoText}>AVAILABLE BALANCE</Text>
+      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:30, fontWeight:'700'}}>{CURRENCY+' '+FormatNumber(520.50)}</Text>
 </View>
 
 
 
 <View style={dynamicStyle.card}>
-  <Text style={[styles.infoText, {fontSize:12, marginBottom:10}]}>BANK INFO</Text>
+  <Text style={[globalStyles.infoText, {fontSize:12, marginBottom:10}]}>BANK INFO</Text>
 
   <View style={styles.inputWrapper}>
   <Text style={[dynamicStyle.label, {color:colors.grey}]}>Select Bank</Text>
@@ -160,7 +162,7 @@ const handleChange =(name:string, text:string)=>{
 
   <View style={styles.inputWrapper}>
   <Text style={[dynamicStyle.label, {color:colors.grey}]}>Account Number</Text>
-  <TextInput placeholder='Samantha Smith' style={dynamicStyle.textbox}
+  <TextInput placeholder='e.g 123456' style={dynamicStyle.textbox}
   
   placeholderTextColor={MODE==='Light'?colors.grey:colors.grey2}
   />
@@ -169,20 +171,18 @@ const handleChange =(name:string, text:string)=>{
 
 <View style={[styles.inputWrapper]}>
   <Text style={[dynamicStyle.label, {color:colors.grey}]}>Account Holder Name</Text>
-  <TextInput placeholder='Samantha Smith' style={dynamicStyle.textbox}
-  
+  <TextInput placeholder='Select bank first' style={dynamicStyle.textbox}
+  editable={false}
   placeholderTextColor={MODE==='Light'?colors.grey:colors.grey2}
   
   />
   </View>
 
 
- 
-
 
   <View style={styles.inputWrapper}>
   <Text style={[dynamicStyle.label, {color:colors.grey}]}>Branch Code</Text>
-  <TextInput placeholder='Samantha Smith' style={dynamicStyle.textbox} 
+  <TextInput placeholder='Optional' style={dynamicStyle.textbox} 
   
   
   placeholderTextColor={MODE==='Light'?colors.grey:colors.grey2}
@@ -197,7 +197,7 @@ const handleChange =(name:string, text:string)=>{
 
   <View style={styles.inputWrapper}>
   <Text style={[dynamicStyle.label, {color:colors.grey}]}>Amount To Transfer</Text>
-  <TextInput placeholder='Samantha Smith' style={dynamicStyle.textbox} 
+  <TextInput placeholder='e.g 5000' style={dynamicStyle.textbox} 
   
   placeholderTextColor={MODE==='Light'?colors.grey:colors.grey2}
   />
@@ -227,12 +227,6 @@ title='Send to Bank'
 export default SendMoney
 
 const styles = StyleSheet.create({
-
-  infoText:{
-    fontSize:10,
-    color:'#9E9E9E',
-    fontWeight:'500'
-  },
 
 inputWrapper:{
   marginVertical:5

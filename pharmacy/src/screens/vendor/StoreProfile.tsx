@@ -5,13 +5,14 @@ import { Image, StyleSheet, Text, View, Platform, Dimensions, TextInput } from '
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { ImagesUrl,  PHARMACY_CODE, ServerUrl, config } from '../../components/includes';
+import { ImagesUrl,  PHARMACY_CODE, ServerUrl, config, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import { PrimaryButton } from '../../components/include/button';
 import axios from 'axios';
 import Loader from '../../components/loader';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { getData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -50,11 +51,14 @@ const handleNext =()=>{
 
 
 
+
 const fetchStore = async()=>{
-  let url = ServerUrl+'/api/pharmacy/display_store/'+PHARMACY_CODE
+
+  const code = await getData('code');
+  let url = ServerUrl+'/api/vendor/display_one/'+code
   try{
+let config = await configToken()
  await axios.get(url, config).then(response=>{
-  
   if(response.data.type==='success'){
     setProfile(response.data.data)
     }else{
@@ -164,7 +168,7 @@ useEffect(()=>{
 <View style={[styles.imageWrapper,{ backgroundColor:MODE==='Light'?colors.white:colors.dark, }]}>
   
 
-<Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
+<Image source={{ uri:ImagesUrl+"/profile_5.png"}} style={styles.profile} />
 
 
 <View style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>

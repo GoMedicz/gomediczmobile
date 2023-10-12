@@ -80,7 +80,7 @@ const handleNext =()=>{
     >
 
 
-  <View  style={styles.box}>
+  {/* <View  style={styles.box}>
 
 
 <View style={{width:width-40, padding:10}}>
@@ -139,9 +139,9 @@ const handleNext =()=>{
 <View style={styles.cart}>
 <MaterialIcon name="shopping-cart" size={16} color={MODE==='Light'?colors.white:colors.dark}  />
 </View>
-</View>
+</View> */}
 
-{/* <View  style={styles.box}>
+ <View  style={styles.box}>
 
 
 <View style={{width:width-40, padding:10}}>
@@ -215,7 +215,7 @@ const handleNext =()=>{
     handleAction={handleNext}
     title='Mark as Picked'
     />
-      </View> */}
+      </View> 
 
 
     </ImageBackground>

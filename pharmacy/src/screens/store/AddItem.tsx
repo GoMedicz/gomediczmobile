@@ -7,13 +7,14 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
 import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { ImagesUrl,  PHARMACY_CODE, STAFF_CODE, ServerUrl, configFile, config } from '../../components/includes';
+import { ImagesUrl,   ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import { PrimaryButton } from '../../components/include/button';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Loader from '../../components/loader';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { getData } from '../../components/globalFunction';
 
 
 const {width} = Dimensions.get('screen');
@@ -41,18 +42,17 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AddItem'>;
 
 const Initials ={
   code: 'p'+Math.random().toString(36).substring(2, 9),
-  pharmacy_code:PHARMACY_CODE,
-  staff_code: STAFF_CODE,
-  image_url: '',
-  image_file:{uri:'', name:'', type:''},
+  staff_code: 'staff',
   product_id: '',
   product_name:'',
+  image_url:'',
   category_code: '',
   subcategory_code: '',
   description: '',
   require_prescription: false,
   price:'',
-  qty:''
+  qty:'',
+  errorMessage:''
 }
 
 const [items, setItems] = useState([] as any);
@@ -65,6 +65,12 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
   const [quantity, setQuantity]= useState([] as any)
   const [category, setCategory]= useState([] as any)
   const [subCategory, setSubCategory]= useState([] as any)
+
+  const [image, setImage] = useState({
+    uri:'',
+    type:'',
+     name:''
+  })
 
 
   const handleChange =(name:string, text:string)=>{
@@ -91,10 +97,11 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
 
   }
   const fetchCategory = async()=>{
-    let url = ServerUrl+'/api/pharmacy/display_category/'+PHARMACY_CODE
+   
     try{
 
-    
+      let config = await configToken()
+      let url = ServerUrl+'/api/vendor/products/category/all'
    await axios.get(url, config).then(response=>{
       if(response.data.type==='success'){
         setCategory(response.data.data)
@@ -124,7 +131,7 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
         console.log('Camera Error: ', response);
       } else {
         let imageUri =  response.assets?.[0]?.uri;
-        console.log(imageUri);
+        
       }
     });
 
@@ -146,9 +153,18 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
        // console.log('Image picker error: ', response.errorMessage);
       } else {
         let imageUri:any =  response.assets?.[0]?.uri;
-        let imageFile:any = response.assets?.[0]
-        setDrugs({...drugs, image_url:imageUri, image_file:imageFile})
-console.log(imageFile)
+        let type:any = response.assets?.[0]?.type
+
+        let filename:any = response.assets?.[0]?.fileName
+
+        setImage({
+          uri:imageUri,
+          name:filename,
+          type:type
+
+        })
+
+        setDrugs({...drugs, image_url:drugs.code+'_'+filename})
       }
     });
 
@@ -207,7 +223,7 @@ const handleBack =()=>{
 }
 
 
-    const handleSubmit =()=>{
+    const handleSubmit =async()=>{
        
       let error = {...errors}; 
     let formIsValid = true;
@@ -257,31 +273,42 @@ const handleBack =()=>{
       Object.entries(drugs).forEach(([key, value]) => {
               fd.append(key, value);
           });
+
+
+          let config = await configToken()
+          const pharmacy_code = await getData('code');
+        
       fd.append('price_list',  JSON.stringify(quantity, null, 2))
+      fd.append('image',  image)
+      fd.append('pharmacy_code',  pharmacy_code)
 
-
-      let url = ServerUrl+'/api/pharmacy/product/add_new';
-         axios.post(url, fd, configFile)
+      let url = ServerUrl+'/api/vendor/product/add';
+         axios.post(url, fd, config)
          .then(response =>{
            if(response.data.type === 'success'){
-            //setLoading(false)
-           
-            setModalType('Created')
-            //storeData('code', response.data.code)
+            
+            setModalType('Success')
+
+            setErrors({...errors, errorMessage: 'Successfully Added'})
             
           } else{
-                       //unable to create account please retry
-                       setLoading(false)
-                //setErrors({...errors, password: response.data.message})
+            setModalType('Failed')
+                setErrors({...errors, errorMessage: response.data.message})
                      }   
                  })
                  .catch((error)=>{
-                // setErrors({...errors, errorMessage:error.message})
-                 setLoading(false)
+                  setModalType('Failed')
+                setErrors({...errors, errorMessage: error.message})
+
                  }).finally(()=>{
-                setDrugs({...Initials,
-                code:'p'+Math.random().toString(36).substring(2, 9)})
-                 GenerateRow() 
+                setDrugs({...Initials, code:'p'+Math.random().toString(36).substring(2, 9)})
+                 GenerateRow()  
+
+                 setImage({
+                  uri:'',
+                  type:'',
+                   name:''
+                 })
                  })
                 }
     }
@@ -305,6 +332,8 @@ const handleBack =()=>{
 
     <Loader isModalVisible={loading} 
     type={modalType}
+
+    message={errors.errorMessage} 
     action={()=>setLoading(false)}
      />
 
@@ -312,12 +341,10 @@ const handleBack =()=>{
 showsVerticalScrollIndicator={false}
 >
 
-
-
 <View style={[styles.imageWrapper, {
      backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
   
-<Image source={{ uri:drugs.image_url?drugs.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
+<Image source={{ uri:image.uri?image.uri:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 
 <TouchableOpacity onPress={openImagePicker} style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
@@ -551,10 +578,10 @@ showsVerticalScrollIndicator={false}
 
 <View style={{width:width-40, marginVertical:5, justifyContent:'flex-end', display:'flex', alignItems:'flex-end', flexDirection:'row', marginHorizontal:20 }}>
 
-
+{quantity.length>1?
 <TouchableOpacity style={[styles.addItem, {backgroundColor:colors.red}]} onPress={removeRow}>
 <MaterialIcon name="remove" size={18} color={MODE==='Light'?colors.white:colors.dark}  /> 
-</TouchableOpacity>
+</TouchableOpacity>:[]}
 
 
 <TouchableOpacity style={styles.addItem} onPress={createNewRow}>
@@ -615,7 +642,7 @@ error:{
 },
 
   textWrapper:{
-    height:45,
+    height:50,
     width:width-20,
     marginVertical:8,
     display:'flex',
@@ -693,7 +720,7 @@ elevation: 5,
     flexDirection:'row', 
     alignItems:'flex-end',
      justifyContent:'flex-start', 
-     paddingHorizontal:30, paddingVertical:5
+     paddingHorizontal:20, paddingVertical:5
     },
    
 })

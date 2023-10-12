@@ -1,15 +1,16 @@
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity, SafeAreaView, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
 import { globalStyles } from '../../components/globalStyle';
 import axios from 'axios';
-import { ImagesUrl,  PHARMACY_CODE, ServerUrl, config } from '../../components/includes';
+import { ImagesUrl,  PHARMACY_CODE, ServerUrl,  configToken } from '../../components/includes';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { getData } from '../../components/globalFunction';
 
 
 const {width} = Dimensions.get('screen');
@@ -45,13 +46,50 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
   const MODE = useZustandStore(s => s.theme);
   const dynamicStyle = dynamicStyles(MODE);
 
+
+  const fadeValue = useRef(new Animated.Value(0)).current 
+
+
   const [profile, setProfile] = useState({} as any)
 
+  const [items, setItems] = useState([
+
+          
+    {title:"My Orders", label:'List of Orders', icon:'article', screen:'Orders'},
+    {title:"Store Profile", label:'Setup Profile', icon:'store', screen:'StoreProfile'},
+    {title:"Wallet", label:'Quick Payments', icon:'account-balance-wallet', screen:'Wallet'},
+    {title:"Insight", label:'See the progress', icon:'insert-chart', screen:'Insight'},
+    {title:"Earnings", label:'Sell Overview', icon:'monetization-on', screen:'Earnings'},
+    {title:"My Items", label:'Manage Items', icon:'add-box', screen:'StoreItems'},
+    {title:"Change Language", label:'Change Language', icon:'language', screen:'Language'},
+    {title:"Change Theme", label:'Change Theme', icon:'palette', screen:'Theme'},
+    {title:"T&C", label:'Company Policies', icon:'article', screen:'Terms'},
+    {title:"Contact Us", label:'Let us help you', icon:'mail', screen:'Contact'},
+    {title:"FAQs", label:'Quick Answer', icon:'feedback', screen:'Faqs'},
+    {title:"Logout", label:'See you soon', icon:'logout', screen:'Orders'},
+  ])
+
+   
+
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
+
+
+
 const fetchStore = async()=>{
-  let url = ServerUrl+'/api/pharmacy/display_store/'+PHARMACY_CODE
+
+  const code = await getData('code');
+  let url = ServerUrl+'/api/vendor/display_one/'+code
   try{
+let config = await configToken()
  await axios.get(url, config).then(response=>{
-  
   if(response.data.type==='success'){
     setProfile(response.data.data)
     }else{
@@ -63,25 +101,36 @@ const fetchStore = async()=>{
 }
 }
 
-    
+
+const handleBack =()=>{
+  //navigation.goBack();
+  navigation.navigate('Orders'); 
+}
+
+
+
+
 useEffect(()=>{
   fetchStore()
+  AnimationStart()
 }, [])
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={dynamicStyle.header}>
-    <MaterialIcon name="close" size={18} color={colors.primary}  />
+    <MaterialIcon name="close" size={18} color={colors.primary} onPress={handleBack} />
    <Text style={dynamicStyle.label}>Account</Text>
-<View/>
-    </View>
+  <View/>
+</View>
 
 <ScrollView>
 
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:MODE==='Light'?colors.white:colors.dark, paddingBottom:10}}>
   
-<Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
+  <Animated.View style={{opacity:fadeValue}}>
+<Image source={{ uri:ImagesUrl+"/profile_5.png"}} style={styles.profile} />
+</Animated.View>
 
 <View style={{marginLeft:5}}>
 
@@ -98,138 +147,19 @@ useEffect(()=>{
 
 <View style={{ marginHorizontal:10, marginVertical:5, display:'flex', flexDirection:'row', flexWrap:'wrap', justifyContent:'space-between'}}>
 
+{items.map((item:any, index:number)=>
+<TouchableOpacity key={index} onPress={()=>navigation.navigate(item.screen)} activeOpacity={0.9} style={dynamicStyle.box}>
+  <Animated.View style={{opacity:fadeValue}}>
+  <Text style={dynamicStyle.label}>{item.title}</Text>
+  </Animated.View>
 
-<TouchableOpacity onPress={()=>navigation.navigate('Orders')} activeOpacity={0.9} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>My Orders</Text>
 
   <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
-    <Text style={[styles.infoText, {fontSize:10} ]}>List of Orders</Text>
+    <Text style={[styles.infoText, {fontSize:10} ]}>{item.label}</Text>
 
-<MaterialIcon name="article" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} /> 
+<MaterialIcon name={item.icon} size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} /> 
   </View>
-</TouchableOpacity>
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('StoreProfile')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Store Profile</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Setup Profile</Text>
-    
-<MaterialIcon name="store" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Wallet')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Wallet</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Payments</Text>
-    
-<MaterialIcon name="account-balance-wallet" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Insight')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Insight</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>See the progress</Text>
-    
-<MaterialIcon name="insert-chart" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Earnings')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Earnings</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Sell Overview</Text>
-    
-<MaterialIcon name="monetization-on" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('StoreItems')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>My Items</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Manage Items</Text>
-    
-<MaterialIcon name="add-box" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Language')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Change Language</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
-    
-<MaterialIcon name="language" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Theme')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Change Theme</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
-    
-<MaterialIcon name="palette" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Terms')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>T&C</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
-    
-<MaterialIcon name="article" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Contact')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Contact Us</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    
-<MaterialIcon name="mail" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Faqs')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>FAQs</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Answer</Text>
-    
-<MaterialIcon name="feedback" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('StoreItems')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Logout</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>See you soon</Text>
-    
-<MaterialIcon name="logout" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
+</TouchableOpacity>)}
 
 
 </View>

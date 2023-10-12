@@ -4,13 +4,16 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, ServerUrl, config } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { getData, storeData } from '../../components/globalFunction';
+import Loader from '../../components/loader';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -24,7 +27,7 @@ const height =
 
 type RootStackParamList = {
   Password: undefined;
-    Language:undefined; 
+  Orders:undefined;
     BottomTabs:{
      code:string;
    }
@@ -33,32 +36,123 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Password'>;
  const Password =({ route, navigation }:Props)=> {
 
+
+  const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
-  const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
+
+const [user, setUser] = useState({
+  isPasswordSecure:true,
+  isConfirmSecure:true,
+  confirmPassword:'',
+  password:'',
+
+})
+
+const [errors, setErrors] = useState({
+
+  isError:false,
+  confirmPassword:'',
+  password:'',
+  errorMessage:''
+});
+
+
+
+
+const handleSubmit =async()=>{
+  let error = {
+    ...errors,  
+  }
+
+  var errormessage = [];
+let msg = 'This field is required';
+
+if(!user.password){
+  error.password = msg;
+   errormessage.push(msg);
+}
+
+
+if(!user.confirmPassword){
+  error.confirmPassword= msg;
+   errormessage.push(msg);
+}
+
+
+if(user.password.length<8){
+  error.password = msg;
+   errormessage.push(msg);
+}
+
+
+if(user.confirmPassword.length<8){
+  error.confirmPassword = msg;
+   errormessage.push(msg);
+}
+
+if(user.password!== user.confirmPassword){
+  error.confirmPassword = msg;
+   errormessage.push(msg);
 }
 
 
 
-const handleBack =()=>{
-  navigation.navigate('Language');
+
+        setErrors(error)
+        if (errormessage.length===0) {
+
+setLoading(true)
+
+let data:any  = await getData('register');
+const item  = JSON.parse(data);
+
+const code =  'v'+Math.random().toString(36).substring(2, 9);
+
+let newUser = {
+  ...item,
+  password:user.password,
+  code:code,
+  address: '',
+  latitude: '',
+  longitude: '',
 }
 
-const handleNext =()=>{
-  navigation.navigate('BottomTabs', {
-    code:'cds',
-  }); 
+console.log(newUser)
+
+    let url = ServerUrl+'/api/vendor/registration';
+   axios.post(url, newUser, config)
+   .then(response =>{
+console.log(response.data)
+     if(response.data.type === 'success'){
+
+      setLoading(false)
+      storeData('jwt', response.data.jwt)
+      storeData('code', code)
+      storeData('wallet', response.data.wallet)
+
+         navigation.navigate('Orders');  
+               } else{
+                 //unable to create account please retry
+                 setModalType('Failed')
+               
+          setErrors({...errors,  errorMessage: response.data.message})
+               }   
+           })
+           .catch((error)=>{
+            setModalType('Failed')
+            setErrors({...errors,  errorMessage: error.message})
+         
+           })
+          }
 }
 
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+
+const handleChange =(name:string, text:string)=>{
+
+  setUser({...user, [name]:text})
+  setErrors({...errors, [name]:'', errorMessage:''})
+}
 
   return (<SafeAreaView style={[ {flex:1, backgroundColor:colors.white}]}>
     
@@ -70,6 +164,13 @@ const handleNext =()=>{
     <View />
     </View>
 
+    <Loader 
+    isModalVisible={loading} 
+    type={modalType}
+    message={errors.errorMessage} 
+    action={()=>setLoading(false)}
+     />
+
 <View style={styles.infoWrapper}>
     <Text style={styles.infoText}>Create a unique password that</Text>
     <Text style={styles.infoText}>will be used when you sign in.</Text>
@@ -78,11 +179,24 @@ const handleNext =()=>{
 
 
     <Text style={[styles.infoText, {marginLeft:20, marginBottom:10, color:colors.dark}]}>Password</Text>
-    <View style={styles.textWrapper}>
+    <View style={[styles.textWrapper, errors.password?globalStyles.error:[]]}>
   <TextInput placeholder='*******' 
   placeholderTextColor={'#959595'}
-  style={styles.textInput} />
-<FontAwesome5Icon name="eye" size={14} color={colors.grey}  /> 
+  style={styles.textInput} 
+  
+  autoCapitalize='none'
+  keyboardType='email-address' 
+   secureTextEntry={user.isPasswordSecure}
+   autoCorrect={false}
+   value={user.password}
+   onChangeText={text =>handleChange('password', text)}
+  />
+
+
+<MaterialIcon 
+        name={user.isPasswordSecure?'visibility-off':'visibility'} 
+        onPress={()=>setUser({...user, isPasswordSecure:!user.isPasswordSecure})} 
+        size={20}  color={colors.grey} /> 
 
 </View>
 
@@ -90,22 +204,37 @@ const handleNext =()=>{
 
 
 <Text style={[styles.infoText, {marginLeft:20, marginBottom:10, marginTop:30, color:colors.dark}]}>Confirm Password</Text>
-    <View style={[styles.textWrapper, {marginBottom:40}]}>
+
+<View style={[styles.textWrapper, {marginBottom:40}, errors.confirmPassword?globalStyles.error:[]]}>
+
   <TextInput placeholder='*******' 
   placeholderTextColor={'#959595'}
-  style={styles.textInput} />
-<FontAwesome5Icon name="eye" size={14} color={colors.grey}  /> 
+  style={styles.textInput} 
+  
+  
+  autoCapitalize='none'
+  keyboardType='email-address' 
+   secureTextEntry={user.isConfirmSecure}
+   autoCorrect={false}
+   value={user.confirmPassword}
+   onChangeText={text =>handleChange('confirmPassword', text)}
+  
+  />
+
+
+<MaterialIcon 
+        name={user.isConfirmSecure?'visibility-off':'visibility'} 
+        onPress={()=>setUser({...user, isConfirmSecure:!user.isConfirmSecure})} 
+        size={20}  color={colors.grey} /> 
+
 
 </View>
 
 
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={globalStyles.button}>
+<TouchableOpacity onPress={handleSubmit} activeOpacity={0.9} style={globalStyles.button}>
   <Text style={globalStyles.buttonText}>Proceed</Text>
 </TouchableOpacity>
-
-
-
 
 
     </SafeAreaView>
@@ -161,7 +290,7 @@ textWrapper:{
   justifyContent:'space-between',
   alignItems:'center',
   width:width-40,
-  height:45,
+  height:50,
   paddingHorizontal:10,
   marginHorizontal:20,
   backgroundColor:'#F4F8FB',
@@ -172,7 +301,8 @@ textWrapper:{
 textInput:{
 fontWeight:'600',
 color:colors.dark,
-fontSize:12,
+width:width-90,
+fontSize:14,
 letterSpacing:10
 },
 

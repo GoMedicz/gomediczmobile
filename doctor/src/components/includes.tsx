@@ -2,7 +2,7 @@
 import { getData } from "./globalFunction";
 
 export const ImagesUrl = 'http://localhost:6000/public/images'
-export const ServerUrl = 'http://localhost:6000'
+export const ServerUrl ='https://docvv1.up.railway.app';// 'http://localhost:6000'
 export const API_KEY = '';
 
 export const MODE :any = getData('THEME')

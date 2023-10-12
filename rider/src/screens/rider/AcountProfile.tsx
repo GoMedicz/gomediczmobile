@@ -26,7 +26,6 @@ const height =
       );
 
 
-
 type RootStackParamList = {
   Dashboard:undefined;
   AccountProfile: undefined;

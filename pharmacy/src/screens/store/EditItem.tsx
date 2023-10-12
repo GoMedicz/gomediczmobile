@@ -9,12 +9,13 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import axios from 'axios';
 import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { ImagesUrl, PHARMACY_CODE, STAFF_CODE, ServerUrl, config } from '../../components/includes';
+import { ImagesUrl,  STAFF_CODE, ServerUrl,  configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import { PrimaryButton } from '../../components/include/button';
 import Loader from '../../components/loader';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { getData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -42,13 +43,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'EditItem'>;
   const MODE = useZustandStore(store => store.theme);
   const dynamicStyle = dynamicStyles(MODE);
 
-
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
-
+  const [image, setImage] = useState({
+    uri:'',
+    type:'',
+     name:''
+  })
 
 
 const handleNext =()=>{
@@ -58,8 +57,7 @@ const handleNext =()=>{
     
   
 const Initials ={
-  code: 'p'+Math.random().toString(36).substring(2, 9),
-  pharmacy_code:PHARMACY_CODE,
+
   staff_code: STAFF_CODE,
   image_url: '',
   product_id: '',
@@ -69,7 +67,8 @@ const Initials ={
   description: '',
   require_prescription: false,
   price:'',
-  qty:''
+  qty:'',
+  errorMessage:''
 }
 
 const [items, setItems] = useState([] as any);
@@ -110,7 +109,9 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
 
 
   const fetchCategory = async()=>{
-    let url = ServerUrl+'/api/pharmacy/display_category/'+PHARMACY_CODE
+    let config = await configToken()
+
+    let url = ServerUrl+'/api/vendor/products/category/all'
     try{
    await axios.get(url, config).then(response=>{
       if(response.data.type==='success'){
@@ -126,11 +127,14 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
 
   
   const fetchProduct = async()=>{
-   // setLoading(true)
-    let url = ServerUrl+'/api/pharmacy/product/view/'+PHARMACY_CODE+'/'+params.code
+
+    let config = await configToken()
+      const PHARMACY_CODE = await getData('code');
+    
+    let url = ServerUrl+'/api/vendor/product/view/'+PHARMACY_CODE+'/'+params.code
     try{
    await axios.get(url, config).then(response=>{
-
+    
       if(response.data.type==='success'){
         setDrugs(response.data.data)
 
@@ -140,9 +144,7 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
         setDrugs([])
         //handleBack()
       }
-    }).finally(()=>{
-      setLoading(false)
-    }) 
+    })
   }catch(e){
     console.log('error:',e)
   }
@@ -191,6 +193,9 @@ const OpenAction = () =>
     
   }
 
+
+
+
   const openImagePicker = async() => {
     const options:any = {
       mediaType: 'photo',
@@ -201,15 +206,28 @@ const OpenAction = () =>
 
    await launchImageLibrary(options, (response) => {
       if (response.didCancel) {
-        console.log('User cancelled image picker');
+       // console.log('User cancelled image picker');
       } else if (response.errorCode) {
-        console.log('Image picker error: ', response.errorMessage);
+       // console.log('Image picker error: ', response.errorMessage);
       } else {
-       console.log(response.assets)
+        let imageUri:any =  response.assets?.[0]?.uri;
+        let type:any = response.assets?.[0]?.type
+
+        let filename:any = response.assets?.[0]?.fileName
+
+        setImage({
+          uri:imageUri,
+          name:filename,
+          type:type
+
+        })
+
+        setDrugs({...drugs, image_url:drugs.code+'_'+filename})
       }
     });
 
   };
+  
 
 const list = {
   code:'',
@@ -259,7 +277,7 @@ const handleBack =()=>{
 }
 
 
-    const handleSubmit =()=>{
+    const handleSubmit =async()=>{
        
       let error = {...errors}; 
     let formIsValid = true;
@@ -311,32 +329,35 @@ const handleBack =()=>{
       Object.entries(drugs).forEach(([key, value]) => {
               fd.append(key, String(value));
           });
+      if(image.uri!==''){
+        fd.append('image',  image)
+      }
+          
       fd.append('price_item',  JSON.stringify(quantity, null, 2))
-
-      let url = ServerUrl+'/api/pharmacy/product/update';
+      let config = await configToken()
+      let url = ServerUrl+'/api/vendor/product/update';
          axios.post(url, fd, config)
          .then(response =>{
            if(response.data.type === 'success'){
             
-            setModalType('Updated')
-            
-            //setLoading(false)
+           
+            setModalType('Success')
+
+            setErrors({...errors, errorMessage: 'Successfully Updated'})
 
             setTimeout(() => {
            handleNext()
             }, 1000);
 
           } else{
-                       //unable to create account please retry
-                       setLoading(false)
-                //setErrors({...errors, password: response.data.message})
+                 
+            setModalType('Failed')
+            setErrors({...errors, errorMessage: response.data.message})
                      }   
                  })
                  .catch((error)=>{
-                // setErrors({...errors, errorMessage:error.message})
-                 setLoading(false)
-                 }).finally(()=>{
-                 // setLoading(false)
+                  setModalType('Failed')
+                  setErrors({...errors, errorMessage: error.message})
                  })
                 }
     }
@@ -366,8 +387,11 @@ const handleBack =()=>{
 
 
 
+   
     <Loader isModalVisible={loading} 
     type={modalType}
+
+    message={errors.errorMessage} 
     action={()=>setLoading(false)}
      />
 
@@ -381,7 +405,7 @@ showsVerticalScrollIndicator={false}
 <View style={[styles.imageWrapper, {
      backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
   
-<Image source={{ uri:ImagesUrl+"/no.png"}} style={styles.profile} />
+<Image source={{ uri: image.uri?image.uri:drugs.image_url?ImagesUrl+"/products/"+drugs.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 
 <TouchableOpacity onPress={openImagePicker} style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
@@ -535,7 +559,8 @@ showsVerticalScrollIndicator={false}
 
   <TextInput
   multiline={true}
-  style={[styles.about, dynamicStyle.label, {fontWeight:'500'}]}
+  style={[styles.about, dynamicStyle.label, {fontWeight:'500', 
+  backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}
   value={drugs.description}
   
   autoCapitalize='none'
@@ -583,7 +608,7 @@ showsVerticalScrollIndicator={false}
 <View key={index} style={[globalStyles.rowCenterBetween, {marginTop:5}]}>
 
   <TextInput 
-  placeholder='e.g 3.50' 
+  placeholder='e.g 300' 
   
   style={[dynamicStyle.qty, errors.price?styles.error:[]]}
   placeholderTextColor={colors.grey}
@@ -757,6 +782,6 @@ elevation: 5,
     flexDirection:'row', 
     alignItems:'flex-end',
      justifyContent:'flex-start', 
-     paddingHorizontal:30, paddingVertical:5
+     paddingHorizontal:10, paddingVertical:5
     },
 })

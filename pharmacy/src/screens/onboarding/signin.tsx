@@ -10,6 +10,7 @@ import { ImagesUrl, ServerUrl, config } from '../../components/includes';
 import Loader from '../../components/loader';
 import { getData, storeData } from '../../components/globalFunction';
 import { globalStyles } from '../../components/globalStyle';
+import ErrorModal from '../../components/errorModal';
 
 
 const {width} = Dimensions.get('screen');
@@ -24,34 +25,36 @@ const height =
 
 type RootStackParamList = {
   SignIn: undefined;
+  Register:{
+    telephone:string;
+  }
   Orders:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
  const SignIn =({ route, navigation }:Props)=> {
 
-  const [refreshing, setRefreshing] = useState(false)
-
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
 
 
 const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
+
+
 const [user, setUser] = useState({
   passwordFocus:false,
   telephoneFocus:false,
+  isPassword:false,
   isSecure:true,
   telephone:'',
   password:'',
+  errorMessage:''
 
 })
 
 
 const [errors, setErrors] = useState({
+
+  isError:false,
   telephone:'',
   password:'',
   errorMessage:''
@@ -79,23 +82,28 @@ const handleChange =(name:string, text:string)=>{
 
 const handleSubmit =()=>{
   let error = {
-    password:'', 
-    telephone:'',  
-    errorMessage:'',
+    ...errors,  
   }
 
   var errormessage = [];
 let msg = 'This field is required';
 
 if(!user.telephone){
-  error.telephone = "Please enter password.";
-   errormessage.push('Please enter password.');
+  error.telephone = msg;
+   errormessage.push(msg);
 }
+
+
+if(user.telephone.length<11){
+  error.telephone = msg;
+   errormessage.push(msg);
+}
+
 
         if(!user.password){
           error.password = "Please enter password.";
            errormessage.push('Please enter password.');
-       }
+       } 
 
         setErrors(error)
         if (errormessage.length===0) {
@@ -103,41 +111,99 @@ if(!user.telephone){
 setLoading(true)
 
 
-const fd = new FormData();
-Object.entries(user).forEach(([key, value]) => {
-        fd.append(key, value);
-    });
 
-    let url = ServerUrl+'/api/login_vendor';
+    const fd  ={
+      telephone:user.telephone,
+      password:user.password
+    }
+    let url = ServerUrl+'/api/vendor/login';
    axios.post(url, fd, config)
    .then(response =>{
-    setLoading(false)
-
      if(response.data.type === 'success'){
 
+      setLoading(false)
       storeData('jwt', response.data.jwt)
       storeData('code', response.data.code)
-
+      storeData('wallet', response.data.wallet)
          navigation.navigate('Orders');  
                } else{
                  //unable to create account please retry
-                 setUser({...user, passwordFocus:true})
-          setErrors({...errors, errorMessage: response.data.message, password:response.data.message})
+                
+                 setModalType('Failed')
+          setUser({...user,  errorMessage: response.data.message, passwordFocus:true})
                }   
            })
            .catch((error)=>{
-           setErrors({...errors, errorMessage:error.message})
-           setLoading(false)
-           }).finally(()=>{
-            setUser({...user,
-              passwordFocus:false,
-              telephoneFocus:false,
-              isSecure:true,
-              password:'',
-            })
+            setModalType('Failed')
+            setUser({...user,  errorMessage:error.message})
+           
            })
           }
 }
+
+
+
+
+
+
+const handleContinue =()=>{
+
+  let error = {
+    ...errors 
+  }
+
+  var errormessage = [];
+let msg = 'This field is required';
+
+if(!user.telephone){
+  error.telephone = msg;
+   errormessage.push(msg);
+}
+
+if(user.telephone.length<11){
+  error.telephone = msg;
+   errormessage.push(msg);
+}
+
+        setErrors(error)
+        if (errormessage.length===0){
+
+setLoading(true)
+
+
+var fd = {      
+  field:'telephone',
+  data:user.telephone
+}
+let url = ServerUrl+'/api/vendor/verification';
+
+
+   axios.post(url, fd, config)
+   .then(response =>{
+
+     if(response.data.type === 'success'){
+      setLoading(false)
+      setUser({...user, passwordFocus:true, isPassword:true})
+      
+               } else if(response.data.type === 'info'){
+                setLoading(false)
+                navigation.navigate('Register', {
+                  telephone:user.telephone
+                }); 
+               } else{
+                  setModalType('Failed')
+                setUser({...user, errorMessage: response.data.message})
+                
+               }  
+           })
+           .catch((error)=>{
+            setModalType('Failed')
+           setUser({...user, errorMessage:error.message})
+            
+           })
+          }
+}
+
 
 
   return (<View style={{backgroundColor:'#F4F8Fb', flex:1}}>
@@ -149,17 +215,16 @@ Object.entries(user).forEach(([key, value]) => {
         hidden={false}
       />
 
-
-    <Loader isModalVisible={loading} 
+    <Loader 
+    isModalVisible={loading} 
     type={modalType}
+    message={user.errorMessage} 
     action={()=>setLoading(false)}
      />
-
 
     <ScrollView 
     showsVerticalScrollIndicator={false}
     >
-
 
 <View style={{backgroundColor:colors.primary, height:(height/2)+60}}>
 
@@ -197,7 +262,7 @@ onFocus={()=>handleFocus('telephoneFocus')}
 </View>
 
 
-<View style={[styles.textWrapper, {marginTop:10}, errors.password?globalStyles.error:[]]}>
+{user.isPassword?<View style={[styles.textWrapper, {marginTop:10}, errors.password?globalStyles.error:[]]}>
 <MaterialIcon name="lock" size={18} color={colors.icon}  /> 
   <TextInput placeholder='Password' 
   placeholderTextColor={'#959595'}
@@ -220,15 +285,25 @@ onFocus={()=>handleFocus('telephoneFocus')}
         name={user.isSecure?'visibility-off':'visibility'} 
         onPress={()=>setUser({...user, isSecure:!user.isSecure})} 
         size={20}  color={colors.grey} />  
-</View>
+</View>:[]}
+
+{user.isPassword?
 
 <TouchableOpacity onPress={handleSubmit} activeOpacity={0.9} style={styles.button}>
+  <Text style={styles.buttonText}>Sign In</Text>
+</TouchableOpacity>:
+
+
+<TouchableOpacity onPress={handleContinue} activeOpacity={0.9} style={styles.button}>
   <Text style={styles.buttonText}>Continue</Text>
 </TouchableOpacity>
+ }
+
+
 </View> 
 
 
-<View style={[styles.loginWrapper, {marginVertical:5}]}>
+<View style={[styles.loginWrapper, {marginVertical:15}]}>
 <Text style={{fontSize:12, fontWeight:'600'}}>OR </Text>
 </View>
 
@@ -245,9 +320,6 @@ onFocus={()=>handleFocus('telephoneFocus')}
 </View>
 </View>
 
-<View style={[styles.loginWrapper]}>
-<Text style={{fontSize:10, fontWeight:'600', color:colors.primary}}>Skip Login</Text>
-</View>
 
 
   </ScrollView>
@@ -309,7 +381,7 @@ alignItems:'center',
   display:'flex',
   justifyContent:'center',
   alignItems:'center',
-  height:45,
+  height:50,
   backgroundColor:colors.primary,
   borderRadius:5,
 },
@@ -328,7 +400,7 @@ textWrapper:{
   flexDirection:'row',
   alignItems:'center',
   width:width-20,
-  height:45,
+  height:50,
   paddingHorizontal:10,
   backgroundColor:colors.white,
   borderRadius:5,
@@ -340,7 +412,7 @@ marginLeft:15,
 width:width-90,
 fontWeight:'600',
 color:colors.dark,
-fontSize:12
+fontSize:14
 },
 
 
@@ -357,7 +429,7 @@ socialWrapper:{
 gmail:{
   display:'flex',
   flexDirection:'row',
-  height:45,
+  height:50,
   backgroundColor:'transparent',
   borderWidth:1,
   borderColor:colors.grey1Opacity,

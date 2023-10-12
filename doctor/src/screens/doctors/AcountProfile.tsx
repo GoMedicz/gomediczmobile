@@ -77,8 +77,9 @@ const handleNext =()=>{
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={dynamicStyle.header}>
+      <View/>
    <Text style={dynamicStyle.label}>Account</Text>
-
+<View/>
     </View>
 
 <ScrollView>

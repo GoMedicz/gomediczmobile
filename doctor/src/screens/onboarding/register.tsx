@@ -45,7 +45,7 @@ interface item {
 
 
 const handleBack =()=>{
-  navigation.navigate('Language');
+  navigation.goBack();
 }
 
 const handleNext =()=>{

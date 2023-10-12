@@ -11,6 +11,7 @@ import { PrimaryButton } from '../../components/include/button';
 import { ImagesUrl } from '../../components/includes';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { globalStyles } from '../../components/globalStyle';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -62,7 +63,7 @@ const handleBack =()=>{
   return (<SafeAreaView style={{flex:1, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
     
     <View style={dynamicStyle.header}>
-    <MaterialIcon name="arrow-back-ios"  onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
+    <MaterialIcon name="menu"  onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
     <Text style={dynamicStyle.label}>Support</Text>
     
     <View/>
@@ -93,25 +94,29 @@ const handleBack =()=>{
 
 <View style={[styles.textAreaWrapper, {
     backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
-<MaterialIcon name="edit" size={14} color={colors.icon}  /> 
 
 <TextInput 
 
 placeholder='Write your message'
 multiline={true}
-numberOfLines={10}
+numberOfLines={20}
 style={[styles.textArea, {
   color:MODE==='Light'?colors.dark:colors.white}]}
 placeholderTextColor={colors.grey}
 
 />
+
+<View style={{width: width-50, display:'flex', justifyContent:'flex-end', alignItems:'flex-end' }}>
+<Text style={{marginTop:10, fontSize:12, color:colors.grey}}>0/100</Text>
+</View>
+
 </View>
 
 
 <PrimaryButton
 title='Submit'
 
-style={{width:width-20, marginHorizontal:10, borderRadius:5, marginVertical:50}}
+style={{width:width-20, marginHorizontal:10, borderRadius:5, marginVertical:80}}
 
 />
 
@@ -125,13 +130,6 @@ style={{width:width-20, marginHorizontal:10, borderRadius:5, marginVertical:50}}
 
 </ScrollView>
     
-<View style={styles.row}>
-
-<View style={styles.doctorWrapper} />
-<View style={styles.circle} />
-  <Image source={{ uri:ImagesUrl+"/reception.png" }} style={styles.doctorLogo} /> 
-
-  </View>
     </SafeAreaView>
   )
 }
@@ -145,16 +143,16 @@ const styles = StyleSheet.create({
     marginHorizontal:10,
     borderRadius:5,
     padding:10,
-    height:80,
+    height:150,
     marginTop:10,
     display:'flex',
-    flexDirection:'row',
+    flexDirection:'column',
     
   },
   textArea:{
-   marginLeft:10,
    fontSize:12,
-   fontWeight:'500'
+   fontWeight:'500',
+   height:110,
   },
   h1:{
     fontSize:20,
@@ -177,44 +175,5 @@ const styles = StyleSheet.create({
 
 
   },
-  doctorWrapper:{
-    height:(height/3)+20,
-    width:width-60,
-    backgroundColor:'#e6e1e1',
-    
-  borderTopRightRadius:width/2,
-  borderTopLeftRadius:width/2,
-  opacity:0.1,
-  display:'flex',
-  justifyContent:'center',
-  alignItems:'center',
-  position:'absolute',
-  bottom:0,
-   },
-  
-  circle:{
-    height:(height/3)-10,
-    width:width-120,
-    backgroundColor:'#e6e1e1',
-    bottom:0,
-  borderTopRightRadius:width/2 + 100,
-  borderTopLeftRadius:width/2 + 100,
-  position:'absolute',
-  opacity:0.1,
-  
-  },
-   row:{
-    width:width,
-    display:'flex',
-    justifyContent:'center',
-    alignItems:'center',
-    position:'absolute',
-    bottom:0
-   },
-  
-   doctorLogo:{
-    height:200,
-    width:200,
-    zIndex:1
-   }
+ 
 })

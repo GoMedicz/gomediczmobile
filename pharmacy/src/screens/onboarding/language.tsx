@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity } from 'react-native'
 
+import MaterialIcon  from 'react-native-vector-icons/MaterialIcons'
 import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
@@ -34,9 +35,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Language'>;
 
   const languageItem = useZustandStore(s => s.language);
 
+  const themeItem = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(themeItem)
+
   const setStoreLanguage = useZustandStore(s => s.setLanguage);
   const MODE = useZustandStore(s => s.theme);
-  const dynamicStyle = dynamicStyles(MODE)
 
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
@@ -112,6 +115,13 @@ const changeDefaultLanguage =()=>{
 
 
 
+const handleBack =()=>{
+  navigation.goBack();
+}
+
+
+
+
 useEffect(()=>{
   changeDefaultLanguage()
 },[LANGUAGELIST])
@@ -119,7 +129,8 @@ useEffect(()=>{
   return (<SafeAreaView style={{flex:1, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
     
     <View style={dynamicStyle.header}>
-    <View/>
+    
+    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={themeItem==='Light'?colors.dark:colors.white} /> 
     <Text style={dynamicStyle.label}>Change Language</Text>
     <View/>
     </View>

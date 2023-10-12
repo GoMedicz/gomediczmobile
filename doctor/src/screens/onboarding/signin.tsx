@@ -24,19 +24,14 @@ const height =
 
 type RootStackParamList = {
   SignIn: undefined;
-  BottomTabs:undefined;
+  Register:undefined;
+  Appointments:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
  const SignIn =({ route, navigation }:Props)=> {
 
   const [refreshing, setRefreshing] = useState(false)
-
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
 
 
 const [modalType, setModalType] = useState('load')
@@ -45,14 +40,12 @@ const [user, setUser] = useState({
   passwordFocus:false,
   telephoneFocus:false,
   isSecure:true,
+  isPassword:false,
   telephone:'',
   password:'',
 
 })
 
-const handleNext =()=>{
-  navigation.navigate('BottomTabs');  
-}
 
 const [errors, setErrors] = useState({
   telephone:'',
@@ -79,8 +72,14 @@ const handleChange =(name:string, text:string)=>{
 }
 
 
+const handleLogin =()=>{
+  navigation.navigate('Appointments');  
+}
 
-const handleSubmit =()=>{
+
+
+
+const handleVerifySubmit =()=>{
   let error = {
     password:'', 
     telephone:'',  
@@ -95,33 +94,35 @@ if(!user.telephone){
    errormessage.push('Please enter password.');
 }
 
-        if(!user.password){
+    /*     if(!user.password){
           error.password = "Please enter password.";
            errormessage.push('Please enter password.');
-       }
+       } */
 
         setErrors(error)
         if (errormessage.length===0) {
 
 setLoading(true)
 
-
-const fd = new FormData();
-Object.entries(user).forEach(([key, value]) => {
-        fd.append(key, value);
-    });
-
-    let url = ServerUrl+'/api/login_vendor';
-   axios.post(url, fd, config)
+    let url = ServerUrl+'/api/doctor/phone/profile/'+user.telephone;
+   axios.get(url, config)
    .then(response =>{
     setLoading(false)
 
+
+    if(response.data.status===true){
+      //navigate to password with telephone
+      //display password
+    }else{
+
+      //navigate to registration
+    }
      if(response.data.type === 'success'){
 
       storeData('jwt', response.data.jwt)
       storeData('code', response.data.code)
 
-         navigation.navigate('BottomTabs');  
+         navigation.navigate('Register');  
                } else{
                  //unable to create account please retry
                  setUser({...user, passwordFocus:true})
@@ -138,6 +139,54 @@ Object.entries(user).forEach(([key, value]) => {
               isSecure:true,
               password:'',
             })
+           })
+          }
+}
+
+
+
+const handleSubmit =()=>{
+  let error = {
+    password:'', 
+    telephone:'',  
+    errorMessage:'',
+  }
+
+  var errormessage = [];
+let msg = 'This field is required';
+
+
+if(!user.telephone){
+  error.telephone = msg;
+   errormessage.push(msg);
+}
+
+
+      setErrors(error)
+    if (errormessage.length===0) {
+
+setLoading(true)
+
+    let url = ServerUrl+'/api/doctor/phone/profile/'+user.telephone;
+   axios.get(url, config)
+   .then(response =>{
+    console.log(response.data)
+    setLoading(false)
+    if(response.data.status===true){
+      //User is registered display password
+      setUser({...user, isPassword:true})
+     
+    }else{
+      console.log(response.data)
+      //navigate to registration
+     // navigation.navigate('Register'); 
+    } 
+           })
+           .catch((error)=>{
+           setErrors({...errors, errorMessage:error.message})
+           setLoading(false)
+           }).finally(()=>{
+            setLoading(false)
            })
           }
 }
@@ -199,8 +248,8 @@ onFocus={()=>handleFocus('telephoneFocus')}
   />
 </View>
 
-
-<View style={[styles.textWrapper, {marginTop:10}, errors.password?globalStyles.error:[]]}>
+{user.isPassword?
+ <View style={[styles.textWrapper, {marginTop:10}, errors.password?globalStyles.error:[]]}>
 <MaterialIcon name="lock" size={18} color={colors.icon}  /> 
   <TextInput placeholder='Password' 
   placeholderTextColor={'#959595'}
@@ -223,15 +272,17 @@ onFocus={()=>handleFocus('telephoneFocus')}
         name={user.isSecure?'visibility-off':'visibility'} 
         onPress={()=>setUser({...user, isSecure:!user.isSecure})} 
         size={20}  color={colors.grey} />  
-</View>
+</View>:[]} 
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={styles.button}>
+
+
+<TouchableOpacity onPress={handleSubmit} activeOpacity={0.9} style={styles.button}>
   <Text style={styles.buttonText}>Continue</Text>
 </TouchableOpacity>
 </View> 
 
 
-<View style={[styles.loginWrapper, {marginVertical:5}]}>
+<View style={[styles.loginWrapper, {marginVertical:15}]}>
 <Text style={{fontSize:12, fontWeight:'600'}}>OR </Text>
 </View>
 
@@ -248,9 +299,7 @@ onFocus={()=>handleFocus('telephoneFocus')}
 </View>
 </View>
 
-<View style={[styles.loginWrapper]}>
-<Text style={{fontSize:10, fontWeight:'600', color:colors.primary}}>Skip Login</Text>
-</View>
+
 
 
   </ScrollView>
@@ -302,19 +351,21 @@ const styles = StyleSheet.create({
  loginWrapper:{
   
 width:width,
+paddingHorizontal:40,
 display:'flex',
 alignItems:'center',
+justifyContent:'center'
 
  },
 
  button:{
-  width:width-20,
+  width:width-40,
   display:'flex',
   justifyContent:'center',
   alignItems:'center',
   height:45,
   backgroundColor:colors.primary,
-  borderRadius:5,
+  borderRadius:10,
 },
 
 
@@ -330,17 +381,17 @@ textWrapper:{
   display:'flex',
   flexDirection:'row',
   alignItems:'center',
-  width:width-20,
-  height:45,
+  width:width-40,
+  height:50,
   paddingHorizontal:10,
   backgroundColor:colors.white,
-  borderRadius:5,
+  borderRadius:10,
   top:-20,
 },
 
 textInput:{
 marginLeft:15,
-width:width-90,
+width:width-110,
 fontWeight:'600',
 color:colors.dark,
 fontSize:12
@@ -353,7 +404,7 @@ socialWrapper:{
   marginVertical:10,
   justifyContent:'space-between',
   width:width,
-  paddingHorizontal:10
+  paddingHorizontal:20
 },
 
 
@@ -366,7 +417,7 @@ gmail:{
   borderColor:colors.grey1Opacity,
 alignItems:'center',
 justifyContent:'center',
-width:width-20,
+width:width-40,
 borderRadius:5,
 },
 
