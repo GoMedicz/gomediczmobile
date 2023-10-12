@@ -34,11 +34,7 @@ var todayTime = new Date().toISOString().slice(0,19)
 const getCategory = (req, res, next) => {
  
 sequelize.sync().then(() => {
-     models.Category.findAll({
-      where: {
-      pharmacy_code: req.params.pharmacy_code
-  }
-  }).then(result => {
+     models.Category.findAll().then(result => {
         return res.send({type:'success', data:result})
       }).catch((error) => {
        return res.send({type:'error', message:JSON.stringify(error, undefined, 2)})

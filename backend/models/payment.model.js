@@ -1,5 +1,5 @@
-const getStoreModel = (sequelize, { DataTypes }) => {
-  const Store = sequelize.define('tbl_pharmacy_stores', {
+const getPaymentModel = (sequelize, { DataTypes }) => {
+  const Store = sequelize.define('tbl_payment', {
 
       id: {
         type: DataTypes.INTEGER,
@@ -13,44 +13,45 @@ const getStoreModel = (sequelize, { DataTypes }) => {
           allowNull: false
         },
 
-        image_url: {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
-        store_name: {
-          type: DataTypes.STRING,
-          allowNull: false
-        },
-        telephone: {
-          type: DataTypes.STRING,
-          allowNull: false
-        },
-        password: {
-          type: DataTypes.TEXT,
-          allowNull: false
-        },
-        email_address: {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
         wallet: {
           type: DataTypes.STRING,
-          allowNull: true
+          allowNull: false
         },
-        address: {
-          type: DataTypes.TEXT,
-          allowNull: true
+       user_code: {
+          type: DataTypes.STRING,
+          allowNull: false
         },
-        longitude: {
+       amount: {
+          type: DataTypes.STRING,
+          allowNull: false
+        },
+        discount: {
           type: DataTypes.STRING,
           allowNull: true
         },
-        latitude: {
+        method: {
+          type: DataTypes.STRING,
+          allowNull: false
+        },
+       payer: {
           type: DataTypes.STRING,
           allowNull: true
         },
-        map_data: {
-          type: DataTypes.JSON,
+        total_item: {
+          type: DataTypes.STRING,
+          allowNull: false
+        },
+        date_paid: {
+          type: DataTypes.DATEONLY,
+          allowNull: true
+        },
+        reference: {
+          type: DataTypes.STRING,
+          allowNull: true
+        },
+        payment_data: {
+          type: DataTypes.STRING,
+          defaultValue: "[]",
           allowNull: true
         }
   },
@@ -58,21 +59,33 @@ const getStoreModel = (sequelize, { DataTypes }) => {
     indexes:[
       {
         unique: false,
-        name:'s_code',
+        name:'pay_code',
         fields: ['code'],
       },
       {
         unique: false,
-        name:'s_store_name',
-        fields: ['store_name'],
+        name:'pay_wallet',
+        fields: ['wallet'],
+      },
+      {
+        unique: false,
+        name:'pay_date_paid',
+        fields: ['date_paid'],
+      },
+      {
+        unique: false,
+        name:'pay_user_code',
+        fields: ['user_code'],
       }
+
+      
     ]
   } 
   
   )
 
   sequelize.sync().then((res) => {
-    console.log('tbl_pharmacy_stores successfully created');
+    console.log('tbl_payment successfully created');
   }).catch((error) => {
     console.error('Unable to create table : ', error);
   });
@@ -80,4 +93,4 @@ const getStoreModel = (sequelize, { DataTypes }) => {
   return Store;
 };
 
-module.exports = getStoreModel;
+module.exports = getPaymentModel;

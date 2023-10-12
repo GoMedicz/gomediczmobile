@@ -1,13 +1,11 @@
 const express = require('express');
 const cookieParser = require("cookie-parser");
 const cors = require('cors');
-const session = require('express-session')
+const bodyParser = require("body-parser");
+
 const multer = require('multer');
 const path = require('path');
 const routes = require('./routes/index');
-const upload = multer({limits:{
-  fieldSize: 25 * 1024 * 1024
-}}); 
 
 const app = express();
 app.use(cors({
@@ -15,16 +13,15 @@ app.use(cors({
 }))
 
 
+//app.use(bodyParser.urlencoded({ extended: true }))
+//app.use(bodyParser.json({ limit: '50MB' }))
 
 // for parsing application/json data
 app.use(express.json({limit:'50mb'})); 
 
 // for parsing application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true, limit:'50mb' })); 
-
-
-// for parsing multipart/form-data
-app.use(upload.array());
+ 
 
 
 

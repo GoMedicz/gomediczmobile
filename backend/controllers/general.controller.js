@@ -36,16 +36,20 @@ const generateAccessToken=(username)=> {
 
 
 const uploadProductImage =(req, res, next)=>{
+
   var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, '../public/images/products/')
+
+      cb(null, './public/images/products/')
 
     },
     filename: function (req, file, cb) {
+   
       cb(null, file.originalname)
 
     }
   })
+
 
   const fileFilter = (req, file, cb) => {
     // reject a file
@@ -57,13 +61,12 @@ const uploadProductImage =(req, res, next)=>{
         }
   };
 
-  //upload.fields([{name:'logoImage', maxCount:1}, {name:'favicon', maxCount:1}, {name:'signature', maxCount:1}])
-
-   var upload = multer({ storage: storage, limits:{
-    fieldSize: 25 * 1024 * 1024
-  }}).single("image_file"); 
+  const upload = multer({ storage: storage });
+  upload.single('image');
   
   next() 
+
+
 }
 
 
