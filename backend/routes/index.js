@@ -3,12 +3,12 @@ var fs = require('fs');
 var multer  = require('multer')
 //const upload = multer();
 const router  = express.Router();
-const {General, categoryController, ProductController, StoreController, UserController, DoctorController, PaymentController, DepositController  } = require('../controllers/index');
+const {General, categoryController, ProductController, StoreController, UserController, DoctorController, PaymentController, WithdrawalController, OrderController  } = require('../controllers/index');
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
 
-      cb(null, './public/images/products/')
+      cb(null, './public/images/vendors/products/')
 
     },
     filename: function (req, file, cb) {
@@ -17,6 +17,34 @@ var storage = multer.diskStorage({
 
     }
   })
+  var store = multer.diskStorage({
+    destination: function (req, file, cb) {
+
+      cb(null, './public/images/vendors/profiles/')
+
+    },
+    filename: function (req, file, cb) {
+   
+      cb(null, req.body.code+'_'+file.originalname)
+
+    }
+  })
+
+var prescription = multer.diskStorage({
+  destination: function (req, file, cb) {
+
+    cb(null, './public/images/vendors/prescription/')
+
+  },
+  filename: function (req, file, cb) {
+ 
+    cb(null, req.body.code+'.png')
+
+  }
+})
+
+const prescribe = multer({ storage: prescription });
+const profile = multer({ storage: store });
   const upload = multer({ storage: storage });
 
 //Category controller
@@ -49,7 +77,7 @@ router.get('/api/vendor/products/all/:code', General.AuthenticateToken, ProductC
 
 router.get('/api/pharmacy/all_stores', General.AuthenticateToken, StoreController.getStores);
 
-router.post('/api/pharmacy/store/update', General.AuthenticateToken, StoreController.UpdateStore);
+router.post('/api/vendor/profile/update', General.AuthenticateToken, profile.single('image'), StoreController.UpdateStore);
 
 
 router.post('/api/vendor/verification', StoreController.VerifyVendor);
@@ -75,9 +103,29 @@ router.get('/api/vendor/account/:wallet', General.AuthenticateToken, PaymentCont
 
 
 
-//Deposit controller
-router.post('/api/deposit/add', General.AuthenticateToken, DepositController.AddNewDeposit);
-router.get('/api/deposit/transactions/:wallet', General.AuthenticateToken, DepositController.getTransactions);
+//withdrawal controller
+router.post('/api/account/withdrawal', General.AuthenticateToken, WithdrawalController.AddNewWithdrawal);
+
+
+router.get('/api/vendor/withdrawal/:wallet', General.AuthenticateToken, WithdrawalController.getTransactions);
+
+
+router.post('/api/vendor/earnings', General.AuthenticateToken, WithdrawalController.getEarnings);
+
+
+//Order controller
+router.post('/api/user/order/create', General.AuthenticateToken, OrderController.AddNewOrder);
+
+router.get('/api/vendor/transaction/:code', General.AuthenticateToken, OrderController.getTransactions);
+
+router.get('/api/vendor/order/:vendor/:code', General.AuthenticateToken, OrderController.getOrder);
+
+
+router.post('/api/vendor/order/prescription', General.AuthenticateToken, prescribe.single('image'), OrderController.UploadFile);
+
+
+router.post('/api/vendor/statistics', General.AuthenticateToken, OrderController.getStatistics);
+router.post('/api/vendor/order/update', General.AuthenticateToken, OrderController.UpdateField);
 
 
 

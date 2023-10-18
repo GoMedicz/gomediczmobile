@@ -1,5 +1,5 @@
-const getPaymentModel = (sequelize, { DataTypes }) => {
-  const Store = sequelize.define('tbl_payment', {
+const getOrderItemsModel = (sequelize, { DataTypes }) => {
+  const Store = sequelize.define('tbl_order_items', {
 
       id: {
         type: DataTypes.INTEGER,
@@ -12,80 +12,78 @@ const getPaymentModel = (sequelize, { DataTypes }) => {
           type: DataTypes.STRING,
           allowNull: false
         },
-
-        wallet: {
+        order_code: {
           type: DataTypes.STRING,
           allowNull: false
         },
-       user_code: {
+        user_code: {
           type: DataTypes.STRING,
           allowNull: false
         },
-       amount: {
+        vendor_code: {
           type: DataTypes.STRING,
           allowNull: false
         },
-        discount: {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
-        method: {
+        product_code: {
           type: DataTypes.STRING,
           allowNull: false
         },
-       payer: {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
-        total_item: {
+        qty: {
           type: DataTypes.STRING,
           allowNull: false
         },
-        date_paid: {
-          type: DataTypes.DATE,
-          allowNull: true
+        amount: {
+          type: DataTypes.STRING,
+          allowNull: false
+        },
+        unit: {
+          type: DataTypes.STRING,
+          allowNull: false
         },
         reference: {
           type: DataTypes.STRING,
           allowNull: true
         },
-        payment_data: {
+       status: {
           type: DataTypes.STRING,
-          defaultValue: "[]",
-          allowNull: true
-        }
+          allowNull: false
+        },
+       date_order: {
+          type: DataTypes.DATEONLY,
+          allowNull: false
+        },
+       
   },
    {
     indexes:[
       {
         unique: false,
-        name:'pay_code',
-        fields: ['code'],
-      },
-      {
-        unique: false,
-        name:'pay_wallet',
-        fields: ['wallet'],
-      },
-      {
-        unique: false,
-        name:'pay_date_paid',
-        fields: ['date_paid'],
-      },
-      {
-        unique: false,
-        name:'pay_user_code',
+        name:'user_code',
         fields: ['user_code'],
-      }
+      },
+      {
+        unique: false,
+        name:'product_code',
+        fields: ['product_code'],
+      },
+      {
+        unique: false,
+        name:'vendor_code',
+        fields: ['vendor_code'],
+      },
+      {
+        unique: false,
+        name:'date_order',
+        fields: ['date_order'],
+      },
 
-      
     ]
   } 
   
   )
 
   sequelize.sync().then((res) => {
-    console.log('tbl_payment successfully created');
+    console.log('tbl_order_items successfully created');
   }).catch((error) => {
     console.error('Unable to create table : ', error);
   });
@@ -93,4 +91,4 @@ const getPaymentModel = (sequelize, { DataTypes }) => {
   return Store;
 };
 
-module.exports = getPaymentModel;
+module.exports = getOrderItemsModel;

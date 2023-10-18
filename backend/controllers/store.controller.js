@@ -56,7 +56,6 @@ const { generateAccessToken, generateWallet } = require('./general.controller');
           address: data.address,
           latitude: data.latitude,
           longitude: data.longitude,
-          map_data: '',
 
         }).then(result => {
           var token = generateAccessToken(data.code);
@@ -198,7 +197,6 @@ const getOneStore = (req, res, next) => {
     formIsValid = false;
   }
   
-  
   if(!formIsValid){
     return res.send({type:'error', message:'Some fields are required'})
     }else{
@@ -214,7 +212,7 @@ const getOneStore = (req, res, next) => {
           latitude: data.latitude,
           longitude: data.longitude,
           map_data: data.map_data,
-
+          image_url: data.image_url,
             },{
               where: {
                 code: data.code

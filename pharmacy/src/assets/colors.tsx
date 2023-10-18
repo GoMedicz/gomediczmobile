@@ -7,7 +7,7 @@ const colors = {
     //Primary Colors
   skye:'#1F97F7',
   white: "#FFFFFF",
-  primary:'#5a5ce3',
+  primary:'#5DC277',
   dark:'#000',
   icon:'#24C0F7',
   grey:'#9E9E9E',

@@ -11,7 +11,35 @@ export const storeData = async (key:string, item:any) => {
     }
   }
 
-
+export const getDays=(date:string)=>{
+  let day;
+  switch (new Date(date).getDay()){
+      case 0:
+          day ="Sunday";
+          break;
+      case 1:
+          day ="Monday";
+          break;
+      case 2:
+          day ="Tuesday";
+         break;
+      case 3:
+          day ="Wednesday";
+              break;
+      case 4:
+          day ="Thursday";
+              break;
+      case 5:
+          day ="Friday";
+          break;
+      case 6:
+          day ="Sathurday"
+          break;
+      default:
+          day="Sunday"
+  }
+      return day
+  }
 
   export const getData = async (key:string) => {
     try {
@@ -83,4 +111,16 @@ export const getTime =(value:any)=>{
 
 
 return result;
+}
+
+
+
+export const abbreviate=(n:number,d:number)=>{
+  var  x=(''+n).length,
+    p=Math.pow,
+    d=p(10,d)
+    x-=x%3
+return Math.round(n*d/p(10,x))/d+" kMGTPE"[x/3]
+
+//abbreviate(item.view_count, 0)
 }

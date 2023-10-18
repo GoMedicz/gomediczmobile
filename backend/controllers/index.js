@@ -5,7 +5,8 @@ const StoreController = require('./store.controller');
 const UserController = require('./user.controller');
 const DoctorController = require('./doctor.controller');
 const PaymentController = require('./payment.controller');
-const DepositController = require('./deposit.controller');
+const WithdrawalController = require('./withdrawal.controller');
+const OrderController = require('./orders.controller');
 
 const Controllers = {
     categoryController,
@@ -15,7 +16,8 @@ const Controllers = {
     UserController,
     DoctorController,
     PaymentController,
-    DepositController 
+    WithdrawalController,
+    OrderController
   };
 
 

@@ -36,6 +36,7 @@ type RootStackParamList = {
   Faqs:undefined;
   Terms:undefined;
   Contact:undefined;
+  SignIn:undefined;
 
    };
 
@@ -66,7 +67,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
     {title:"T&C", label:'Company Policies', icon:'article', screen:'Terms'},
     {title:"Contact Us", label:'Let us help you', icon:'mail', screen:'Contact'},
     {title:"FAQs", label:'Quick Answer', icon:'feedback', screen:'Faqs'},
-    {title:"Logout", label:'See you soon', icon:'logout', screen:'Orders'},
+    {title:"Logout", label:'See you soon', icon:'logout', screen:'SignIn'},
   ])
 
    
@@ -126,10 +127,11 @@ useEffect(()=>{
 <ScrollView>
 
 
+
 <View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:MODE==='Light'?colors.white:colors.dark, paddingBottom:10}}>
   
   <Animated.View style={{opacity:fadeValue}}>
-<Image source={{ uri:ImagesUrl+"/profile_5.png"}} style={styles.profile} />
+<Image source={{ uri: profile.image_url?ImagesUrl+"/vendors/profiles/"+profile.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 </Animated.View>
 
 <View style={{marginLeft:5}}>
@@ -190,9 +192,10 @@ const styles = StyleSheet.create({
   },
 
   profile:{
-    width:150,
-    height:110,
-    resizeMode:'contain'
+    width:120,
+    height:120,
+    marginHorizontal:10,
+    resizeMode:'cover',
   },
 
 

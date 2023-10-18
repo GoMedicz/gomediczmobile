@@ -118,12 +118,10 @@ let newUser = {
   longitude: '',
 }
 
-console.log(newUser)
 
     let url = ServerUrl+'/api/vendor/registration';
    axios.post(url, newUser, config)
    .then(response =>{
-console.log(response.data)
      if(response.data.type === 'success'){
 
       setLoading(false)

@@ -34,6 +34,18 @@ export const configToken =async()=>{
 
 }
 
+export const configJSON =async()=>{
+
+    const Token =await getData('jwt');
+    return { headers: {
+        
+        'content-type': 'application/json', 
+        'Authorization': `Bearer ${Token}`
+    }
+}
+
+}
+
 
 export const configs = {
     headers: {

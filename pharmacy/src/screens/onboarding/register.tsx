@@ -7,7 +7,6 @@ import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { LANGUAGELIST } from '../../components/data';
 import { ImagesUrl, ServerUrl, config } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import Loader from '../../components/loader';

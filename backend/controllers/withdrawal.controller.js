@@ -2,11 +2,11 @@ const models = require('../models/index');
 var multer  = require('multer')
 const sequelize = require('../api/connection');
 
+var today = new Date().toISOString().slice(0,10)
 
-  const AddNewDeposit = (req, res, next) => {
+  const AddNewWithdrawal = (req, res, next) => {
 
 var data = req.body 
-
 const errors = {};
 let formIsValid = true;
 
@@ -19,7 +19,7 @@ if(!String(data.code).trim()){
 } 
 
 
-if(!Number(data.wallet).trim()){
+if(!data.wallet){
   errors.wallet =msg;
   formIsValid = false;
 }
@@ -30,13 +30,13 @@ if(!String(data.bank_name).trim()){
 }
 
 
-if(!Number(data.amount).trim()){
+if(!Number(data.amount)){
   errors.amount =msg;
   formIsValid = false;
 }
 
 
-if(!String(data.account_number).trim()){
+if(!data.account_number){
   errors.account_number =msg;
   formIsValid = false;
 } 
@@ -48,11 +48,6 @@ if(!String(data.account_name).trim()){
 } 
 
 
-if(!String(data.transaction_mode).trim()){
-  errors.transaction_mode =msg;
-  formIsValid = false;
-} 
-
 
 
 if(!formIsValid){
@@ -61,18 +56,19 @@ if(!formIsValid){
 
     sequelize.sync().then(() => {
      
-         models.Deposit.create({
+         models.Withdrawal.create({
           code: data.code,
           wallet:data.wallet,
+          bank_code: data.bank_code,
           bank_name: data.bank_name,
           amount: data.amount,
           account_number: data.account_number,
           account_name: data.account_name,
-          date_request: data.date_request,
+          date_request: today,
          branch_code: data.branch_code,
          status: 'Pending',
          transaction_mode: 'Deposit',
-         transaction_ref: data.transaction_ref
+         transaction_ref: data.code+data.wallet
 
 
         }).then(result => {
@@ -93,7 +89,7 @@ if(!formIsValid){
   const getTransactions = (req, res, next) => {
  
     sequelize.sync().then(() => {
-         models.Deposit.findAll({
+         models.Withdrawal.findAll({
           where: {
           wallet: req.params.wallet
       }
@@ -107,10 +103,36 @@ if(!formIsValid){
         }); 
     };
 
+   
 
+
+  const getEarnings = async(req, res, next) => {
+ 
+    var data = req.body 
+    const earning = await  sequelize.query(
+      "SELECT sum(CAST(amount as INTEGER)) as earning from tbl_payments where wallet =?",
+      {
+        replacements: [data.wallet],
+        type: sequelize.QueryTypes.SELECT
+      }
+  )
+
+
+//get week list here
+sequelize.query(data.sql,
+  {
+    type: sequelize.QueryTypes.SELECT
+  }
+).then(result => {
+        return res.send({type:'success', data:result, earning:earning})
+      }).catch((error) => {
+          return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+        }); 
+    };
 
 
 module.exports = {
-  AddNewDeposit,
-  getTransactions
+  AddNewWithdrawal,
+  getTransactions,
+  getEarnings
 };

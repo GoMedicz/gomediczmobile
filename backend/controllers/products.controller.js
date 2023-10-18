@@ -92,7 +92,7 @@ const getProducts = (req, res, next) => {
 
   //Only active products should be display i.e where status = active
   sequelize.query(
-    'SELECT p.id, p.code, p.product_name, p.product_id, p.image_url, p.require_prescription, p.price_list, c.category_name FROM tbl_pharmacy_products p, tbl_pharmacy_products_categories c WHERE c.code = p.category_code and  p.pharmacy_code = ? order by p.id DESC',
+    'SELECT p.id, p.code, p.product_name, p.product_id, p.image_url, p.require_prescription, p.price_list, c.category_name FROM tbl_pharmacy_products p LEFT JOIN tbl_pharmacy_products_categories c on  p.category_code = c.code where  p.pharmacy_code = ? order by p.id DESC',
     {
       replacements: [req.params.code],
       type: sequelize.QueryTypes.SELECT

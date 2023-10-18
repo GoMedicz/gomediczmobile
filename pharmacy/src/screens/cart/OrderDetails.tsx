@@ -1,17 +1,20 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useRef, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
 import { CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configJSON, configToken} from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import { PrimaryButton } from '../../components/include/button';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { FormatNumber, getBritishDate, getData, getTime } from '../../components/globalFunction';
+import Loader from '../../components/loader';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -24,36 +27,61 @@ const height =
 
 
 type RootStackParamList = {
-  OrderDetails: undefined;
+  OrderDetails: {
+    code:string;
+  };
+  Orders:undefined;
   RiderMapView:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+    
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderDetails'>;
 
  const OrderDetails =({ route, navigation }:Props)=> {
 
+  const [products, setProducts] = useState([] as any)
+  const fadeValue = useRef(new Animated.Value(0)).current 
   const [refreshing, setRefreshing] = useState(false)
 
+  const [content, setContent] = useState([] as any)
+  const [list, setList] = useState([] as any)
   const MODE = useZustandStore(s => s.theme);
   const dynamicStyle = dynamicStyles(MODE)
 
 
+  const [modalType, setModalType] = useState('load')
+  const [loading, setLoading] = useState(false)
 
 
-const handleBack =()=>{
-  navigation.goBack();
-}
+  const [errors, setErrors] = useState({
+
+    isError:false,
+    errorMessage:''
+  });
+
+
+  const AnimationStart =()=>{
+    const config:any ={
+      toValue:1,
+      duration:1000,
+      useNativeDriver: true
+    }
+    Animated.timing(fadeValue, config).start()
+  
+  }
 
 const handleNext =()=>{
-  navigation.navigate('RiderMapView'); 
+  navigation.navigate('Orders'); 
+}
+
+const handleBack =()=>{
+  setLoading(false)
+  navigation.navigate('Orders'); 
 }
 
 
 const CardCategory =({item}:{item:any})=>{
-  return <Pressable onPress={handleNext} style={[styles.card, {
+  return <View style={[styles.card, {
     backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
@@ -61,68 +89,190 @@ const CardCategory =({item}:{item:any})=>{
 <View>
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-<Text style={dynamicStyle.label}>{item.title}</Text> 
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />
+<Text style={dynamicStyle.label}>{getProduct(item.product_code, 'product_name')}</Text> 
+
+{getProduct(item.product_code, 'require_prescription')?
+<Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />:[]}
+
+</View>
+
+
+<Text style={[styles.infoText, {marginBottom:10}]}>{item.qty} {item.unit
+}{Number(item.qty)>1?'s':''}</Text>
+
+</View>
 </View>
 
 
-<Text style={[styles.infoText, {marginBottom:10}]}>2 Packs</Text>
-
-</View>
-</View>
+    <Text style={[dynamicStyle.label, {fontWeight:'700'}]}>{CURRENCY+FormatNumber(item.amount)}</Text>
 
 
-    <Text style={[dynamicStyle.label, {fontWeight:'700'}]}>N44.00</Text>
- 
-
-
-    </Pressable>
+    </View>
   }
 
+  const getProduct=(code:string, field:string)=>{
 
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+    let ans = products&&products.filter((item:any)=>item.code===code)
+    
+    let rs = ans.length!==0?ans[0][field]:''
+    
+    return rs
+    }
+
+
+    const fetchOrder = async()=>{
+
+      const code = await getData('code');
+      let url = ServerUrl+'/api/vendor/order/'+code+'/'+route.params.code
+      try{
+    let config = await configToken()
+     await axios.get(url, config).then(response=>{
+      if(response.data.type==='success'){
+
+        setContent(response.data.data)
+        setList(response.data.items)
+        }else{
+          setContent([])
+        }
+      }) 
+    }catch(e){
+      //console.log('error:',e)
+    }
+    }
+
+
+
+
+const fetchProducts = async()=>{
+  let config = await configToken()
+  const code = await getData('code');
+
+  let url = ServerUrl+'/api/vendor/products/all/'+code
+  try{
+
+ await axios.get(url, config).then(response=>{
+
+    if(response.data.type==='success'){
+      setProducts(response.data.data)
+
+    }else{
+      setProducts([])
+    }
+  })
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+
+
+const handleStatus =async(status:string)=>{
+
+
+setLoading(true)
+
+
+var fd = {  
+  
+  code:route.params.code,    
+  field:'status',
+  data:status
+}
+let url = ServerUrl+'/api/vendor/order/update';
+
+let configJ = await configJSON()
+
+   axios.post(url, fd, configJ)
+   .then(response =>{
+
+     if(response.data.type === 'success'){
+
+      setModalType('Success')
+      setErrors({...errors, errorMessage:'Order updated'})
+      
+               }else{
+                  setModalType('Failed')
+                  setErrors({...errors, errorMessage:response.data.message})
+               
+               }  
+           })
+           .catch((error)=>{
+            setModalType('Failed')
+            setErrors({...errors, errorMessage:error.message})
+            
+           }).finally(()=>{
+
+            fetchOrder()
+
+           })
+}
+
+
+
+    useEffect(()=>{
+      AnimationStart()
+    }, [content])
+  
+    const onRefresh = useCallback(()=>{
+      setRefreshing(false)
+      fetchOrder()
+      }, [])
+  
+  useEffect(()=>{
+    fetchOrder()
+    fetchProducts()
+  }, [])
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={dynamicStyle.header}>
     <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
-    <Text style={dynamicStyle.label}>Order Num 221451</Text>
+    <Text style={dynamicStyle.label}>Order Num {route.params.code.toUpperCase()}</Text>
    
     <MaterialIcon name="more-vert" size={18} color={MODE==='Light'?colors.primary:colors.navyBlue}  />
     </View>
 
+    <Loader 
+    isModalVisible={loading} 
+    type={modalType}
+    message={errors.errorMessage} 
+    action={handleBack}
+     />
 
-<ScrollView>
+
+{content&&content.map((item:any, id:number)=>
+<ScrollView key={id}>
 
     <View style={[styles.content, {
     backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
+<Animated.View style={{opacity:fadeValue}}>
+
+
 <View style={globalStyles.rowCenterCenter}>
-<Image source={{ uri:ImagesUrl+"/doctors/doc1.png" }} style={styles.profile} />
+<Image source={{ uri:item.image_url?ImagesUrl+"/user/"+item.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 <View  style={{marginLeft:10}}>
-<Text style={dynamicStyle.label}>Well Life Store 1</Text>
-<Text style={styles.infoText}>11 June, 11:20 am </Text>
+<Text style={dynamicStyle.label}>{item.fullname}</Text>
+<Text style={styles.infoText}>{getBritishDate(item.date_order)+', '+getTime(item.date_order.slice(11,item.date_order.length))} </Text>
 </View>
 </View>
 
+</Animated.View>
 
-<View>
+<Animated.View style={{opacity:fadeValue}}>
 
-<Text style={[dynamicStyle.label, {fontSize:12, color:colors.rating, textAlign:'right'}]}>Pending</Text>
+<Text style={[dynamicStyle.label, {fontSize:12, textAlign:'right', color:item.status==='PENDING'?colors.rating:colors.primary}]}>{item.status}</Text>
 
-<Text style={styles.infoText}>$18.00 | PayPal </Text>
+<Text style={styles.infoText}>{CURRENCY+''+FormatNumber(item.ground_total)} | {item.method} </Text>
 
+</Animated.View>
 </View>
-</View>
-
 
 
     <View style={{ marginVertical:5, maxHeight:(height/3)+25, backgroundColor:MODE==='Light'?colors.white:colors.dark  }}>
-      <Text style={[styles.infoText, {marginHorizontal:20, marginTop:10}]}> Ordered Items</Text>
+      <Text style={[styles.infoText, {margin:20}]}> Ordered Items</Text>
 
 
       <ScrollView
@@ -131,13 +281,13 @@ const CardCategory =({item}:{item:any})=>{
       >
         
 <FlatList 
-data={CATITEMS}
+data={list}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+renderItem={({item})=> <CardCategory key={item.code} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />}
 />
 </ScrollView>
@@ -146,7 +296,9 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 </View>
 
+{item.prescription!==null?
 <View style={[globalStyles.rowCenterBetween, {paddingHorizontal:10, marginBottom:0, backgroundColor:MODE==='Light'?colors.white:colors.dark, height:50, width:width}]}>
+
 
   <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
 <Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />
@@ -156,7 +308,7 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 <MaterialIcon name="visibility" size={18} color={colors.icon}  /> 
 
-</View>
+</View>:[]}
 
 
 
@@ -166,34 +318,35 @@ backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
 <View style={styles.row}>
   <Text style={dynamicStyle.label}>Sub total</Text>
-  <Text style={dynamicStyle.label}>N18.00</Text>
+  <Text style={dynamicStyle.label}>{CURRENCY+FormatNumber(item.subtotal)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={dynamicStyle.label}>Promo Code Applied</Text>
-  <Text style={dynamicStyle.label}>N18.00</Text>
+  <Text style={dynamicStyle.label}>{CURRENCY+FormatNumber(item.discount)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={dynamicStyle.label}>Service Charge</Text>
-  <Text style={dynamicStyle.label}>N18.00</Text>
+  <Text style={dynamicStyle.label}>{CURRENCY+FormatNumber(item.service_charge)}</Text>
 </View>
+
 
 <View style={styles.row}>
-  <Text style={[dynamicStyle.label, {color:colors.navyBlue, fontSize:13}]}>Amount via COD</Text>
-  <Text style={[dynamicStyle.label, {color:colors.navyBlue, fontSize:13}]}>N18.00</Text>
+  <Text style={[dynamicStyle.label, {color:colors.navyBlue, fontSize:13}]}>Amount via {item.method}</Text>
+  <Text style={[dynamicStyle.label, {color:colors.navyBlue, fontSize:13}]}>{CURRENCY+FormatNumber(item.ground_total)}</Text>
 </View>
 
 </View>
 
-</ScrollView>
+</ScrollView>)}
 
 
 
 
 
-
-<View style={{position:'absolute', bottom:0, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
+{content&&content.map((item:any, id:number)=>
+<View key={id} style={{position:'absolute', bottom:0, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>
 
 
 <View style={[globalStyles.rowCenterBetween, {padding:10}]}>
@@ -216,12 +369,12 @@ backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
 
   <PrimaryButton 
-  handleAction={handleNext}
-  title='Mark as ready'
+  handleAction={()=>handleStatus(item.status==='PENDING'? 'READY':'COMPLETED')}
+  title={item.status==='PENDING'? 'Mark as ready':'Mark as completed'}
   />
 </View>
 
-
+)}
     </View>
   )
 }

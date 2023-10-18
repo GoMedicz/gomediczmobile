@@ -1,7 +1,7 @@
 const models = require('../models/index');
 var multer  = require('multer')
 const sequelize = require('../api/connection');
-
+var todayDateTime = new Date().toISOString().slice(0,19)
 var today = new Date().toISOString().slice(0,10)
 
   const AddNewPayment = (req, res, next) => {
@@ -52,6 +52,10 @@ if(!Number(data.total_item)){
   formIsValid = false;
 }
 
+if(!String(data.reference)){
+  errors.reference =msg;
+  formIsValid = false;
+}
 
 if(!formIsValid){
   return res.send({status:'error', message:'Some fields are required'})
@@ -68,7 +72,7 @@ if(!formIsValid){
          method: data.method,
          payer: data.payer,
          total_item: data.total_item,
-         date_paid: today,
+         date_paid: todayDateTime,
          reference: data.reference
 
 
@@ -85,14 +89,16 @@ if(!formIsValid){
     }
 };
 
+//SELECT sum(CAST(case when TO_CHAR(date_order, 'yyyy-mm-dd')  = '2023-10-12'  then ground_total::varchar else 0::varchar end AS INTEGER)) AS "Thursday" from tbl_orders
+
 
 const getBalance = (req, res, next) => {
 
   //Only active products should be display i.e where status = active
   sequelize.query(
-    'SELECT SUM(CAST(amount as INTEGER)) as balance FROM tbl_payments WHERE wallet = ?',
+    'SELECT ((SELECT  SUM(CAST(p.amount as INTEGER)) FROM tbl_payments p WHERE p.wallet = ?) - (SELECT  SUM(CAST(w.amount as INTEGER)) FROM tbl_withdrawals w WHERE w.wallet = ?)) as balance',
     {
-      replacements: [req.params.wallet],
+      replacements: [req.params.wallet, req.params.wallet],
       type: sequelize.QueryTypes.SELECT
     }
 ).then(result => {

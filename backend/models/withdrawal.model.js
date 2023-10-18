@@ -1,5 +1,5 @@
-const getDepositModel = (sequelize, { DataTypes }) => {
-  const Store = sequelize.define('tbl_bank_deposit', {
+const getWithdrawalModel = (sequelize, { DataTypes }) => {
+  const Store = sequelize.define('tbl_withdrawal', {
 
       id: {
         type: DataTypes.INTEGER,
@@ -14,14 +14,17 @@ const getDepositModel = (sequelize, { DataTypes }) => {
         },
 
         wallet: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.STRING,
           allowNull: false
         },
        amount: {
-          type: DataTypes.FLOAT,
+          type: DataTypes.STRING,
           allowNull: false
         },
-       
+        bank_code: {
+          type: DataTypes.STRING,
+          allowNull: false
+        },
         bank_name: {
           type: DataTypes.STRING,
           allowNull: false
@@ -97,7 +100,7 @@ const getDepositModel = (sequelize, { DataTypes }) => {
   )
 
   sequelize.sync().then((res) => {
-    console.log('tbl_bank_deposit successfully created');
+    console.log('tbl_withdrawal successfully created');
   }).catch((error) => {
     console.error('Unable to create table : ', error);
   });
@@ -105,4 +108,4 @@ const getDepositModel = (sequelize, { DataTypes }) => {
   return Store;
 };
 
-module.exports = getDepositModel;
+module.exports = getWithdrawalModel;

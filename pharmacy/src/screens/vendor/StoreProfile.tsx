@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, TextInput, TouchableOpacity, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
@@ -13,7 +13,7 @@ import Loader from '../../components/loader';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
 import { getData } from '../../components/globalFunction';
-
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -38,19 +38,66 @@ type Props = NativeStackScreenProps<RootStackParamList, 'StoreProfile'>;
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState({} as any)
 
+  const fadeValue = useRef(new Animated.Value(0)).current 
 const [errors, setErrors] = useState({
   store_name:'',
   telephone:'',
-  email_address:''
+  email_address:'',
+  errorMessage:''
 });
 const [modalType, setModalType] = useState('load')
+const [image, setImage] = useState({
+  uri:'',
+  type:'',
+   name:''
+})
 
 const handleNext =()=>{
   navigation.navigate('AccountProfile');
 }
 
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
 
 
+const openImagePicker = async() => {
+  const options:any = {
+    mediaType: 'photo',
+    includeBase64: false,
+    maxHeight: 2000,
+    maxWidth: 2000,
+  };
+
+ await launchImageLibrary(options, (response) => {
+    if (response.didCancel) {
+     // console.log('User cancelled image picker');
+    } else if (response.errorCode) {
+     // console.log('Image picker error: ', response.errorMessage);
+    } else {
+      let imageUri:any =  response.assets?.[0]?.uri;
+      let type:any = response.assets?.[0]?.type
+
+      let filename:any = response.assets?.[0]?.fileName
+
+      setImage({
+        uri:imageUri,
+        name:filename,
+        type:type
+
+      })
+
+      setProfile({...profile, image_url:profile.code+'_'+filename})
+    }
+  });
+
+};
 
 const fetchStore = async()=>{
 
@@ -80,7 +127,7 @@ const handleChange =(name:string, text:string)=>{
 
 
 
-const handleSubmit =()=>{
+const handleSubmit =async()=>{
        
   let error = {...errors}; 
 let formIsValid = true;
@@ -118,24 +165,26 @@ if(formIsValid) {
   Object.entries(profile).forEach(([key, value]) => {
           fd.append(key, String(value));
       });
-  
-  let url = ServerUrl+'/api/pharmacy/store/update';
+      if(image.uri!==''){
+        fd.append('image',  image)
+      }
+  let url = ServerUrl+'/api/vendor/profile/update';
+  let config = await configToken()
      axios.post(url, fd, config)
      .then(response =>{
        if(response.data.type ==='success'){
         
         setModalType('Updated')
-
+        setErrors({...errors, errorMessage:'Record updated'})
       } else{
-                   //unable to create account please retry
-                   setLoading(false)
+        setModalType('Failed')
+        setErrors({...errors, errorMessage: response.data.message})
+        
                  }   
              })
              .catch((error)=>{
-            // setErrors({...errors, errorMessage:error.message})
-             setLoading(false)
-             }).finally(()=>{
-              setLoading(false)
+              setModalType('Failed')
+              setErrors({...errors, errorMessage: error.message})
              })
             }
 }
@@ -143,6 +192,7 @@ if(formIsValid) {
 
 useEffect(()=>{
   fetchStore()
+  AnimationStart()
 }, [])
     
   
@@ -157,6 +207,7 @@ useEffect(()=>{
 
     <Loader isModalVisible={loading} 
     type={modalType}
+    message={errors.errorMessage} 
     action={()=>setLoading(false)}
      />
 
@@ -167,11 +218,11 @@ useEffect(()=>{
 
 <View style={[styles.imageWrapper,{ backgroundColor:MODE==='Light'?colors.white:colors.dark, }]}>
   
+<Animated.View style={{opacity:fadeValue}}>
+<Image source={{ uri: image.uri?image.uri:profile.image_url?ImagesUrl+"/vendors/profiles/"+profile.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
+</Animated.View>
 
-<Image source={{ uri:ImagesUrl+"/profile_5.png"}} style={styles.profile} />
-
-
-<View style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
+<TouchableOpacity onPress={openImagePicker} style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
 
 <View style={styles.circle}>
 <MaterialIcon name="photo-camera" size={14} color={MODE==='Light'?colors.white:colors.dark}  /> 
@@ -180,12 +231,12 @@ useEffect(()=>{
 <Text style={[dynamicStyle.label, { color:colors.primary, fontWeight:'700'}]}>Change Image</Text>
 
 
-</View>
+</TouchableOpacity>
 
 
 
 </View>
-
+<Animated.View style={{opacity:fadeValue}}>
 <View style={[styles.card,{
      backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
@@ -240,6 +291,7 @@ useEffect(()=>{
 </View>
 
 </View>
+</Animated.View>
 
 
 <View style={[styles.card, {marginTop:5, backgroundColor:MODE==='Light'?colors.white:colors.dark} ]}>
@@ -285,9 +337,11 @@ const styles = StyleSheet.create({
   },
 
   profile:{
-    width:(width/2)-40,
+    width:120,
     height:120,
-    resizeMode:'contain'
+    resizeMode:'cover',
+    
+    marginHorizontal:10,
   },
 
   
@@ -307,10 +361,11 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center'
   },
-    imageWrapper:{
-      display:'flex', 
-      flexDirection:'row', 
-      alignItems:'flex-end', 
-      paddingTop:5,
-        paddingBottom:10}
+  imageWrapper:{
+    display:'flex', 
+    flexDirection:'row', 
+    alignItems:'flex-end',
+     justifyContent:'flex-start', 
+     paddingHorizontal:20, paddingVertical:5
+    },
 })

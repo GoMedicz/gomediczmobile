@@ -7,10 +7,9 @@ const getStoreModel = require("./store.model");
 const getUserModel = require("./user.model");
 const getDoctorModel = require("./doctor.model");
 const getPaymentModel = require("./payment.model");
-const getDepositModel = require("./deposit.model");
-
-
-
+const getWithdrawalModel = require("./withdrawal.model");
+const getOrdersModel = require("./orders.model");
+const getOrderItemsModel = require("./order_items.model");
 
 
 const models = {
@@ -20,7 +19,9 @@ const models = {
   User: getUserModel(connection, Sequelize),
   Doctor: getDoctorModel(connection, Sequelize),
  Payment: getPaymentModel(connection, Sequelize),
- Deposit: getDepositModel(connection, Sequelize)
+ Withdrawal: getWithdrawalModel(connection, Sequelize),
+ Orders: getOrdersModel(connection, Sequelize),
+ OrderItems: getOrderItemsModel(connection, Sequelize)
 };
 
 Object.keys(models).forEach((key) => {
