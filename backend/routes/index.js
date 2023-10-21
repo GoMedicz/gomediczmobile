@@ -130,7 +130,6 @@ router.post('/api/vendor/order/update', General.AuthenticateToken, OrderControll
 
 
 //Doctors' Controller
-router.post('/api/doctor/verification', DoctorController.getDoctorByPhone);
-router.post('/api/doctor/verification', DoctorController.getDoctorByPhone);
+router.post('/api/doctor/verification', DoctorController.VerifyVendor);
 
 module.exports = router;

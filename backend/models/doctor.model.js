@@ -23,7 +23,6 @@ const getDoctorModel = (sequelize, { DataTypes }) => {
         },
         gender: {
           type: DataTypes.STRING,
-          defaultValue: "Male",
           allowNull: true
         },
        password: {
@@ -60,28 +59,16 @@ const getDoctorModel = (sequelize, { DataTypes }) => {
           type: DataTypes.STRING,
           allowNull: true
         },
-        last_seen: {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
-        is_phone_verified: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false
-        },
-        is_email_verified: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false
-        },
         status: {
           type: DataTypes.STRING,
           allowNull: true
         },
-        is_pharmacy_owner: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false
+        latitude: {
+          type: DataTypes.STRING,
+          allowNull: true
         },
 
-        pharmacy_code: {
+        longitude: {
           type: DataTypes.STRING,
           allowNull: true
         }

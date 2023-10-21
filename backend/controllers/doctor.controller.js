@@ -50,9 +50,6 @@ if(!formIsValid){
           email: data.email,
          telephone: data.telephone,
          password: bcrypt.hashSync(data.password, 10),
-         is_pharmacy_owner: false,
-         is_phone_verified: true,
-          is_email_verified: false,
           status: 'Active'
 
         }).then(result => {
@@ -70,6 +67,33 @@ if(!formIsValid){
 
 
   
+
+
+const VerifyVendor= (req, res, next) => {
+
+  var data = req.body 
+  sequelize.sync().then(() => {
+    models.Doctor.findOne({
+     where: {
+      [data.field]: data.data
+ }
+ }).then(result => {
+
+  if(result){
+    return res.send({type:'success', message:'Already registered', status:200})
+  }else{
+    return res.send({type:'info', message:'User not found', status:404})
+  }
+       
+     }).catch((error) => {
+      return res.send({type:'error', messageDetails:JSON.stringify(error, undefined, 2), message:'Internal Server Error', status:500})
+     });
+   }).catch((error) => {
+     return res.send({type:'error', message:JSON.stringify(error, undefined, 2), message:'Internal Server Error', status:500})
+   }); 
+      
+  };
+
 
   const getDoctorByPhone= (req, res, next) => {
 
@@ -231,5 +255,6 @@ module.exports = {
 getDoctorByPhone,
 loginDoctor,
 UpdateDoctor,
-getDoctorProfile
+getDoctorProfile,
+VerifyVendor
 };

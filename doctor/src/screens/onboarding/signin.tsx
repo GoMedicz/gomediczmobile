@@ -24,30 +24,36 @@ const height =
 
 type RootStackParamList = {
   SignIn: undefined;
-  Register:undefined;
-  Appointments:undefined;
+  Register:{
+    telephone:string;
+  }
+  Orders:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
  const SignIn =({ route, navigation }:Props)=> {
 
-  const [refreshing, setRefreshing] = useState(false)
 
 
 const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
+
+
 const [user, setUser] = useState({
   passwordFocus:false,
   telephoneFocus:false,
-  isSecure:true,
   isPassword:false,
+  isSecure:true,
   telephone:'',
   password:'',
+  errorMessage:''
 
 })
 
 
 const [errors, setErrors] = useState({
+
+  isError:false,
   telephone:'',
   password:'',
   errorMessage:''
@@ -72,89 +78,14 @@ const handleChange =(name:string, text:string)=>{
 }
 
 
-const handleLogin =()=>{
-  navigation.navigate('Appointments');  
-}
-
-
-
-
-const handleVerifySubmit =()=>{
-  let error = {
-    password:'', 
-    telephone:'',  
-    errorMessage:'',
-  }
-
-  var errormessage = [];
-let msg = 'This field is required';
-
-if(!user.telephone){
-  error.telephone = "Please enter password.";
-   errormessage.push('Please enter password.');
-}
-
-    /*     if(!user.password){
-          error.password = "Please enter password.";
-           errormessage.push('Please enter password.');
-       } */
-
-        setErrors(error)
-        if (errormessage.length===0) {
-
-setLoading(true)
-
-    let url = ServerUrl+'/api/doctor/phone/profile/'+user.telephone;
-   axios.get(url, config)
-   .then(response =>{
-    setLoading(false)
-
-
-    if(response.data.status===true){
-      //navigate to password with telephone
-      //display password
-    }else{
-
-      //navigate to registration
-    }
-     if(response.data.type === 'success'){
-
-      storeData('jwt', response.data.jwt)
-      storeData('code', response.data.code)
-
-         navigation.navigate('Register');  
-               } else{
-                 //unable to create account please retry
-                 setUser({...user, passwordFocus:true})
-          setErrors({...errors, errorMessage: response.data.message, password:response.data.message})
-               }   
-           })
-           .catch((error)=>{
-           setErrors({...errors, errorMessage:error.message})
-           setLoading(false)
-           }).finally(()=>{
-            setUser({...user,
-              passwordFocus:false,
-              telephoneFocus:false,
-              isSecure:true,
-              password:'',
-            })
-           })
-          }
-}
-
-
 
 const handleSubmit =()=>{
   let error = {
-    password:'', 
-    telephone:'',  
-    errorMessage:'',
+    ...errors,  
   }
 
   var errormessage = [];
 let msg = 'This field is required';
-
 
 if(!user.telephone){
   error.telephone = msg;
@@ -162,34 +93,116 @@ if(!user.telephone){
 }
 
 
-      setErrors(error)
-    if (errormessage.length===0) {
+if(user.telephone.length<11){
+  error.telephone = msg;
+   errormessage.push(msg);
+}
+
+
+        if(!user.password){
+          error.password = "Please enter password.";
+           errormessage.push('Please enter password.');
+       } 
+
+        setErrors(error)
+        if (errormessage.length===0) {
 
 setLoading(true)
 
-    let url = ServerUrl+'/api/doctor/phone/profile/'+user.telephone;
-   axios.get(url, config)
+
+
+    const fd  ={
+      phoneNumber:user.telephone,
+      password:user.password
+    }
+    let url = ServerUrl+'/api/login/doctor';
+   axios.post(url, fd, config)
    .then(response =>{
-    console.log(response.data)
-    setLoading(false)
-    if(response.data.status===true){
-      //User is registered display password
-      setUser({...user, isPassword:true})
-     
-    }else{
-      console.log(response.data)
-      //navigate to registration
-     // navigation.navigate('Register'); 
-    } 
+    if(response.data.statusCode === 200){
+
+      setLoading(false)
+      storeData('jwt', response.data.jwt)
+      storeData('code', response.data.code)
+      storeData('wallet', response.data.wallet)
+         navigation.navigate('Orders');  
+               } else{
+                 //unable to create account please retry
+                
+                 setModalType('Failed')
+          setUser({...user,  errorMessage: response.data.message, passwordFocus:true})
+               }   
            })
            .catch((error)=>{
-           setErrors({...errors, errorMessage:error.message})
-           setLoading(false)
-           }).finally(()=>{
-            setLoading(false)
+            setModalType('Failed')
+            setUser({...user,  errorMessage:error.message})
+           
            })
           }
 }
+
+
+
+
+
+
+const handleContinue =()=>{
+
+  let error = {
+    ...errors 
+  }
+
+  var errormessage = [];
+let msg = 'This field is required';
+
+if(!user.telephone){
+  error.telephone = msg;
+   errormessage.push(msg);
+}
+
+if(user.telephone.length<11){
+  error.telephone = msg;
+   errormessage.push(msg);
+}
+
+        setErrors(error)
+        if (errormessage.length===0){
+
+setLoading(true)
+
+
+var fd = {      
+  fieldName:'phoneNumber',
+  data:user.telephone
+}
+
+let url = ServerUrl+'/api/verify/any/field/doctor';
+
+   axios.post(url, fd, config)
+   .then(response =>{
+     if(response.data.statusCode === 200){
+      setLoading(false)
+      setUser({...user, passwordFocus:true, isPassword:true})
+      
+               } else if(response.data.statusCode === 404){
+                setLoading(false)
+               navigation.navigate('Register', {
+                  telephone:user.telephone
+                });  
+               } else{
+                  setModalType('Failed')
+                setUser({...user, errorMessage: response.data.message})
+                
+               }  
+           })
+           .catch((error)=>{
+            
+            setModalType('Failed')
+           setUser({...user, errorMessage:error.message})
+            
+           })
+          }
+}
+
 
 
   return (<View style={{backgroundColor:'#F4F8Fb', flex:1}}>
@@ -201,17 +214,16 @@ setLoading(true)
         hidden={false}
       />
 
-
-    <Loader isModalVisible={loading} 
+    <Loader 
+    isModalVisible={loading} 
     type={modalType}
+    message={user.errorMessage} 
     action={()=>setLoading(false)}
      />
-
 
     <ScrollView 
     showsVerticalScrollIndicator={false}
     >
-
 
 <View style={{backgroundColor:colors.primary, height:(height/2)+60}}>
 
@@ -236,7 +248,6 @@ setLoading(true)
   <TextInput placeholder='Enter Mobile Number' 
   placeholderTextColor={'#959595'}
   style={styles.textInput} 
-  
   keyboardType='number-pad' 
   autoFocus={true}
   autoCorrect={false}
@@ -248,14 +259,12 @@ onFocus={()=>handleFocus('telephoneFocus')}
   />
 </View>
 
-{user.isPassword?
- <View style={[styles.textWrapper, {marginTop:10}, errors.password?globalStyles.error:[]]}>
+
+{user.isPassword?<View style={[styles.textWrapper, {marginTop:10}, errors.password?globalStyles.error:[]]}>
 <MaterialIcon name="lock" size={18} color={colors.icon}  /> 
   <TextInput placeholder='Password' 
   placeholderTextColor={'#959595'}
   style={styles.textInput}
-  
-  
   autoCapitalize='none'
   keyboardType='email-address' 
    secureTextEntry={user.isSecure}
@@ -272,13 +281,20 @@ onFocus={()=>handleFocus('telephoneFocus')}
         name={user.isSecure?'visibility-off':'visibility'} 
         onPress={()=>setUser({...user, isSecure:!user.isSecure})} 
         size={20}  color={colors.grey} />  
-</View>:[]} 
+</View>:[]}
 
-
+{user.isPassword?
 
 <TouchableOpacity onPress={handleSubmit} activeOpacity={0.9} style={styles.button}>
+  <Text style={styles.buttonText}>Sign In</Text>
+</TouchableOpacity>:
+
+<TouchableOpacity onPress={handleContinue} activeOpacity={0.9} style={styles.button}>
   <Text style={styles.buttonText}>Continue</Text>
 </TouchableOpacity>
+ }
+
+
 </View> 
 
 
@@ -298,7 +314,6 @@ onFocus={()=>handleFocus('telephoneFocus')}
 
 </View>
 </View>
-
 
 
 
@@ -351,21 +366,19 @@ const styles = StyleSheet.create({
  loginWrapper:{
   
 width:width,
-paddingHorizontal:40,
 display:'flex',
 alignItems:'center',
-justifyContent:'center'
 
  },
 
  button:{
-  width:width-40,
+  width:width-20,
   display:'flex',
   justifyContent:'center',
   alignItems:'center',
-  height:45,
+  height:50,
   backgroundColor:colors.primary,
-  borderRadius:10,
+  borderRadius:5,
 },
 
 
@@ -381,20 +394,20 @@ textWrapper:{
   display:'flex',
   flexDirection:'row',
   alignItems:'center',
-  width:width-40,
+  width:width-20,
   height:50,
   paddingHorizontal:10,
   backgroundColor:colors.white,
-  borderRadius:10,
+  borderRadius:5,
   top:-20,
 },
 
 textInput:{
 marginLeft:15,
-width:width-110,
+width:width-90,
 fontWeight:'600',
 color:colors.dark,
-fontSize:12
+fontSize:14
 },
 
 
@@ -404,20 +417,20 @@ socialWrapper:{
   marginVertical:10,
   justifyContent:'space-between',
   width:width,
-  paddingHorizontal:20
+  paddingHorizontal:10
 },
 
 
 gmail:{
   display:'flex',
   flexDirection:'row',
-  height:45,
+  height:50,
   backgroundColor:'transparent',
   borderWidth:1,
   borderColor:colors.grey1Opacity,
 alignItems:'center',
 justifyContent:'center',
-width:width-40,
+width:width-20,
 borderRadius:5,
 },
 

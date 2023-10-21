@@ -1,14 +1,15 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
@@ -16,6 +17,7 @@ import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/b
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { getData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -55,24 +57,72 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
   const dynamicStyle = dynamicStyles(MODE);
 
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const fadeValue = useRef(new Animated.Value(0)).current 
 
 
+  const [profile, setProfile] = useState({} as any)
 
-const handleNext =()=>{
-  navigation.navigate('Profiles');
-}
+  const [items, setItems] = useState([
 
+    {title:"My Profile", label:'Setup Profile', icon:'store', screen:'Profiles'},
 
+    {title:"Wallet", label:'Quick Payments', icon:'account-balance-wallet', screen:'Wallet'},
+
+    {title:"Earnings", label:'Sell Overview', icon:'monetization-on', screen:'Earnings'},
+
+    {title:"Insight", label:'See the progress', icon:'insert-chart', screen:'Insight'},
+
+    {title:"My Orders", label:'List of Orders', icon:'article', screen:'Orders'},
     
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+    {title:"Change Language", label:'Change Language', icon:'language', screen:'Language'},
+    {title:"Change Theme", label:'Change Theme', icon:'palette', screen:'Theme'},
+    {title:"T&C", label:'Company Policies', icon:'article', screen:'Terms'},
+    {title:"Contact Us", label:'Let us help you', icon:'mail', screen:'Contact'},
+    {title:"FAQs", label:'Quick Answer', icon:'feedback', screen:'Faqs'},
+    {title:"Logout", label:'See you soon', icon:'logout', screen:'SignIn'},
+  ])
+
+   
+
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
+
+
+
+const fetchStore = async()=>{
+
+  const code = await getData('code');
+  let url = ServerUrl+'/api/vendor/display_one/'+code
+  try{
+let config = await configToken()
+ await axios.get(url, config).then(response=>{
+  if(response.data.type==='success'){
+    setProfile(response.data.data)
+    }else{
+      setProfile([])
+    }
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+
+
+
+useEffect(()=>{
+  fetchStore()
+  AnimationStart()
+}, [])
+
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
@@ -86,20 +136,21 @@ const handleNext =()=>{
 
 
 
+<Animated.View style={{opacity:fadeValue}}>
 <View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:MODE==='Light'?colors.white:colors.dark, paddingBottom:20, paddingTop:20}}>
   
-<Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
+<Image  source={{ uri: profile.image_url?profile.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 <View style={{marginLeft:5}}>
 
 <View style={{width:(width/2)-20}}>
-  <Text style={dynamicStyle.title}>Dr. Joseph Williamson</Text>
+  <Text style={dynamicStyle.title}>{profile&&profile.fullName}</Text>
   </View>
 
-  <Text style={[styles.infoText, { marginTop:15}]}>+1 987 654 3210</Text>
+  <Text style={[styles.infoText, { marginTop:15}]}>{profile&&profile.phoneNumber}</Text>
 </View>
 </View>
-
+</Animated.View>
 
 
 
@@ -108,82 +159,19 @@ const handleNext =()=>{
 
 
 
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Profiles')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>My Profile</Text>
+{items.map((item:any, index:number)=>
+<TouchableOpacity key={index} onPress={()=>navigation.navigate(item.screen)} activeOpacity={0.9} style={dynamicStyle.box}>
+  <Animated.View style={{opacity:fadeValue}}>
+  <Text style={dynamicStyle.label}>{item.title}</Text>
+  </Animated.View>
+
+
   <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Setup Profile</Text>
-    
-<MaterialIcon name="language" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
+    <Text style={[styles.infoText, {fontSize:10} ]}>{item.label}</Text>
+
+<MaterialIcon name={item.icon} size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} /> 
   </View>
-</TouchableOpacity>
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Language')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Change Language</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
-    
-<MaterialIcon name="language" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Theme')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Change Theme</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
-    
-<MaterialIcon name="palette" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Terms')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>T&C</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
-    
-<MaterialIcon name="article" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Contact')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Contact Us</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    
-<MaterialIcon name="mail" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Faqs')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>FAQs</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Answer</Text>
-    
-<MaterialIcon name="feedback" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8}  style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Logout</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>See you soon</Text>
-    
-<MaterialIcon name="logout" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
+</TouchableOpacity>)}
 
 </View>
 
@@ -214,9 +202,10 @@ const styles = StyleSheet.create({
   },
 
   profile:{
-    width:width/2,
-    height:180,
-    resizeMode:'contain'
+    width:120,
+    height:120,
+    marginHorizontal:10,
+    resizeMode:'cover',
   },
 
   row:{

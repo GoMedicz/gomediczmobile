@@ -53,7 +53,7 @@ interface item {
 
 
 const handleBack =()=>{
-  navigation.goBack();
+  //navigation.goBack();
 }
 
 

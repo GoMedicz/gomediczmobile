@@ -14,24 +14,28 @@ const height =
       );
 
 
-const Loader = ({isModalVisible, action, type}:{isModalVisible:boolean, action?:()=>void, type?:String}) => {
+const Loader = ({isModalVisible, action, type, message}:{isModalVisible:boolean, action?:()=>void, type?:String, message?:string}) => {
 
   return (
     <Modal 
     
+  
     visible={isModalVisible} 
     animationType="fade"
             transparent={true}>
     <View style={styles.centeredView}>
 
-             {type!=='load'?
 
-              <View  style={styles.modalView}>
-                <Text style={{color:colors.black, fontSize:25, fontWeight:'600'}}>Successfully</Text>
-                <Text style={{color:colors.black, fontSize:25, fontWeight:'600'}}> {type}</Text>
 
-                <Pressable onPress={action} style={styles.btn}>
-                  <Text style={{color:colors.white, fontSize:15, fontWeight:'700'}}>OK </Text>
+    {type!=='load'? <View  style={styles.modalView}>
+
+                
+                <Text style={{color:type==='Failed'?colors.red:colors.primary, fontSize:16, marginTop:15}}>{type==='Failed'?'Failed':'Success'}</Text>
+
+                <Text style={{color:colors.black, fontSize:16, marginTop:15}}>{message}</Text>
+
+                <Pressable onPress={action} style={{marginTop:35, marginBottom:10}}>
+                  <Text style={{color:colors.primary, fontSize:15, fontWeight:'700'}}>CLOSE </Text>
                 </Pressable>
                 </View>:
 
@@ -64,7 +68,6 @@ const styles = StyleSheet.create({
         resizeMode:'center'
       },
       modalView:{
-        height:150,
         width:width-60,
         alignItems:'center',
         justifyContent:'center',

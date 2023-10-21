@@ -1,15 +1,15 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
+import axios from 'axios';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ServerUrl, config } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
+import Loader from '../../components/loader';
+import { generateRandom, storeData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -22,24 +22,45 @@ const height =
 
 
 type RootStackParamList = {
-  Register: undefined;
-    Language:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+  Register:{
+    telephone:string;
+  }
+  Verification:{
+    otp:string;
+  }; 
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
  const Register =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
-  const [refreshing, setRefreshing] = useState(false)
+  const [modalType, setModalType] = useState('load')
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
+const [user, setUser] = useState({
+  telephone:route.params.telephone,
+  fullnameFocus:true,
+  email:'',
+  fullname:'',
+  isMailLoading:false,
+  
+
+})
+
+
+
+const [errors, setErrors] = useState({
+  telephone:'',
+  email:'',
+  fullname:'',
+  errorMessage:''
+})
+
+let emailAddress = user.email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i);
+
+const handleChange =(name:string, text:string)=>{
+  
+  setUser({...user, [name]:text})
+  setErrors({...errors, [name]:'', errorMessage:''})
 }
 
 
@@ -48,25 +69,140 @@ const handleBack =()=>{
   navigation.goBack();
 }
 
-const handleNext =()=>{
-  //navigation.navigate('Welcome');
+
+
+const ValidateExistence=()=>{
+  if(user.email&&emailAddress){ 
+var fd = {      
+  fieldName:'email',
+  data:user.email
+}
+let url = ServerUrl+'/api/verify/any/field/doctor';
+try{
+setUser({...user, isMailLoading:true})
+axios.post(url, fd, config).then(response=>{
+  if(response.data.statusCode === 200){
+  setLoading(true)
+  setModalType('Failed')
+setErrors({...errors, email:"already register", errorMessage:user.email+" already register"})
+setUser({...user, email:'', isMailLoading:false})
+}else{
+
+setUser({...user, isMailLoading:false})
+}
+}).finally(()=>{
+
+})
+}catch(error){
+
+}
+}
+} 
+
+
+
+    const handleFocus =(name:string)=>{
+      setUser({...user, [name]:true})
+    }
+    
+    const handleBlur =(name:string)=>{
+      setUser({...user, [name]:false})
+    }
+
+
+const handleSubmit =()=>{
+  let error = {
+    ...errors,  
+  }
+
+  var errormessage = [];
+let msg = 'This field is required';
+
+if(!user.telephone){
+  error.telephone = msg;
+   errormessage.push(msg);
 }
 
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+
+if(user.telephone.length<11){
+  error.telephone = msg;
+   errormessage.push(msg);
+}
+
+
+if(!emailAddress){
+  error.email = msg
+   errormessage.push(msg);
+} 
+
+
+  if(!user.fullname){
+    error.fullname = msg
+      errormessage.push(msg);
+  } 
+
+
+
+        setErrors(error)
+        if (errormessage.length===0) {
+
+setLoading(true)
+
+let otp = generateRandom(4)
+
+const fd = {
+  phoneNumber:user.telephone,
+  email:user.email,
+  fullName:user.fullname,
+  otp:otp
+} 
+
+console.log(otp)
+
+   let url = ServerUrl+'/api/reg/user/otp';
+    axios.post(url, fd, config)
+   .then(response =>{
+     if(response.data.statusCode === 200){
+      //send otp here
+      setLoading(false)
+     storeData('register', JSON.stringify(fd)) 
+     navigation.navigate('Verification', {
+       otp:otp
+      }); 
+
+       } else{
+                 //unable to create account please retry
+                 setModalType('Failed')
+                 setErrors({...errors, errorMessage: response.data.message})
+               }   
+           })
+           .catch((error)=>{
+            setModalType('Failed')
+            setErrors({...errors, errorMessage: error.message})
+           })  
+          }
+}
+
 
   return (<SafeAreaView style={[ {flex:1, backgroundColor:colors.white}]}>
     
 
     <View style={styles.header}>
 
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={14} color={colors.dark}  /> 
 
     <Text style={styles.label}>Register Now</Text>
     <View />
     </View>
+
+
+    <Loader 
+    isModalVisible={loading} 
+    type={modalType}
+    message={errors.errorMessage} 
+    action={()=>setLoading(false)}
+     />
+
 
 <View style={styles.infoWrapper}>
     <Text style={styles.infoText}>Your phone number is not registered yet.</Text>
@@ -74,41 +210,69 @@ const handleNext =()=>{
     </View>
 
 
-    <View style={styles.textWrapper}>
+    <View style={[styles.textWrapper, errors.telephone?globalStyles.error:[]]}>
 <MaterialIcon name="phone-iphone" size={18} color={colors.icon}  /> 
   <TextInput placeholder='Enter Mobile Number' 
   placeholderTextColor={'#959595'}
-  style={styles.textInput} />
+  style={styles.textInput}
+  editable={false}
+  keyboardType='number-pad' 
+  autoFocus={true}
+  autoCorrect={false}
+value={user.telephone}
+onChangeText={text=>handleChange('telephone', text)}
+  
+  />
 </View>
 
 
-
-<View style={styles.textWrapper}>
-<MaterialIcon name="person" size={18} color={colors.icon}  /> 
-  <TextInput placeholder='Full Name' 
-  placeholderTextColor={'#959595'}
-  style={styles.textInput} />
-</View>
-
-
-
-<View style={styles.textWrapper}>
+<View style={[styles.textWrapper, errors.email?globalStyles.error:[]]}>
 <MaterialIcon name="mail" size={18} color={colors.icon}  /> 
-  <TextInput placeholder='Email Address' 
+  <TextInput 
+  placeholder='Email Address' 
   placeholderTextColor={'#959595'}
-  style={styles.textInput} />
+  style={styles.textInput} 
+  autoCapitalize='none'
+  keyboardType='email-address' 
+   autoCorrect={false}
+   value={user.email}
+   onBlur={ValidateExistence}
+   onChangeText={text =>handleChange('email', text)}
+  
+  />
+</View>
+
+<View style={[styles.textWrapper, errors.fullname?globalStyles.error:[]]}>
+<MaterialIcon name="house" size={18} color={colors.icon}  /> 
+
+  <TextInput 
+  placeholder='Full Name' 
+  placeholderTextColor={'#959595'}
+  style={styles.textInput}
+  autoCapitalize='none'
+  keyboardType='email-address' 
+   autoCorrect={false}
+   value={user.fullname}
+   onBlur={()=>handleBlur('fullnameFocus')}
+   onFocus={()=>handleFocus('fullnameFocus')}
+   onChangeText={text =>handleChange('fullname', text)}
+  
+  />
 </View>
 
 
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={globalStyles.button}>
-  <Text style={globalStyles.buttonText}>Continue</Text>
+
+
+
+<TouchableOpacity onPress={user.isMailLoading?()=>{}:handleSubmit} activeOpacity={0.9} style={[globalStyles.button, {opacity:user.isMailLoading?0.4:1} ]}>
+  <Text style={globalStyles.buttonText}> {user.isMailLoading?'Please wait ..':'Continue'}</Text>
 </TouchableOpacity>
 
 
 <View style={styles.infoWrapper}>
 
-<Text style={styles.label}>Back to sign in</Text>
+<Pressable onPress={()=>navigation.goBack()} ><Text style={styles.label}> Back to sign in</Text></Pressable>
 
 <Text style={[styles.infoText, {marginTop:60}]}>We'll send an OTP on above</Text>
     <Text style={styles.infoText}>given phone number</Text>
@@ -163,7 +327,7 @@ textWrapper:{
   flexDirection:'row',
   alignItems:'center',
   width:width-40,
-  height:45,
+  height:50,
   paddingHorizontal:10,
   marginHorizontal:20,
   backgroundColor:'#F4F8FB',
@@ -176,7 +340,7 @@ marginLeft:15,
 width:width-100,
 fontWeight:'600',
 color:colors.dark,
-fontSize:12
+fontSize:14
 },
 
 
