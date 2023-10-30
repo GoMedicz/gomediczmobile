@@ -1,17 +1,17 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import axios from 'axios';
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl, MODE } from '../../components/includes';
+import { CATEGORY, LANGUAGELIST } from '../../components/data';
+import { ImagesUrl,  ServerUrl, configJSON, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
+import { getData } from '../../components/globalFunction';
+import { dynamicStyles } from '../../components/dynamicStyles';
+import { useZustandStore } from '../../api/store';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -31,17 +31,18 @@ type RootStackParamList = {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Reviews'>;
  const Reviews =({ route, navigation }:Props)=> {
-
+  const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const fadeValue = useRef(new Animated.Value(0)).current 
+  const [profile, setProfile] = useState({} as any)
+  const [review, setReview] = useState([] as any)
 
+
+  const MODE = useZustandStore(store => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
 
 
 const handleCart =()=>{
@@ -53,10 +54,77 @@ const handleNext =()=>{
 }
 
 
+const fetchReveiw = async()=>{
 
+  const code = await getData('code');
+  let url = ServerUrl+'/api/appointment/reviews/'+code
+  try{
+let config = await configToken()
+ await axios.get(url, config).then(response=>{
+  if(response.data.statusCode===200){
+    setReview(response.data.data)
+    }else{
+      setReview([])
+    }
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+
+
+const fetchReview = async()=>{
+  const wallet = await getData('wallet');
+  const code = await getData('code');
+
+  let sql =   "SELECT  r.rating, 'r.reviewComments', r.date_reviewed, r.totalRating, 'u.fullName', 'u.profilePicture', 'a.appointmentReason'   from tbl_appointments a, tbl_users u, tbl_appointment_reviews r where a.appointment_code = r.appointment_code and u.user_code = r.user_code and   r.doctor_code ='"+code+"'"
+
+let url = ServerUrl+'/api/get/doctor/earnings'
+try{
+let fd ={
+  sql:sql,
+  code:code,
+  wallet:wallet
+}
+let configj = await configJSON()
+await axios.post(url, fd, configj).then(response=>{
+console.log(response.data)
+  
+  if(response.data.statusCode===200){
+    setReview(response.data.data)
+    }else{
+      setReview([])
+    }
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+const fetchProfile = async()=>{
+
+  const code = await getData('code');
+  let url = ServerUrl+'/api/doctor/profile/'+code
+  try{
+let config = await configToken()
+ await axios.get(url, config).then(response=>{
+  if(response.data.statusCode===200){
+    setProfile(response.data.data)
+    }else{
+      setProfile([])
+    }
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <Pressable onPress={handleNext} style={[styles.box, {
+      backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
 
 <View style={styles.content}>
@@ -67,7 +135,7 @@ const handleNext =()=>{
     
     <View style={[{display:'flex'}, {marginLeft:15}]}>
       <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:14, fontWeight:'600', marginBottom:5}}>Henry Johnson</Text>
-      <Text style={styles.infoText}>For <Text style={{color:MODE==='Light'?colors.dark:colors.white}}>Cold Fever</Text></Text>
+      <Text style={dynamicStyle.infoText}>For <Text style={{color:MODE==='Light'?colors.dark:colors.white}}>Cold Fever</Text></Text>
     </View> 
 </View>
 
@@ -81,7 +149,7 @@ const handleNext =()=>{
       <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
       <MaterialIcon name="star" size={12} color={colors.grey}  />
       </View>
-      <Text style={styles.infoText}>10.DEC.2019</Text>
+      <Text style={dynamicStyle.infoText}>10.DEC.2019</Text>
   </View> 
 
 </View>
@@ -104,19 +172,20 @@ const HeaderComponents =()=>{
     backgroundColor:MODE==='Light'?colors.white:colors.dark, marginBottom:5, paddingBottom:5}}>
 
 
+<Animated.View style={{opacity:fadeValue}}>
 <View style={{display:'flex', flexDirection:'row'}}>
   
-<Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profileDoc} />
+<Image source={{ uri:profile.profilePicture?profile.profilePicture:ImagesUrl+"/no.png"}} style={globalStyles.profile} />
 
 <View style={{marginLeft:0}}>
 
 <View style={{width:(width/2)-40, height:120,  display:'flex', justifyContent:'center', marginTop:40}}>
   
-  <Text style={styles.title}>Dr. Joseph Williamson</Text>
+  <Text style={dynamicStyle.title}>{profile&&profile.fullName}</Text>
  
 
 <View style={{marginTop:20}} >
-  <Text style={styles.infoText}>Avg Reveiw</Text>
+  <Text style={dynamicStyle.infoText}>Avg Reveiw</Text>
 
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center', marginTop:10}}>
@@ -126,29 +195,29 @@ const HeaderComponents =()=>{
 
   </View>
 
+  
   </View>
 
-
 </View>
-</View>
+</View></Animated.View>
 
 
 
 <View style={{marginTop:30, marginHorizontal:20}}>
 
-<Text style={styles.infoText}>Average Reviews</Text>
+<Text style={dynamicStyle.infoText}>Average Reviews</Text>
 
 
 
 <View style={{display:'flex', flexDirection:'row', marginTop:20, alignItems:'center', width:width-20}}>
 
-<Text style={styles.label}>5</Text>
+<Text style={dynamicStyle.label}>5</Text>
 <MaterialIcon name="star" size={18} color={'#EEA31E'}  />
-<View style={styles.progress}>
-<View style={styles.progressItem} />
+<View style={dynamicStyle.progress}>
+<View style={dynamicStyle.progressItem} />
 </View>
 
-<Text style={styles.label}>75</Text>
+<Text style={dynamicStyle.label}>75</Text>
 </View>
 
 
@@ -156,49 +225,49 @@ const HeaderComponents =()=>{
 
 <View style={{display:'flex',  flexDirection:'row', marginVertical:2, alignItems:'center', width:width-20}}>
 
-<Text style={styles.label}>4</Text>
+<Text style={dynamicStyle.label}>4</Text>
 <MaterialIcon name="star" size={18} color={'#EEA31E'}  />
-<View style={styles.progress}>
-<View style={styles.progressItem} />
+<View style={dynamicStyle.progress}>
+<View style={dynamicStyle.progressItem} />
 </View>
 
-<Text style={styles.label}>3</Text>
+<Text style={dynamicStyle.label}>3</Text>
 </View>
 
 
 
 <View style={{display:'flex', flexDirection:'row', marginVertical:2, alignItems:'center', width:width-20}}>
 
-<Text style={styles.label}>3</Text>
+<Text style={dynamicStyle.label}>3</Text>
 <MaterialIcon name="star" size={18} color={'#EEA31E'}  />
-<View style={styles.progress}>
-<View style={styles.progressItem} />
+<View style={dynamicStyle.progress}>
+<View style={dynamicStyle.progressItem} />
 </View>
 
-<Text style={styles.label}>24</Text>
+<Text style={dynamicStyle.label}>24</Text>
 </View>
 
 
 <View style={{display:'flex', flexDirection:'row', marginVertical:2, alignItems:'center', width:width-20}}>
 
-<Text style={styles.label}>2</Text>
+<Text style={dynamicStyle.label}>2</Text>
 <MaterialIcon name="star" size={18} color={'#EEA31E'}  />
-<View style={styles.progress}>
-<View style={styles.progressItem} />
+<View style={dynamicStyle.progress}>
+<View style={dynamicStyle.progressItem} />
 </View>
 
-<Text style={styles.label}>8</Text>
+<Text style={dynamicStyle.label}>8</Text>
 </View>
 
 <View style={{display:'flex', flexDirection:'row', marginVertical:2, alignItems:'center', width:width-20}}>
 
-<Text style={styles.label}>1</Text>
+<Text style={dynamicStyle.label}>1</Text>
 <MaterialIcon name="star" size={18} color={'#EEA31E'}  />
-<View style={styles.progress}>
-<View style={styles.progressItem} />
+<View style={dynamicStyle.progress}>
+<View style={dynamicStyle.progressItem} />
 </View>
 
-<Text style={styles.label}>11</Text>
+<Text style={dynamicStyle.label}>11</Text>
 </View>
 
 
@@ -211,11 +280,11 @@ const HeaderComponents =()=>{
 <View style={[globalStyles.rowCenterBetween,{marginVertical:20, paddingHorizontal:20 }]}>
 
 <View>
-  <Text style={styles.infoText}>Total People Rated</Text>
+  <Text style={dynamicStyle.infoText}>Total People Rated</Text>
 
   <View style={{display:'flex', flexDirection:'row', alignItems:'center', marginTop:5}}>
 <MaterialIcon name="account-box" size={18} color={colors.icon}  />
-<Text style={[styles.label, {marginLeft:5}]}>78</Text>
+<Text style={[dynamicStyle.label, {marginLeft:5}]}>78</Text>
 </View>
 
 </View>
@@ -223,11 +292,11 @@ const HeaderComponents =()=>{
 
 
 <View>
-  <Text style={styles.infoText}>Appointment Booked</Text>
+  <Text style={dynamicStyle.infoText}>Appointment Booked</Text>
 
   <View style={{display:'flex', flexDirection:'row', alignItems:'center', marginTop:5}}>
 <MaterialIcon name="check-box" size={18} color={colors.icon}  />
-<Text style={[styles.label, {marginLeft:5}]}>78</Text>
+<Text style={[dynamicStyle.label, {marginLeft:5}]}>78</Text>
 </View>
 
 </View>
@@ -240,23 +309,44 @@ const HeaderComponents =()=>{
 
     <View style={{ paddingHorizontal:10, marginBottom:5, height:35, justifyContent:'center'}}>
 
-    <Text style={styles.infoText}>Recent</Text>
+    <Text style={dynamicStyle.infoText}>Recent</Text>
 </View>
   </View>
 
   )
 }
+
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
+
     
+useEffect(()=>{
+  fetchProfile()
+  AnimationStart()
+  fetchReveiw()
+}, [])
+
+
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+   // fetchProfile()
+    fetchReveiw()
     }, [])
+
+
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
-    <View style={styles.header}>
+    <View style={dynamicStyle.header}>
       <View/> 
-        <Text style={styles.label}>Reviews</Text>
+        <Text style={dynamicStyle.label}>Reviews</Text>
     <View/>
     </View>
 
@@ -289,39 +379,12 @@ export default Reviews
 
 const styles = StyleSheet.create({
 
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    height:60
-  },
-  label:{
-    fontWeight:'700',
-    fontSize:12,
-    color:MODE==='Light'?colors.dark:colors.white,
-  },
- 
-  infoText:{
-    fontSize:10,
-    color:MODE==='Light'?'#9E9E9E':colors.white,
-    fontWeight:'500'
-
-  },
-
-
 
 box:{
   width:width,
-
-  backgroundColor:MODE==='Light'?colors.white:colors.dark,
   marginBottom:5,
   display:'flex',
   padding:10,
-  
     },
 
 catItems:{
@@ -406,22 +469,7 @@ container:{
     paddingBottom:10,
     marginVertical:5
   },
-  title:{
-    fontSize:20,
-    fontWeight:'600',
-    color:MODE==='Light'?colors.dark:colors.white,
-    width:(width/2)-50
+  
 
-  },
-  progress:{
-    width:width-100,
-    backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark,
-    height:10,
-    marginHorizontal:10
-  },
-  progressItem:{
-    width:width-200,
-    backgroundColor:colors.navyBlue,
-    height:10
-  }
+  
 })

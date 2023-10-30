@@ -5,6 +5,16 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+
+
+#pod 'Google-Maps-iOS-Utils', :git => 'https://github.com/Simon-TechForm/google-maps-ios-utils.git', :branch => 'feat/support-apple-silicon'
+
+#rn_maps_path = '../node_modules/react-native-maps'
+#pod 'react-native-google-maps', :path => rn_maps_path
+#pod 'GoogleMaps'
+
+
+  #platform :ios, '13.0'
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
@@ -24,6 +34,8 @@ if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
 end
+# React Native Maps dependencies
+# The following line is only needed if building on an Apple silicon Mac without rosetta.
 
 target 'user' do
   config = use_native_modules!

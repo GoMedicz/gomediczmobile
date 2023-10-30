@@ -1,7 +1,7 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
@@ -34,7 +34,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Faqs'>;
  const Faqs =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(THEME)
+  
   const [refreshing, setRefreshing] = useState(false)
 
   const MODE = useZustandStore(s => s.theme);
@@ -47,11 +47,65 @@ interface item {
 }
 
 
+const animatedValue = useRef(new Animated.Value(100)).current 
 
+
+
+const [question, setQuestion] = useState([
+
+  {title:'How to Login to App?', content:'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos a animi non labore reiciendis commodi consequuntur nulla quo mollitia', owner:'all', status:true, id:1},
+
+  {title:'How to book an appointment?', content:'Lorem ipsum dolor sit amet consectetur.', owner:'store',  status:true, id:2},
+
+
+  {title:'How to cancel an appointment?', content:'Lorem ipsum dolor sit amet consectetur.', owner:'store',  status:true, id:3},
+
+
+  {title:'What if i fail to book?', content:'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos a animi non labore reiciendis commodi consequuntur nulla quo mollitia', owner:'all', status:true, id:4},
+
+  {title:'How to Login to App?', content:'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos a animi non labore reiciendis commodi consequuntur nulla quo mollitia', owner:'all', status:true, id:5},
+
+  {title:'How to book an appointment?', content:'Lorem ipsum dolor sit amet consectetur.', owner:'store',  status:true, id:6},
+
+
+  {title:'Payment mode available?', content:'Lorem ipsum dolor sit amet consectetur.', owner:'store',  status:true, id:7},
+
+
+  {title:'How to pay?', content:'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quos a animi non labore reiciendis commodi consequuntur nulla quo mollitia', owner:'all', status:true, id:8},
+])
+
+
+const handleChange =(id:number)=>{
+  
+  const newQuestion = question.map((data:any)=>{
+    if(data.id === id){
+        return {...data, 
+            status:!data.status
+        }
+        };
+        return data;
+})
+setQuestion(newQuestion)
+
+AnimationStart()
+}
 
 const handleBack =()=>{
   navigation.goBack();
 }
+
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(animatedValue, config).start()
+
+}
+
+
+
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
    // FetchContent()
@@ -60,7 +114,7 @@ const handleBack =()=>{
   return (<View style={{flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.dark}}>
     
     <View style={dynamicStyle.header}>
-    <MaterialIcon name="arrow-back" onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white} /> 
+    <MaterialIcon name="menu" onPress={handleBack} size={18} color={MODE==='Light'?colors.dark:colors.white} /> 
     <Text style={dynamicStyle.label}>FAQs</Text>
     
     <View/>
@@ -69,42 +123,29 @@ const handleBack =()=>{
     <View style={[ {flex:1,  marginTop:0}]}>
 
 
-<View style={[styles.itemWrapper, {
+
+{question&&question.map((item:any, index:number)=>
+<View key={index} style={[styles.itemWrapper, {
     backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
-<Text style={dynamicStyle.h2}> 1. How to Login to App?</Text>
-</View>
+   
+   <Pressable onPress={()=>handleChange(item.id)}>
+<Text style={dynamicStyle.h2} > {index+1}. {item.title}</Text></Pressable>
+
+<Animated.View style={{
+            transform: [
+              {
+                translateY: animatedValue.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [-600, 0]
+                })
+              }
+            ]}}
+            >
+<Text style={[dynamicStyle.h5, item.status?styles.dNone:[]]}>{item.content}</Text>
+</Animated.View>
+</View>)}
 
 
-<View style={[styles.itemWrapper, {
-    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
-<Text style={dynamicStyle.h2}> 2. How to book an appointment?</Text>
-<Text style={dynamicStyle.h5}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde excepturi, repellendus laboriosam quas veniam, deleniti a soluta ipsam cum porro ea temporibus ipsum? Eius maxime nostrum deserunt error nulla laborum.</Text>
-</View>
-
-<View style={[styles.itemWrapper, {
-    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
-<Text style={dynamicStyle.h2}> 3. How to cancel an appointment?</Text>
-</View>
-
-<View style={[styles.itemWrapper, {
-    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
-<Text style={dynamicStyle.h2}> 4. What if i fail to book?</Text>
-</View>
-
-<View style={[styles.itemWrapper, {
-    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
-<Text style={dynamicStyle.h2}> 5. How to make payment?</Text>
-</View>
-
-<View style={[styles.itemWrapper, {
-    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
-<Text style={dynamicStyle.h2}> 6. Payment modes Available?</Text>
-</View>
-
-<View style={[styles.itemWrapper, {
-    backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
-<Text style={dynamicStyle.h2}> 7. How to Pay?</Text>
-</View>
 
 </View> 
 
@@ -192,6 +233,10 @@ const styles = StyleSheet.create({
     marginBottom:4,
     padding:10,
     width:width
+  },
+  dNone:{
+    display:'none',
+
   }
 
 })

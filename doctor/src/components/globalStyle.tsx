@@ -15,7 +15,7 @@ export  const globalStyles = StyleSheet.create({
         display:'flex',
         justifyContent:'center',
         alignItems:'center',
-        height:45,
+        height:50,
         backgroundColor:colors.primary,
         borderRadius:5,
         marginHorizontal:20
@@ -55,6 +55,13 @@ export  const globalStyles = StyleSheet.create({
         backgroundColor:MODE==='Light'?colors.white:colors.dark,
         height:60
       },
+
+  profile:{
+    width:(width/2)-20,
+    marginHorizontal:10,
+    height:150,
+    resizeMode:'cover'
+  },
       px:{
         height:25,
         width:25,
@@ -63,5 +70,10 @@ export  const globalStyles = StyleSheet.create({
           error:{
             borderWidth:1,
             borderColor:colors.red,
+          },
+          infoText:{
+            fontSize:12,
+            color:'#9E9E9E',
+            fontWeight:'500'
           },
     })

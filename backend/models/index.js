@@ -10,6 +10,7 @@ const getPaymentModel = require("./payment.model");
 const getWithdrawalModel = require("./withdrawal.model");
 const getOrdersModel = require("./orders.model");
 const getOrderItemsModel = require("./order_items.model");
+const getRiderModel = require("./rider.model");
 
 
 const models = {
@@ -21,7 +22,9 @@ const models = {
  Payment: getPaymentModel(connection, Sequelize),
  Withdrawal: getWithdrawalModel(connection, Sequelize),
  Orders: getOrdersModel(connection, Sequelize),
- OrderItems: getOrderItemsModel(connection, Sequelize)
+ OrderItems: getOrderItemsModel(connection, Sequelize),
+ Rider:getRiderModel(connection, Sequelize)
+ 
 };
 
 Object.keys(models).forEach((key) => {

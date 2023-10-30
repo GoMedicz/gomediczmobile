@@ -43,15 +43,15 @@
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-user-userTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-user-userTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-user.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-user.debug.xcconfig"; path = "Target Support Files/Pods-user/Pods-user.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-user.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-user.release.xcconfig"; path = "Target Support Files/Pods-user/Pods-user.release.xcconfig"; sourceTree = "<group>"; };
-		5832F4F0DDD14A8781682127 /* GrizzlyITCbyBT-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "GrizzlyITCbyBT-Regular.ttf"; path = "../src/assets/fonts/GrizzlyITCbyBT-Regular.ttf"; sourceTree = "<group>"; };
+		5832F4F0DDD14A8781682127 /* GrizzlyITCbyBT-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "GrizzlyITCbyBT-Regular.ttf"; path = "../src/assets/fonts/GrizzlyITCbyBT-Regular.ttf"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-user-userTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-user-userTests.debug.xcconfig"; path = "Target Support Files/Pods-user-userTests/Pods-user-userTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-user.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-user.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = user/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-user-userTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-user-userTests.release.xcconfig"; path = "Target Support Files/Pods-user-userTests/Pods-user-userTests.release.xcconfig"; sourceTree = "<group>"; };
-		9E5AD2E463AE49BFAD1F4D2A /* GERALDINEPERSONALUSE-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "GERALDINEPERSONALUSE-Italic.ttf"; path = "../src/assets/fonts/GERALDINEPERSONALUSE-Italic.ttf"; sourceTree = "<group>"; };
-		BD94DD9F56E341B48E07B416 /* Mrs.Monster.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = Mrs.Monster.ttf; path = ../src/assets/fonts/Mrs.Monster.ttf; sourceTree = "<group>"; };
+		9E5AD2E463AE49BFAD1F4D2A /* GERALDINEPERSONALUSE-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "GERALDINEPERSONALUSE-Italic.ttf"; path = "../src/assets/fonts/GERALDINEPERSONALUSE-Italic.ttf"; sourceTree = "<group>"; };
+		BD94DD9F56E341B48E07B416 /* Mrs.Monster.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Mrs.Monster.ttf; path = ../src/assets/fonts/Mrs.Monster.ttf; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F75C53CEB58240228463DB88 /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../src/assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
+		F75C53CEB58240228463DB88 /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../src/assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,7 +123,6 @@
 				BD94DD9F56E341B48E07B416 /* Mrs.Monster.ttf */,
 			);
 			name = Resources;
-			path = "";
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -594,10 +593,8 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "HAVE_GOOGLE_MAPS=1";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -665,6 +662,7 @@
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;

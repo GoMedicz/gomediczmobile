@@ -212,7 +212,6 @@ const getOneStore = (req, res, next) => {
           latitude: data.latitude,
           longitude: data.longitude,
           map_data: data.map_data,
-          image_url: data.image_url,
             },{
               where: {
                 code: data.code

@@ -96,7 +96,7 @@ const getBalance = (req, res, next) => {
 
   //Only active products should be display i.e where status = active
   sequelize.query(
-    'SELECT ((SELECT  SUM(CAST(p.amount as INTEGER)) FROM tbl_payments p WHERE p.wallet = ?) - (SELECT  SUM(CAST(w.amount as INTEGER)) FROM tbl_withdrawals w WHERE w.wallet = ?)) as balance',
+    'SELECT ((SELECT  SUM(CAST(p.amount as INTEGER)) FROM tbl_payments p WHERE p.wallet = ?) - (SELECT  coalesce(SUM(CAST(w.amount as INTEGER)),0) FROM tbl_withdrawals w WHERE w.wallet = ?)) as balance',
     {
       replacements: [req.params.wallet, req.params.wallet],
       type: sequelize.QueryTypes.SELECT

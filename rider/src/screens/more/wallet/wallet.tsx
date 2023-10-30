@@ -1,17 +1,17 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useRef, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import axios from 'axios';
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl } from '../../../components/includes';
+import { CURRENCY, ServerUrl, configToken} from '../../../components/includes';
+import { useZustandStore } from '../../../api/store';
+import { dynamicStyles } from '../../../components/dynamicStyles';
+import { FormatNumber, getBritishDate, getData, getTime } from '../../../components/globalFunction';
 import { globalStyles } from '../../../components/globalStyle';
-import ModalDialog from '../../../components/modal';
-import ShoppingCart from '../../../components/include/ShoppingCart';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -25,101 +25,166 @@ const height =
 
 type RootStackParamList = {
   Wallet: undefined;
-  SendMoney:undefined; 
-  Offers:{
-     code:string;
-   }
+  SendMoney:undefined;
+  AccountProfile:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Wallet'>;
  const Wallet =({ route, navigation }:Props)=> {
 
+
+  const MODE = useZustandStore(s => s.theme);
+  const dynamicStyle = dynamicStyles(MODE);
+
+  const fadeValue = useRef(new Animated.Value(0)).current 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+  const [balance, setBalance] = useState(0)
+  const [content, setContent]= useState([] as any)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const AnimationStart =()=>{
+    const config:any ={
+      toValue:1,
+      duration:1000,
+      useNativeDriver: true
+    }
+    Animated.timing(fadeValue, config).start()
+  
+  }
 
+  const handleBack =()=>{
+    navigation.navigate('AccountProfile');
+  }
 
-
-const handleCart =()=>{
+const handleSend =()=>{
   navigation.navigate('SendMoney');
 }
-
-const handleNext =()=>{
-  navigation.navigate('SendMoney');
-}
-
-
 
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
-
-
-<View style={[{display:'flex', flexDirection:'row', justifyContent:'space-between'}]}>
-      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600', marginBottom:5}}>Well Life Store</Text>
-      <Text style={[styles.infoText, {color:colors.red}]}>+$500.00</Text>
-    </View> 
+    return <Pressable  style={[styles.box, {
+      backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
 
 
-    <View style={[{display:'flex', flexDirection:'row', justifyContent:'space-between'}]}>
-      <Text style={styles.infoText}>30 Jun 2018, 11:59 am</Text>
-      <Text style={[styles.infoText]}>4 Items | Paypal</Text>
-    </View> 
+<Animated.View style={{opacity:fadeValue}}>
+      <Text style={dynamicStyle.label}>{item.payer}</Text>
+      <Text style={[globalStyles.infoText, {marginTop:5}]}>{item.total_item} Items | {getBritishDate(item.createdAt)+', '+getTime(item.createdAt.slice(11,item.createdAt.length))}</Text>
+      
+</Animated.View>
 
 
+<Animated.View style={{opacity:fadeValue}}>
+      <Text style={[globalStyles.infoText, {color:colors.dark}]}>{CURRENCY+FormatNumber(item.amount)}</Text>
+      <Text style={[globalStyles.infoText, {marginTop:5}]}>{item.method}</Text>
+      </Animated.View>
+   
+  
+
+      <Animated.View style={{opacity:fadeValue}}>
+      <Text style={[globalStyles.infoText, {color:colors.dark}]}>{CURRENCY+FormatNumber(item.discount)}</Text>
+      <Text style={[globalStyles.infoText, {marginTop:5}]}>Discount</Text>
+      </Animated.View>
+   
 
       </Pressable>
     }
 
 
-  
-
-    
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
-
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
-    
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>Wallet</Text>
-
-    <MaterialIcon name="menu" size={14} color={colors.grey}  /> 
-    </View>
+  const Header =()=>{
 
 
-    <View style={{backgroundColor:colors.white,  paddingHorizontal:10, paddingTop:20, paddingBottom:35}}>
+    return (<>
+      <View style={{backgroundColor:MODE==='Light'?colors.white:colors.dark,  paddingHorizontal:10, paddingTop:10, paddingBottom:35}}>
     
   
-<Text style={styles.infoText}>AVAILABLE BALANCE</Text>
-      <Text style={{color:colors.dark, fontSize:25, fontWeight:'700'}}>$ 520.50</Text>
-</View>
+      <Text style={globalStyles.infoText}>AVAILABLE BALANCE</Text>
+            <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:25, fontWeight:'700'}}>{CURRENCY+' '+FormatNumber(balance)}</Text>
+      </View>
 
-
-<View style={{display:'flex', flexDirection:'row', height:40, backgroundColor:colors.lightSkye, alignItems:'center', paddingHorizontal:10}}>
-  <Text style={[styles.infoText, {fontSize:12, fontWeight:'500', color:colors.dark}]}>Recent</Text>
+<View style={{display:'flex', flexDirection:'row', height:40, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark, alignItems:'center', paddingHorizontal:10}}>
+  <Text style={[globalStyles.infoText, {fontSize:12, fontWeight:'500', color:MODE==='Light'?colors.dark:colors.grey}]}>Recent</Text>
 
  
 </View>
-<View style={styles.addMoney}>
-    <Text style={{color:colors.white, fontSize:12, fontWeight:'500'}}>Add Money</Text>
-  </View>
+<TouchableOpacity style={styles.addMoney} onPress={handleSend} activeOpacity={0.8}>
+    <Text style={{color:colors.white, fontSize:14, fontWeight:'600'}}>Send to Bank</Text>
+  </TouchableOpacity>
+  </>
+    )
+  }
 
+  const fetchBalance = async()=>{
+    let config = await configToken()
+    const wallet = await getData('wallet');
+    let url = ServerUrl+'/api/vendor/account/'+wallet
+    try{
+
+   await axios.get(url, config).then(response=>{
+    console.log(response.data)
+      if(response.data.type==='success'){
+        setBalance(response.data.data[0].balance)
+      }else{
+        setBalance(0)
+      }
+    }) 
+  }catch(e){
+    console.log('error:',e)
+  }
+  }
+
+
+
+  const fetchContent = async()=>{
+    let config = await configToken()
+    const wallet = await getData('wallet');
+    let url = ServerUrl+'/api/payment/transactions/'+wallet
+    try{
+
+   await axios.get(url, config).then(response=>{
+ 
+      if(response.data.type==='success'){
+        setContent(response.data.data)
+
+        AnimationStart()
+      }else{
+        setContent([])
+      }
+    }).finally(()=>{
+      setRefreshing(false)
+    }) 
+  }catch(e){
+    console.log('error:',e)
+  }
+  }
+
+
+  useEffect(()=>{
+    fetchBalance()
+    fetchContent()
+  },[])
+
+
+  const onRefresh = useCallback(()=>{
+    setRefreshing(false)
+   fetchContent()
+   fetchBalance()
+    }, [])
+
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
+    
+    <View style={dynamicStyle.header}>
+    <MaterialIcon name="menu" size={18} onPress={handleBack} color={MODE==='Light'?colors.dark:colors.white}  />  
+    <Text style={dynamicStyle.label}>Wallet</Text>
+<View />
+    </View>
 
     <View style={styles.catItems}>
 
 <FlatList 
-data={CATEGORY}
+data={content}
 numColumns={1}
+ListHeaderComponent={<Header/>}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
@@ -132,7 +197,6 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 </View>
 
 
-
     </View>
   )
 }
@@ -142,37 +206,16 @@ export default Wallet
 
 const styles = StyleSheet.create({
 
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:colors.white,
-    height:60
-  },
-  label:{
-    fontWeight:'600',
-    fontSize:12,
-  },
- 
-  infoText:{
-    fontSize:10,
-    color:'#9E9E9E',
-    fontWeight:'500'
-
-  },
-
-
 
 box:{
   width:width,
-  backgroundColor:colors.white,
   marginBottom:5,
   display:'flex',
-  paddingHorizontal:10,
-  paddingVertical:15,
+  justifyContent:'space-between',
+  flexDirection:'row',
+  alignItems:'center',
+  paddingHorizontal:15,
+  paddingVertical:20,
   
     },
 
@@ -182,85 +225,14 @@ marginHorizontal:5,
 
 },
 
-px:{
-  height:25,
-  width:25,
-  resizeMode:'cover',
-    },
-catImage:{
-height:(height/2)*0.2,
-width:(width/2)-40,
-resizeMode:'contain',
-marginTop:15
-  },
-
-  address:{
-    backgroundColor:colors.white,
-    display:'flex',
-    flexDirection:'row',
-    paddingVertical:10
-  },
-
- 
-addItem:{
-  height:25,
-  width:25,
-  backgroundColor:colors.primary,
-  borderBottomRightRadius:5,
-  borderTopLeftRadius:5,
-  display:'flex',
-  alignItems:'center',
-  justifyContent:'center',
-  position:'absolute',
-  bottom:0,
-  right:0
-},
-sellerImage:{
-  height:80,
-  width:80,
-  resizeMode:'cover'
-},
-companyLogo:{
-  height:100,
-  width:100,
-  backgroundColor:'#9Be471',
-  borderRadius:10,
-  display:'flex',
-  justifyContent:'center',
-  alignItems:'center'
-
-},
-container:{
-  display:'flex',
-   flexDirection:'row', 
-   backgroundColor:colors.white,
-   paddingVertical:15,
-   paddingHorizontal:10
-  
-  
-  },
-  profile:{
-    width:30,
-    height:30,
-    borderRadius:15,
-    resizeMode:'contain'
-  },
- content:{
-    display:'flex', 
-    flexDirection:'row', 
-    justifyContent:'space-between', 
-    alignItems:'center',
-    paddingHorizontal:10, 
-    paddingBottom:10,
-    marginVertical:5
-  },
   addMoney:{
-    height:45,
+    height:50,
     backgroundColor:colors.primary,
     position:'absolute',
     right:10,
-    padding:12,
-    top:135,
+    padding:10,
+    width:140,
+    top:60,
     zIndex:1,
     display:'flex',
     alignItems:'center',

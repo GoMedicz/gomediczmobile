@@ -99,7 +99,7 @@ try{
 <Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={globalStyles.px} />:[]}
 </View>
 
-<Image source={{ uri:ImagesUrl+"/products/"+item.image_url}} style={styles.catImage}  />
+<Image source={{ uri:ImagesUrl+"/vendors/products/"+item.image_url}} style={styles.catImage}  />
 
 </View>
 
@@ -130,7 +130,6 @@ try{
       try{
   
      await axios.get(url, config).then(response=>{
-   
         if(response.data.type==='success'){
           setContent(response.data.data)
 

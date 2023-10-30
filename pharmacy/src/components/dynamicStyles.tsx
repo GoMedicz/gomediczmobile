@@ -96,7 +96,7 @@ boxCart:{
       padding:10,
       marginVertical:5,
       borderRadius:5,
-      color:MODE==='Light'?colors.grey:colors.white,
+      color:MODE==='Light'?colors.dark:colors.white,
       fontWeight:'600'
     },
     selectText:{

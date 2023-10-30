@@ -1,17 +1,13 @@
 
 import React, { useCallback, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
+import { CATEGORY, LANGUAGELIST } from '../../components/data';
 import { ImagesUrl, MODE } from '../../components/includes';
-import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
 
 const {width} = Dimensions.get('screen');
 const height =

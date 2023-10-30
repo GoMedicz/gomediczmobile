@@ -15,7 +15,7 @@ export  const globalStyles = StyleSheet.create({
         display:'flex',
         justifyContent:'center',
         alignItems:'center',
-        height:45,
+        height:50,
         backgroundColor:colors.primary,
         borderRadius:5,
         marginHorizontal:20
@@ -63,5 +63,10 @@ export  const globalStyles = StyleSheet.create({
           error:{
             borderWidth:1,
             borderColor:colors.red,
+          },
+          infoText:{
+            fontSize:12,
+            color:'#9E9E9E',
+            fontWeight:'500'
           },
     })

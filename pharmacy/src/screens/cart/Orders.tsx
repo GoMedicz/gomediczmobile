@@ -157,6 +157,7 @@ const ItemCategory =({item}:{item:any})=>{
     try{
   let config = await configToken()
    await axios.get(url, config).then(response=>{
+   // console.log(response.data)
     if(response.data.type==='success'){
 
   let recent = response.data.data.slice(0,20)

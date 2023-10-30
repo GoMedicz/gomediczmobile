@@ -102,7 +102,25 @@ const handleChange =(name:string, text:string)=>{
 }
 
 
-  
+const fetchBanks = async()=>{
+  let config = await configToken()
+  //let url = ServerUrl+'/api/allbanks'
+  let url = 'http://52.51.77.187:5190/api/allbanks'
+  try{
+
+ await axios.get(url, config).then(response=>{
+  setBanks(response.data.banks)
+  if(response.data.statusCode===200){
+     setBanks(response.data.banks)
+      
+    }else{
+     setBanks([])
+    }
+  })
+}catch(e){
+  console.log('error:',e)
+}
+}
 
 const fetchBalance = async()=>{
   let config = await configToken()
@@ -125,23 +143,25 @@ const fetchBalance = async()=>{
     
 
 
+
 const ValidateAccount=async()=>{
-  if(transfer.account_number&& transfer.account_number){ 
+  if(transfer.account_number&& transfer.bank_code){ 
 var fd = {      
-  bank:transfer.bank_code,
-  account_number:transfer.account_number
+  bankCode:transfer.bank_code,
+  accountNumber:transfer.account_number
 }
-let url = ServerUrl+'/api/vendor/bank/verification';
+//let url = ServerUrl+'/api/verifybank';
+
+let url ='http://52.51.77.187:5190/api/verifybank'
 try{
   setTransfer({...transfer, isLoading:true})
 
-let config = await configToken()
+let config = await configJSON()
 
-axios.post(url, fd, config).then(response=>{
-
-if(response.data.status===200){
+ axios.post(url, fd, config).then(response=>{
+if(response.data.statusCode===200){
   
-setTransfer({...transfer, account_name:response.data.data[0].fullname, isLoading:false})
+setTransfer({...transfer, account_name:response.data.accountName, isLoading:false})
 }else{
   setLoading(true)
   setModalType('Failed')
@@ -155,8 +175,6 @@ setTransfer({...transfer, account_name:response.data.data[0].fullname, isLoading
   setErrors({...errors, errorMessage:error.message})
  }) 
 
-
-
 }catch(error){
 
 }
@@ -164,6 +182,11 @@ setTransfer({...transfer, account_name:response.data.data[0].fullname, isLoading
 } 
 
 
+const handleChangeBank =(name:string, text:any)=>{
+
+  setTransfer({...transfer, bank_name:text.label, bank_code:text.value, account_name:'', account_number:''})
+  setErrors({...errors, [name]:''})
+}
 
 const handleSubmit =async()=>{
   let error = {
@@ -227,6 +250,7 @@ ActionSheetIOS.showActionSheetWithOptions(
   
           setLoading(true)
 
+      
 
           let fd = {
             code:'t'+Math.random().toString(36).substring(2, 9),
@@ -274,12 +298,14 @@ axios.post(url, fd, config)
 
 useEffect(()=>{
   fetchBalance()
+  fetchBanks()
 },[])
 
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
     fetchBalance()
+    fetchBanks()
     }, [])
 
   return (<View style={ {flex:1,backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}}>
@@ -323,13 +349,13 @@ useEffect(()=>{
       value={transfer.bank_code}
       items={
         banks&&banks.map((list:any, id:number)=>{
-            return {key:id, value:list.code, label:list.category_name, parent_code:list.parent_code}
-                })} 
+            return {key:id, value:list.code, label:list.name, country:list.country}
+                })}  
       setItems={setItems}
       setOpen={setIsBank}
       setValue={setItems}
 
-      onSelectItem={(item:any) => handleChange('bank_code', item.value)}
+      onSelectItem={(item:any) => handleChangeBank('bank_code', item)}
       onChangeValue={(value:any) =>{
         //console.log('My value change o')
       }}
@@ -361,6 +387,7 @@ useEffect(()=>{
   </View>
 
 
+  
   <View style={[styles.inputWrapper]}>
   <Text style={[dynamicStyle.label, {color:colors.grey}]}>Account Number</Text>
   <TextInput 

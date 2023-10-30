@@ -1,21 +1,16 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import axios from 'axios';
+import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, ServerUrl, configJSON, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { getData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -44,39 +39,79 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
 
  const AccountProfile =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
-  const [refreshing, setRefreshing] = useState(false)
-
-
   const MODE = useZustandStore(s => s.theme);
   const dynamicStyle = dynamicStyles(MODE);
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
 
-const handleClose =()=>{
-  navigation.navigate('Dashboard');
-}
-
-const handleNext =()=>{
-  navigation.navigate('Profile');
-}
+  const fadeValue = useRef(new Animated.Value(0)).current 
 
 
+  const [profile, setProfile] = useState({} as any)
+
+  const [items, setItems] = useState([
+
+          
+    {title:"Wallet", label:'Quick Payments', icon:'account-balance-wallet', screen:'Wallet'},
+
+    {title:"Insight", label:'See the progress', icon:'insert-chart', screen:'Insight'},
     
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+    {title:"Profile", label:'Setup Profile', icon:'store', screen:'Profile'},
+    {title:"Change Language", label:'Change Language', icon:'language', screen:'Language'},
+    {title:"Change Theme", label:'Change Theme', icon:'palette', screen:'Theme'},
+    {title:"T&C", label:'Company Policies', icon:'article', screen:'Terms'},
+    {title:"Contact Us", label:'Let us help you', icon:'mail', screen:'Contact'},
+    {title:"FAQs", label:'Quick Answer', icon:'feedback', screen:'Faqs'},
+    {title:"Logout", label:'See you soon', icon:'logout', screen:'SignIn'},
+  ])
+
+   
+
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
+
+
+
+const fetchProfile = async()=>{
+
+  const code = await getData('code');
+  let url = ServerUrl+'/api/rider/display_one/'+code
+  try{
+let config = await configJSON()
+ await axios.get(url, config).then(response=>{
+  if(response.data.statusCode===200){
+    setProfile(response.data.data)
+    }else{
+      setProfile([])
+    }
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+const handleBack =()=>{
+  navigation.navigate('Dashboard'); 
+}
+
+
+
+useEffect(()=>{
+  fetchProfile()
+  AnimationStart()
+}, [])
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={dynamicStyle.header}>
-    <MaterialIcon name="close" size={18} onPress={handleClose} color={MODE==='Light'?colors.primary:colors.grey}  />
+    <MaterialIcon name="close" size={18} onPress={handleBack} color={MODE==='Light'?colors.primary:colors.grey}  />
    <Text style={dynamicStyle.label}>Account</Text>
 <View/>
     </View>
@@ -84,142 +119,64 @@ const handleNext =()=>{
 <ScrollView>
 
 
-
+<Animated.View style={{opacity:fadeValue}}>
 <View style={{display:'flex', flexDirection:'row', alignItems:'center',
  backgroundColor:MODE==='Light'?colors.white:colors.dark, padding:10, paddingTop:0}}>
-  
-<Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
+  <Animated.View style={{opacity:fadeValue}}>
+
+<Image source={{ uri: profile.image_url?ImagesUrl+"/riders/"+profile.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
+</Animated.View>
+
 
 <View style={{marginLeft:10}}>
 
 <View style={{width:(width/2)-40}}>
-  <Text style={dynamicStyle.title}>Dr. Joseph Williamson</Text>
+  <Text style={dynamicStyle.title}>{profile&&profile.fullname}</Text>
   </View>
 
-  <Text style={[styles.infoText, { marginTop:15}]}>+1 987 654 3210</Text>
+  <Text style={[styles.infoText, { marginTop:15, letterSpacing:2}]}>{profile&&profile.telephone}</Text>
 </View>
 </View>
-
+</Animated.View>
 
 
 
 <View style={{ marginHorizontal:10, marginVertical:5, display:'flex', flexDirection:'row', flexWrap:'wrap', justifyContent:'space-between'}}>
 
 
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Wallet')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Wallet</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Payments</Text>
-    
-<MaterialIcon name="account-balance-wallet" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
+
+{items.map((item:any, index:number)=>
+<TouchableOpacity key={index} onPress={()=>navigation.navigate(item.screen)} activeOpacity={0.9} style={dynamicStyle.box}>
+  <Animated.View style={{opacity:fadeValue}}>
+  <Text style={dynamicStyle.label}>{item.title}</Text>
+  </Animated.View>
+
+
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
+    <Text style={[styles.infoText, {fontSize:10} ]}>{item.label}</Text>
+
+<MaterialIcon name={item.icon} size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} /> 
   </View>
-</TouchableOpacity>
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Insight')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Insight</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>See the progress</Text>
-    
-<MaterialIcon name="insert-chart" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Profile')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Profile</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Setup Profile</Text>
-    
-<MaterialIcon name="person" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Language')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Change Language</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
-    
-<MaterialIcon name="language" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Theme')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Change Theme</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
-    
-<MaterialIcon name="palette" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Terms')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>T&C</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
-    
-<MaterialIcon name="article" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Contact')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Contact Us</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    
-<MaterialIcon name="mail" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Faqs')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>FAQs</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Answer</Text>
-    
-<MaterialIcon name="feedback" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8}  style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Logout</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>See you soon</Text>
-    
-<MaterialIcon name="logout" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
+</TouchableOpacity>)}
 
 </View>
 
 
 </ScrollView>
 
-<View>
-<View style={[styles.boxRider, {
-  backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
 
-<MaterialIcon name="circle" size={14} color={colors.green}  />
+<TouchableOpacity  onPress={handleBack} activeOpacity={0.9} style={dynamicStyle.boxRider}>
 
-<Text style={[dynamicStyle.label, {marginHorizontal:10}]}> You're Online</Text>
+
+<MaterialIcon name="circle" size={14} color={profile.online_status==='Online'? colors.green:colors.red}  />
+
+<Text style={[dynamicStyle.label, {marginHorizontal:10}]}> You're {profile.online_status}</Text>
 
 <MaterialIcon name="keyboard-arrow-up" size={20} color={MODE==='Light'?colors.dark:colors.white}  />
-</View>
+</TouchableOpacity>
 
-</View>
+
     </View>
   )
 }
@@ -242,10 +199,10 @@ const styles = StyleSheet.create({
   },
 
   profile:{
-    width:100,
-    height:100,
-    resizeMode:'contain',
-    borderRadius:10
+    width:120,
+    height:120,
+    marginHorizontal:10,
+    resizeMode:'cover',
   },
 
   row:{

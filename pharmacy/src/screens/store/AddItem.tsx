@@ -101,6 +101,8 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
     try{
 
       let config = await configToken()
+      
+
       let url = ServerUrl+'/api/vendor/products/category/all'
    await axios.get(url, config).then(response=>{
       if(response.data.type==='success'){

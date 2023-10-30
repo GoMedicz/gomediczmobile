@@ -8,12 +8,14 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, DATES, LANGUAGELIST, TIMES } from '../../components/data';
-import { ImagesUrl, MODE } from '../../components/includes';
+import { ImagesUrl} from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
 import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { useZustandStore } from '../../api/store';
+import { dynamicStyles } from '../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -27,7 +29,7 @@ const height =
 
 type RootStackParamList = {
   AppointmentDetails: undefined;
-  Wallet:undefined; 
+  BottomTabs:undefined; 
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AppointmentDetails'>;
@@ -37,36 +39,21 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AppointmentDetails'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const MODE = useZustandStore(store => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
 
 
 
-const handleCart =()=>{
-  navigation.navigate('Wallet');
-}
+
+
 
 const handleNext =()=>{
-  navigation.goBack();
+  navigation.navigate('BottomTabs');
 }
 
 
-const CardDate =({item}:{item:any})=>{
-  return <Pressable style={styles.box}>
-<Text style={[styles.infoText, {fontSize:10}]}>{item.day}</Text>
-<Text style={styles.date}>{item.date}</Text>
-    </Pressable>
-  }
   
 
-  const CardTime =({item}:{item:any})=>{
-    return <Pressable style={[styles.timeBox]}>
-  <Text style={styles.time}>{item.time}</Text>
-      </Pressable>
-    }
     
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
@@ -75,9 +62,9 @@ const CardDate =({item}:{item:any})=>{
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
     
-    <View style={styles.header}>
+    <View style={dynamicStyle.header}>
     <MaterialIcon name="arrow-back-ios" size={18} color={MODE==='Light'?colors.dark:colors.white}  /> 
-    <Text style={styles.label}>Appointment details</Text>
+    <Text style={dynamicStyle.label}>Appointment details</Text>
     <View/>
     </View>
 
@@ -88,7 +75,7 @@ const CardDate =({item}:{item:any})=>{
     <View style={{backgroundColor:MODE==='Light'?colors.white:colors.dark, marginBottom:5, paddingBottom:5}}>
 
 
-<View style={{display:'flex', flexDirection:'row', justifyContent:'flex-start', alignItems:'flex-end' }}>
+<View style={{display:'flex', flexDirection:'row', justifyContent:'flex-start', alignItems:'flex-end', marginLeft:20 }}>
   
 <Image source={{ uri:ImagesUrl+"/profile_5.png"}} style={styles.profile} />
 
@@ -105,11 +92,11 @@ const CardDate =({item}:{item:any})=>{
 
 <Text style={styles.infoText}>Apointment on</Text>
 
-<Text style={[styles.label, {marginTop:15}]}>12 June 2020 | 12:00 pm</Text>
+<Text style={[dynamicStyle.label, {marginTop:15}]}>12 June 2020 | 12:00 pm</Text>
 
 
 <Text style={[styles.infoText, {marginTop:35}]}>Appointment for</Text>
-<Text style={[styles.label, {marginTop:15}]}>Chest Pain</Text>
+<Text style={[dynamicStyle.label, {marginTop:15}]}>Chest Pain</Text>
 
 
 <Text style={[styles.infoText, {marginTop:25}]}>Attachment</Text>
@@ -117,7 +104,7 @@ const CardDate =({item}:{item:any})=>{
 
 <View style={{display:'flex', justifyContent:'space-between', flexDirection:'row', alignItems:'center'}}>
 
-<Text style={[styles.label, {marginTop:15}]}>report212220.pdf</Text>
+<Text style={[dynamicStyle.label, {marginTop:15}]}>report212220.pdf</Text>
 
 <View style={{display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
 <MaterialIcon name="visibility" size={18} color={colors.icon}  /> 
@@ -147,7 +134,7 @@ style={{backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark, width:
 <View style={{display:'flex', flexDirection:'row', justifyContent:'space-evenly', alignItems:'center', width:width/2}}>
 
 <MaterialIcon name="close" size={18} color={colors.primary}  /> 
-  <Text style={[globalStyles.buttonText, { color:colors.primary}]}>Cancel</Text>
+  <Text style={[globalStyles.buttonText, { color:colors.primary}]}>Reject</Text>
 </View>
 </PrimaryButtonChildren>
 
@@ -176,21 +163,7 @@ export default AppointmentDetails
 
 const styles = StyleSheet.create({
 
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    height:60
-  },
-  label:{
-    fontWeight:'600',
-    fontSize:12,
-    color:MODE==='Light'?colors.dark:colors.white,
-  },
+  
   infoText:{
     fontSize:12,
     color:'#9E9E9E',
@@ -201,7 +174,8 @@ const styles = StyleSheet.create({
   profile:{
     width:160,
     height:160,
-    resizeMode:'contain'
+    resizeMode:'contain',
+    marginRight:10
   },
 
   row:{
@@ -252,42 +226,4 @@ const styles = StyleSheet.create({
     paddingHorizontal:22,
     marginRight:10
   },
-  textInput:{
-    width:width-20,
-    marginHorizontal:10,
-    height:45,
-    backgroundColor:colors.lightSkye,
-    fontSize:12,
-    color:colors.dark,
-    borderRadius:5,
-    paddingHorizontal:10
-  },
-  appointment:{
-    width:width-20,
-    marginHorizontal:10,
-    height:40,
-    backgroundColor:'#E5F8FF',
-    borderRadius:5,
-    display:'flex',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:10
-  },
-  textAreaWrapper:{
-    width:width-20,
-    marginHorizontal:10,
-    borderRadius:5,
-    paddingHorizontal:10,
-    paddingVertical:10,
-    height:80,
-    marginTop:10,
-    backgroundColor:colors.lightSkye,
-  },
-  textArea:{
-   
-   fontSize:12,
-   fontWeight:'500'
-    
-
-  }
 })

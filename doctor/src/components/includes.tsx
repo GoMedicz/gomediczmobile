@@ -1,8 +1,9 @@
 
 import { getData } from "./globalFunction";
 
-export const ImagesUrl = 'http://localhost:6000/public/images'
+//export const ImagesUrl = 'http://52.51.77.187:5190/images'
 
+export const ImagesUrl = 'http://localhost:6000/public/images'
 //export const ServerUrl = 'http://localhost:6000'
 export const ServerUrl = 'http://52.51.77.187:5190';
 export const API_KEY = '';

@@ -27,7 +27,7 @@ type RootStackParamList = {
   Register:{
     telephone:string;
   }
-  Orders:undefined;
+  BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
@@ -109,22 +109,20 @@ if(user.telephone.length<11){
 
 setLoading(true)
 
-
-
     const fd  ={
       phoneNumber:user.telephone,
       password:user.password
     }
-    let url = ServerUrl+'/api/login/doctor';
+    let url = ServerUrl+'/api/doctor/login';
    axios.post(url, fd, config)
    .then(response =>{
     if(response.data.statusCode === 200){
 
       setLoading(false)
-      storeData('jwt', response.data.jwt)
-      storeData('code', response.data.code)
+      storeData('jwt', response.data.token)
+      storeData('code', response.data.doctor_code)
       storeData('wallet', response.data.wallet)
-         navigation.navigate('Orders');  
+      navigation.navigate('BottomTabs');  
                } else{
                  //unable to create account please retry
                 

@@ -222,7 +222,7 @@ useEffect(()=>{
 <Image source={{ uri: image.uri?image.uri:profile.image_url?ImagesUrl+"/vendors/profiles/"+profile.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 </Animated.View>
 
-<TouchableOpacity onPress={openImagePicker} style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
+<TouchableOpacity onPress={openImagePicker} activeOpacity={0.6} style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
 
 <View style={styles.circle}>
 <MaterialIcon name="photo-camera" size={14} color={MODE==='Light'?colors.white:colors.dark}  /> 
@@ -337,11 +337,10 @@ const styles = StyleSheet.create({
   },
 
   profile:{
-    width:120,
-    height:120,
-    resizeMode:'cover',
-    
+    width:(width/2)-20,
     marginHorizontal:10,
+    height:150,
+    resizeMode:'cover'
   },
 
   

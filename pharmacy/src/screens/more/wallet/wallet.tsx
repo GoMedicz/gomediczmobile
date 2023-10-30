@@ -122,7 +122,6 @@ const handleSend =()=>{
     try{
 
    await axios.get(url, config).then(response=>{
-
       if(response.data.type==='success'){
         setBalance(response.data.data[0].balance)
       }else{
@@ -139,6 +138,9 @@ const handleSend =()=>{
   const fetchContent = async()=>{
     let config = await configToken()
     const wallet = await getData('wallet');
+    const code = await getData('code');
+
+    console.log(wallet, code)
     let url = ServerUrl+'/api/payment/transactions/'+wallet
     try{
 

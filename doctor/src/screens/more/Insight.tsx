@@ -34,9 +34,7 @@ const height =
 type RootStackParamList = {
   Insight: undefined;
   Earnings:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Insight'>;
@@ -180,7 +178,8 @@ const Header =()=>{
 }
 
 const handleBack =()=>{
-  navigation.goBack();
+  
+  navigation.navigate('BottomTabs');
 }
 
 

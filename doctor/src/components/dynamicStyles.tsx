@@ -76,13 +76,17 @@ boxCart:{
 
   },
   
-  about:{
-    display:'flex', 
-    width:width-20,
-     backgroundColor:MODE==='Light'?colors.white:colors.dark, 
-     padding:10
-    
-    },
+   about:{
+      display:'flex', 
+      width:width-40,
+       backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark, 
+       borderRadius:10, 
+       height:height/4,
+       marginHorizontal:10,
+       margin:10,
+       padding:10
+      },
+
     card:{
       backgroundColor:MODE==='Light'?colors.white:colors.dark,
       paddingHorizontal:20,
@@ -97,7 +101,7 @@ boxCart:{
       padding:10,
       marginVertical:5,
       borderRadius:5,
-      color:MODE==='Light'?colors.grey:colors.white,
+      color:MODE==='Light'?colors.dark:colors.white,
       fontWeight:'600'
     },
     selectText:{
@@ -140,5 +144,65 @@ boxCart:{
       color:MODE==='Light'?colors.dark:colors.white,
       opacity:0.6
   
+    },
+
+    btnWrapper:{
+      height:50,
+      paddingBottom:10,
+      flexDirection:'row',
+      justifyContent:'space-between',
+      backgroundColor:MODE==='Light'?colors.white:colors.dark,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2
+      },
+      
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5
+    },
+    infoText:{
+      fontSize:10,
+      color:MODE==='Light'?'#9E9E9E':colors.white,
+      fontWeight:'500'
+  
+    },
+    progress:{
+      width:width-100,
+      backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark,
+      height:10,
+      marginHorizontal:10
+    },
+    progressItem:{
+      width:width-200,
+      backgroundColor:colors.navyBlue,
+      height:10
+    },
+    h3:{
+      fontWeight:'600',
+      fontSize:10,
+      marginVertical:3,
+      color:MODE==='Light'?colors.dark:colors.white,
+    },
+
+    cards:{
+      display:'flex',
+       backgroundColor:MODE==='Light'?colors.white:colors.dark, 
+       marginTop:10, 
+       padding:10, 
+       width:width
+      },
+      
+boxAppoint:{
+  width:width,
+  backgroundColor:MODE==='Light'?colors.white:colors.dark,
+  marginBottom:5,
+  display:'flex',
+  padding:10,
+  flexDirection:'row',
+  justifyContent:'space-between',
+  alignItems:'center'
+
     },
     })

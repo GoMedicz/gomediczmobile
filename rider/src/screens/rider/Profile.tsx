@@ -1,18 +1,19 @@
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, TextInput, TouchableOpacity, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { ImagesUrl,  PHARMACY_CODE, ServerUrl, config } from '../../components/includes';
+import { ImagesUrl,  PHARMACY_CODE, ServerUrl, config, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import { PrimaryButton } from '../../components/include/button';
 import axios from 'axios';
 import Loader from '../../components/loader';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
-
+import { getData } from '../../components/globalFunction';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -24,37 +25,87 @@ const height =
 
 
 type RootStackParamList = {
-  Profile:undefined;
+  StoreProfile:undefined;
   AccountProfile:undefined; 
    };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'StoreProfile'>;
 
- const Profile =({ route, navigation }:Props)=> {
+ const StoreProfile =({ route, navigation }:Props)=> {
 
   const MODE = useZustandStore(s => s.theme);
   const dynamicStyle = dynamicStyles(MODE);
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState({} as any)
 
+  const fadeValue = useRef(new Animated.Value(0)).current 
 const [errors, setErrors] = useState({
-  store_name:'',
+  fullname:'',
   telephone:'',
-  email_address:''
+  email:'',
+  errorMessage:''
 });
 const [modalType, setModalType] = useState('load')
+const [image, setImage] = useState({
+  uri:'',
+  type:'',
+   name:''
+})
 
 const handleNext =()=>{
   navigation.navigate('AccountProfile');
 }
 
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
 
 
-const fetchStore = async()=>{
-  let url = ServerUrl+'/api/pharmacy/display_store/'+PHARMACY_CODE
+const openImagePicker = async() => {
+  const options:any = {
+    mediaType: 'photo',
+    includeBase64: false,
+    maxHeight: 2000,
+    maxWidth: 2000,
+  };
+
+ await launchImageLibrary(options, (response) => {
+    if (response.didCancel) {
+     // console.log('User cancelled image picker');
+    } else if (response.errorCode) {
+     // console.log('Image picker error: ', response.errorMessage);
+    } else {
+      let imageUri:any =  response.assets?.[0]?.uri;
+      let type:any = response.assets?.[0]?.type
+
+      let filename:any = response.assets?.[0]?.fileName
+
+      setImage({
+        uri:imageUri,
+        name:filename,
+        type:type
+
+      })
+
+      setProfile({...profile, image_url:profile.code+'_'+filename})
+    }
+  });
+
+};
+
+const fetchRider = async()=>{
+
+  const code = await getData('code');
+  let url = ServerUrl+'/api/rider/display_one/'+code
   try{
+let config = await configToken()
  await axios.get(url, config).then(response=>{
-  
   if(response.data.type==='success'){
     setProfile(response.data.data)
     }else{
@@ -76,20 +127,20 @@ const handleChange =(name:string, text:string)=>{
 
 
 
-const handleSubmit =()=>{
+const handleSubmit =async()=>{
        
   let error = {...errors}; 
 let formIsValid = true;
 
 let msg ='This field is required';
 
-if(!profile.store_name){
-  error.store_name = msg;
+if(!profile.fullname){
+  error.fullname = msg;
     formIsValid = false;
 } 
 
-if(!profile.email_address){
-  error.email_address = msg;
+if(!profile.email){
+  error.email = msg;
     formIsValid = false;
 }  
       
@@ -114,31 +165,34 @@ if(formIsValid) {
   Object.entries(profile).forEach(([key, value]) => {
           fd.append(key, String(value));
       });
-  
-  let url = ServerUrl+'/api/pharmacy/store/update';
+      if(image.uri!==''){
+        fd.append('image',  image)
+      }
+  let url = ServerUrl+'/api/rider/profile/update';
+  let config = await configToken()
      axios.post(url, fd, config)
      .then(response =>{
-       if(response.data.type ==='success'){
+       if(response.data.statusCode ===200){
         
         setModalType('Updated')
-
+        setErrors({...errors, errorMessage:'Record updated'})
       } else{
-                   //unable to create account please retry
-                   setLoading(false)
+        setModalType('Failed')
+        setErrors({...errors, errorMessage: response.data.message})
+        
                  }   
              })
              .catch((error)=>{
-            // setErrors({...errors, errorMessage:error.message})
-             setLoading(false)
-             }).finally(()=>{
-              setLoading(false)
+              setModalType('Failed')
+              setErrors({...errors, errorMessage: error.message})
              })
             }
 }
 
 
 useEffect(()=>{
-  fetchStore()
+  fetchRider()
+  AnimationStart()
 }, [])
     
   
@@ -153,6 +207,7 @@ useEffect(()=>{
 
     <Loader isModalVisible={loading} 
     type={modalType}
+    message={errors.errorMessage} 
     action={()=>setLoading(false)}
      />
 
@@ -163,11 +218,11 @@ useEffect(()=>{
 
 <View style={[styles.imageWrapper,{ backgroundColor:MODE==='Light'?colors.white:colors.dark, }]}>
   
+<Animated.View style={{opacity:fadeValue}}>
+<Image source={{ uri: image.uri?image.uri:profile.image_url?ImagesUrl+"/riders/"+profile.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
+</Animated.View>
 
-<Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
-
-
-<View style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
+<TouchableOpacity onPress={openImagePicker} activeOpacity={0.6} style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>
 
 <View style={styles.circle}>
 <MaterialIcon name="photo-camera" size={14} color={MODE==='Light'?colors.white:colors.dark}  /> 
@@ -176,26 +231,28 @@ useEffect(()=>{
 <Text style={[dynamicStyle.label, { color:colors.primary, fontWeight:'700'}]}>Change Image</Text>
 
 
-</View>
+</TouchableOpacity>
 
 
 
 </View>
-
+<Animated.View style={{opacity:fadeValue}}>
 <View style={[styles.card,{
      backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
 
-<View style={[dynamicStyle.textWrapper]}>
+
+<View style={[dynamicStyle.textWrapper, errors.fullname?globalStyles.error:[]]}>
+
 <MaterialIcon name="store" size={15} color={colors.icon}  /> 
   <TextInput style={dynamicStyle.textInput} 
-  placeholder='e.g Well Life Store'
+  placeholder='e.g Well Life '
   placeholderTextColor={colors.grey}
-  value={profile.store_name}
+  value={profile.fullname}
   autoCapitalize='none'
   keyboardType='email-address' 
    autoFocus={true}
    autoCorrect={false}
- onChangeText={text=>handleChange('store_name', text)}
+ onChangeText={text=>handleChange('fullname', text)}
   />
 
 </View>
@@ -206,7 +263,7 @@ useEffect(()=>{
 <MaterialIcon name="phone-iphone" size={15} color={colors.icon}  /> 
   <TextInput style={dynamicStyle.textInput}
   placeholder='080 654 3210'
-
+editable={false}
   placeholderTextColor={colors.grey}
   value={profile.telephone}
   autoCapitalize='none'
@@ -225,17 +282,19 @@ useEffect(()=>{
 
   placeholderTextColor={colors.grey}
   placeholder='Email Address'
-  value={profile.email_address}
+  value={profile.email}
   autoCapitalize='none'
+  editable={false}
   keyboardType='email-address' 
    autoFocus={true}
    autoCorrect={false}
- onChangeText={text=>handleChange('email_address', text)}
+ onChangeText={text=>handleChange('email', text)}
   />
 
 </View>
 
 </View>
+</Animated.View>
 
 
 <View style={[styles.card, {marginTop:5, backgroundColor:MODE==='Light'?colors.white:colors.dark} ]}>
@@ -269,7 +328,7 @@ useEffect(()=>{
 }
 
 
-export default Profile
+export default StoreProfile
 
 const styles = StyleSheet.create({
 
@@ -281,9 +340,10 @@ const styles = StyleSheet.create({
   },
 
   profile:{
-    width:(width/2)-40,
-    height:120,
-    resizeMode:'contain'
+    width:(width/2)-20,
+    marginHorizontal:10,
+    height:150,
+    resizeMode:'cover'
   },
 
   
@@ -303,10 +363,11 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center'
   },
-    imageWrapper:{
-      display:'flex', 
-      flexDirection:'row', 
-      alignItems:'flex-end', 
-      paddingTop:5,
-        paddingBottom:10}
+  imageWrapper:{
+    display:'flex', 
+    flexDirection:'row', 
+    alignItems:'flex-end',
+     justifyContent:'flex-start', 
+     paddingHorizontal:20, paddingVertical:5
+    },
 })

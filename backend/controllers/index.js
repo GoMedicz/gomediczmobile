@@ -7,6 +7,8 @@ const DoctorController = require('./doctor.controller');
 const PaymentController = require('./payment.controller');
 const WithdrawalController = require('./withdrawal.controller');
 const OrderController = require('./orders.controller');
+const RiderController = require('./rider.controller');
+
 
 const Controllers = {
     categoryController,
@@ -17,7 +19,8 @@ const Controllers = {
     DoctorController,
     PaymentController,
     WithdrawalController,
-    OrderController
+    OrderController,
+    RiderController
   };
 
 

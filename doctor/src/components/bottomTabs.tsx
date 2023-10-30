@@ -2,20 +2,15 @@ import { View, StyleSheet, Dimensions, Text } from 'react-native'
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import  Icon  from 'react-native-vector-icons/Feather';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import colors from '../assets/colors';
-import StackNavigator from '../navigator/stack';
-import DoctorHome from '../screens/doctors/doctorHome';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
-
 
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 import AccountProfile from '../screens/doctors/AcountProfile';
-import Appointments from '../screens/home/dashboard';
+import Appointments from '../screens/more/appointment//MyAppointment';
 import Reviews from '../screens/doctors/Reviews';
-import { MODE } from './includes';
-
+import { dynamicStyles } from './dynamicStyles';
+import { useZustandStore } from '../api/store';
 
 const {width} = Dimensions.get('screen');
 
@@ -35,9 +30,14 @@ type RootStackParamList = {
  type Props = NativeStackScreenProps<RootStackParamList, 'BottomTab'>;
 
 
+
 function CustomButton({ state, descriptors, navigation }:any) {
+
+ const MODE = useZustandStore(s => s.theme);
+ const dynamicStyle = dynamicStyles(MODE);
+ 
     return (
-      <View style={styles.btnWrapper} >
+      <View style={dynamicStyle.btnWrapper} >
      {state.routes.map((route:any, index:number) => {
           const { options } = descriptors[route.key];
 
@@ -171,22 +171,6 @@ const styles = StyleSheet.create({
       shadowRadius: 4,
       elevation: 5
       
-    },
-    btnWrapper:{
-      height:50,
-      paddingBottom:10,
-      flexDirection:'row',
-      justifyContent:'space-between',
-      backgroundColor:MODE==='Light'?colors.white:colors.dark,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2
-      },
-      
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5
     },
     tabButton:{
       justifyContent:'center',

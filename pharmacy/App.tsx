@@ -62,7 +62,6 @@ const StackNavigator=()=>{
 
 <Stack.Screen  name='StoreItems'>{(props:any) =><StoreItems {...props}  />}</Stack.Screen>
 
-<Stack.Screen  name='Insight'>{(props:any) =><Insight {...props}  />}</Stack.Screen>
 <Stack.Screen  name='OrderDetails'>{(props:any) =><OrderDetails  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='StoreProfile'>{(props:any) =><StoreProfile {...props}  />}</Stack.Screen>
 
@@ -76,8 +75,6 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Theme'>{(props:any) =><Theme {...props}  />}</Stack.Screen>
 <Stack.Screen  name='AccountProfile'>{(props:any) =><AccountProfile {...props}  />}</Stack.Screen>
 
-{/* 
-<Stack.Screen  name='SendMoney'>{(props:any) =><SendMoney {...props}  />}</Stack.Screen> */}
 <Stack.Screen  name='Orders'>{(props:any) =><Orders  {...props}  />}</Stack.Screen>
 
 
@@ -89,6 +86,7 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Earnings'>{(props:any) =><Earnings {...props}  />}</Stack.Screen>
 
 
+<Stack.Screen  name='Insight'>{(props:any) =><Insight {...props}  />}</Stack.Screen>
 
 
  <Stack.Screen  name='Language'>{(props:any) =><Language  {...props}  />}</Stack.Screen>

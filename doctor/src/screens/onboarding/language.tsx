@@ -24,9 +24,7 @@ const height =
 type RootStackParamList = {
     Language: undefined;
     SignIn:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Language'>;
@@ -81,7 +79,7 @@ const Checkbox =({item}:{item:item})=>{
 const handleNext =()=>{
   const rs = Languages.filter((item:any)=>item.isDefault==='Yes')
   setStoreLanguage(rs[0].title)
-    navigation.goBack();
+  navigation.navigate('BottomTabs');
   }
 
   

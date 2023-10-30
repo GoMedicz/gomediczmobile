@@ -25,9 +25,7 @@ const height =
 type RootStackParamList = {
   Faqs: undefined;
     Welcome:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Faqs'>;
@@ -50,7 +48,8 @@ interface item {
 
 
 const handleBack =()=>{
-  navigation.goBack();
+ 
+  navigation.navigate('BottomTabs');
 }
   const onRefresh = useCallback(()=>{
     setRefreshing(false)

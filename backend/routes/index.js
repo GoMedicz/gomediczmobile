@@ -3,7 +3,21 @@ var fs = require('fs');
 var multer  = require('multer')
 //const upload = multer();
 const router  = express.Router();
-const {General, categoryController, ProductController, StoreController, UserController, DoctorController, PaymentController, WithdrawalController, OrderController  } = require('../controllers/index');
+const {General, categoryController, ProductController, StoreController, UserController, DoctorController, PaymentController, WithdrawalController, OrderController, RiderController  } = require('../controllers/index');
+
+var ride = multer.diskStorage({
+  destination: function (req, file, cb) {
+
+    cb(null, './public/images/riders/')
+
+  },
+  filename: function (req, file, cb) {
+ 
+    cb(null, req.body.code+'_'+file.originalname)
+
+  }
+})
+
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -17,6 +31,7 @@ var storage = multer.diskStorage({
 
     }
   })
+
   var store = multer.diskStorage({
     destination: function (req, file, cb) {
 
@@ -40,12 +55,15 @@ var prescription = multer.diskStorage({
  
     cb(null, req.body.code+'.png')
 
-  }
+  },
+  
+  
 })
 
 const prescribe = multer({ storage: prescription });
-const profile = multer({ storage: store });
+const profile = multer({ storage:store });
   const upload = multer({ storage: storage });
+  const rider = multer({ storage:ride });
 
 //Category controller
 router.post('/api/pharmacy/category/add_new', General.AuthenticateToken, categoryController.addNewCategory);
@@ -131,5 +149,21 @@ router.post('/api/vendor/order/update', General.AuthenticateToken, OrderControll
 
 //Doctors' Controller
 router.post('/api/doctor/verification', DoctorController.VerifyVendor);
+
+
+
+
+//Rider's Controller
+
+router.post('/api/rider/verification', RiderController.VerifyRider);
+router.post('/api/rider/login', RiderController.loginRider);
+router.post('/api/rider/registration', RiderController.AddNewRider);
+router.post('/api/rider/profile/update', General.AuthenticateToken, rider.single('image'), RiderController.UpdateRider);
+
+router.get('/api/rider/display_one/:code', General.AuthenticateToken, RiderController.getRiderProfile);
+router.get('/api/rider/summary/:code', General.AuthenticateToken, RiderController.getSummary);
+
+
+router.post('/api/rider/field/update', General.AuthenticateToken, RiderController.UpdateField);
 
 module.exports = router;

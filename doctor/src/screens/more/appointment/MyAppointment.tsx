@@ -1,19 +1,17 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import Icon  from 'react-native-vector-icons/Feather' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl } from '../../../components/includes';
-import { globalStyles } from '../../../components/globalStyle';
-import ModalDialog from '../../../components/modal';
-import ShoppingCart from '../../../components/include/ShoppingCart';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { CATEGORY, LANGUAGELIST } from '../../../components/data';
+import { ImagesUrl,  ServerUrl, configJSON, configToken } from '../../../components/includes';
+import { getData } from '../../../components/globalFunction';
+import { useZustandStore } from '../../../api/store';
+import { dynamicStyles } from '../../../components/dynamicStyles';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -26,26 +24,58 @@ const height =
 
 
 type RootStackParamList = {
-  MyAppointment: undefined;
+  Appointments: undefined;
   Cart:undefined; 
-  ChatDoctor:{
-     code:string;
-   }
+  AppointmentDetails:undefined;
    };
 
-type Props = NativeStackScreenProps<RootStackParamList, 'MyAppointment'>;
- const MyAppointment =({ route, navigation }:Props)=> {
+type Props = NativeStackScreenProps<RootStackParamList, 'Appointments'>;
+ const Appointments =({ route, navigation }:Props)=> {
 
+  const [content, setContent] = useState([] as any)
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const MODE = useZustandStore(store => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
 
+
+
+const fetchAppointment = async()=>{
+  const wallet = await getData('wallet');
+  const code = await getData('code');
+
+
+  let final =   "SELECT 'u.fullName', 'a.appointmentDate', 'a.appointmentReason', 'a.appointmentStatus', 'a.appointmentTime', 'a.appointment_code'  from tbl_appointments a, tbl_users u where u.user_code = a.user_code and  a.doctor_code ='"+code+"'"
+let url = ServerUrl+'/api/get/doctor/earnings'
+try{
+let fd ={
+  sql:final,
+  code:code,
+  wallet:wallet
+}
+let configj = await configJSON()
+await axios.post(url, fd, configj).then(response=>{
+
+  
+    if(response.data.statusCode===200){
+      /* setContent({
+        revenue:response.data.data[0].revenue,
+        items:[]
+      }) */
+    }else{
+       /* setContent({
+        revenue:0,
+        items:[] as any
+        
+      })  */
+    }
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
 
 
 const handleCart =()=>{
@@ -53,87 +83,205 @@ const handleCart =()=>{
 }
 
 const handleNext =()=>{
-  navigation.navigate('ChatDoctor', {
-    code:'cds',
-  });  
+  navigation.navigate('AppointmentDetails'); 
 }
+
+
+
+const CardPast =({item}:{item:any})=>{
+  return <Pressable onPress={handleNext} style={[dynamicStyle.boxAppoint]}>
+
+<View style={styles.row}>
+<Image source={{ uri:ImagesUrl+"/seller/profile_4.png" }} style={styles.profile} />
+
+
+<View style={{marginLeft:15}}>
+    <Text style={{color:colors.dark, fontSize:14, fontWeight:'600', }}>Henry Johnson</Text>
+    <Text style={[styles.infoText, {marginBottom:10}]}>Chest Pain</Text>
+
+    <Text style={dynamicStyle.label}>12 June 2020 | 12:00 pm</Text>
+  </View> 
+  </View>
+
+<View style={{justifyContent:'space-between', alignItems:'flex-end', display:'flex', marginRight:5}}>
+
+
+<MaterialIcon name="more-vert" size={18} color={colors.icon}  />
+
+<View style={[styles.row, {marginTop:15}]}>
+<MaterialIcon name="call" size={18} color={colors.icon} style={{marginRight:10}} />
+<MaterialIcon name="chat" size={18} color={colors.icon}  />
+</View>
+
+
+
+
+</View>
+
+    </Pressable>
+  }
 
 
 
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <Pressable onPress={handleNext} style={[dynamicStyle.boxAppoint]}>
+
+<View style={styles.row}>
+<Image source={{ uri:ImagesUrl+"/seller/profile_4.png" }} style={styles.profile} />
 
 
-<View style={styles.content}>
+<View style={{marginLeft:15}}>
+      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:14, fontWeight:'600', }}>Henry Johnson</Text>
+      <Text style={[styles.infoText, {marginBottom:10}]}>Chest Pain</Text>
 
-<View style={globalStyles.rowCenterCenter}>
-<Image source={{ uri:ImagesUrl+"/doctors/"+item.image }} style={styles.profile} />
-
-    
-    <View style={[{display:'flex'}, {marginHorizontal:5, flex:1, justifyContent:'center'}]}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600',
-       marginBottom:0}}>{item.fullname}</Text>
-      <Text style={styles.infoText}>Cardiac Surgeon <Text style={{fontWeight:'400'}}>at</Text> Apple Hospital</Text>
-
-      <View style={{justifyContent:'space-between', display:'flex', flexDirection:'row', alignItems:'center', marginTop:10}}>
-        <Text style={styles.label}>14 June 2020 | 2:30 pm </Text>
-
-      <View style={{display:'flex', flexDirection:'row'}}>
-      <MaterialIcon name="call" size={12} color={colors.icon} style={{marginRight:15}}  />
-      <MaterialIcon name="chat" size={12} color={colors.icon} />
-      </View>
-      </View>
+      <Text style={dynamicStyle.label}>12 June 2020 | 12:00 pm</Text>
     </View> 
+    </View>
+
+<View style={styles.row}>
+
+  <View style={[styles.btn, {backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
+
+  <MaterialIcon name="close" size={18} color={colors.primary}  />
+  </View>
+
+
+  <View style={styles.btn}>
+
+<MaterialIcon name="done" size={18} color={colors.white}  />
 </View>
 
- 
-  <FontAwesome5Icon name="bars" size={12} color={colors.icon} style={{position:'absolute', top:0, right:0}}  />
- 
 </View>
-
-
 
       </Pressable>
     }
 
 
-  
+    const CardItem = ()=>{
+
+
+
+
+      return <>
+      
+      <View style={{height:45, marginHorizontal:10, justifyContent:'center' }}>
+    <Text style={styles.infoText}>Today</Text>
+    </View>
+
+   <Pressable onPress={handleNext} style={[dynamicStyle.boxAppoint ]}>
+
+<View style={styles.row}>
+<Image source={{ uri:ImagesUrl+"/seller/profile_4.png" }} style={styles.profile} />
+
+
+{/* map item here  */}
+
+<View style={{marginLeft:15}}>
+      <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:14, fontWeight:'600', }}>Henry Johnson</Text>
+      <Text style={[styles.infoText, {marginBottom:10}]}>Chest Pain</Text>
+
+      <Text style={dynamicStyle.label}>12 June 2020 | 12:00 pm</Text>
+    </View> 
+    </View>
+
+<View style={styles.row}>
+
+  <View style={[styles.btn, {backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
+
+  <MaterialIcon name="close" size={18} color={colors.primary}  />
+  </View>
+
+
+  <View style={styles.btn}>
+
+<MaterialIcon name="done" size={18} color={colors.white}  />
+</View>
+
+</View>
+
+      </Pressable>
+
+      </>
+    }
+
+  const Footer =()=>{
+
+
+
+    return <>
+    
+    </>
+  }
 
     
+  const fetchContent = async()=>{
+
+    const code = await getData('code');
+    let url = ServerUrl+'/api/doctor/profile/'+code
+    try{
+  let config = await configToken()
+   await axios.get(url, config).then(response=>{
+    if(response.data.statusCode===200){
+      setContent(response.data.data)
+      }else{
+        setContent([])
+      }
+    }) 
+  }catch(e){
+    console.log('error:',e)
+  }
+  }
+
+  useEffect(()=>{
+    fetchContent()
+    fetchAppointment()
+  }, [])
+
+
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    fetchContent()
+    fetchAppointment()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
+  return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
-    <Text style={styles.label}>My appointments</Text>
+    <View style={dynamicStyle.header}>
+      <View/>
+    <Text style={dynamicStyle.label}>My Appointments</Text>
 
-    <View/>
+
+    <MaterialIcon name="history" size={18} color={colors.navyBlue}  /> 
+
     </View>
+
 <ScrollView>
-<View style={{height:45, paddingHorizontal:10, justifyContent:'center'}}>
-<Text style={styles.infoText}>Upcoming</Text>
-</View>
+ <View style={{height:45, marginHorizontal:10, justifyContent:'center' }}>
+    <Text style={styles.infoText}>Today</Text>
+ </View>
 
-<ScrollView
-  horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%'}}
+ <ScrollView
+horizontal
+
+contentContainerStyle={{height:'100%', width:'100%'}}
 >
     <View style={styles.catItems}>
 
 <FlatList 
-data={DOCTORS}
+data={CATEGORY}
 numColumns={1}
+
+ListFooterComponent={<Footer />}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
 renderItem={({item})=> <CardCategory key={item.id} item={item} />}
-refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
+refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  
+
+/>
+
 }
 />
 
@@ -141,25 +289,25 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 </ScrollView>
 
 
-<View style={{height:45, paddingHorizontal:10, justifyContent:'center'}}>
-<Text style={styles.infoText}>Past</Text>
-</View>
-
+<View style={{height:45, marginHorizontal:10, justifyContent:'center' }}>
+    <Text style={styles.infoText}>Tomorrow</Text>
+ </View>
 
 <ScrollView
-  horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%'}}
+horizontal
+
+contentContainerStyle={{height:'100%', width:'100%'}}
 >
     <View style={styles.catItems}>
 
 <FlatList 
-data={DOCTORS}
+data={CATEGORY}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+renderItem={({item})=> <CardPast key={item.id} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />
@@ -167,36 +315,16 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 </View>
 </ScrollView>
 </ScrollView>
-
-
-
-<View style={styles.locationWrapper}>
-  <Text style={styles.labelLocation}>Cancel</Text>
-  <Text style={styles.labelLocation}>Reschedule</Text>
-</View>
     </View>
   )
 }
 
 
-export default MyAppointment
+export default Appointments
 
 const styles = StyleSheet.create({
 
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:colors.white,
-    height:60
-  },
-  label:{
-    fontWeight:'600',
-    fontSize:12,
-  },
+ 
  
   infoText:{
     fontSize:10,
@@ -206,19 +334,9 @@ const styles = StyleSheet.create({
   },
 
 
-
-box:{
-  width:width,
-  backgroundColor:colors.white,
-  marginBottom:5,
-  display:'flex',
-  paddingHorizontal:10,
-  
-  
-    },
-
 catItems:{
 
+marginHorizontal:5,
 
 },
 
@@ -280,8 +398,8 @@ container:{
   
   },
   profile:{
-    width:75,
-    height:75,
+    width:50,
+    height:50,
     borderRadius:5,
     resizeMode:'contain'
   },
@@ -290,30 +408,23 @@ container:{
     flexDirection:'row', 
     justifyContent:'space-between', 
     alignItems:'center',
+    paddingHorizontal:10, 
+    paddingBottom:10,
     marginVertical:5
   },
-  locationWrapper:{
-    position:'absolute', 
-    top:100,
-    right:10,
-    width:(width/4)+10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
+  row:{
     
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    backgroundColor:colors.white,
-    padding:10,
+    display:'flex',
+    flexDirection:'row'
   },
-
-  labelLocation:{
-    fontWeight:'600',
-    fontSize:12,
-    marginVertical:10
-    
-  },
+  btn:{
+    height:30,
+    width:30,
+    borderRadius:5,
+    display:'flex',
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:colors.primary,
+    marginHorizontal:5
+  }
 })

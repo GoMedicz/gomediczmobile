@@ -15,28 +15,28 @@ export const getDays=(date:string)=>{
   let day;
   switch (new Date(date).getDay()){
       case 0:
-          day ="Sunday";
+          day ="Sun";
           break;
       case 1:
-          day ="Monday";
+          day ="Mon";
           break;
       case 2:
-          day ="Tuesday";
+          day ="Tue";
          break;
       case 3:
-          day ="Wednesday";
+          day ="Wed";
               break;
       case 4:
-          day ="Thursday";
+          day ="Thur";
               break;
       case 5:
-          day ="Friday";
+          day ="Fri";
           break;
       case 6:
-          day ="Sathurday"
+          day ="Sat"
           break;
       default:
-          day="Sunday"
+          day="Sun"
   }
       return day
   }

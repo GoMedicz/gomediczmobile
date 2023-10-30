@@ -157,7 +157,6 @@ const fd = {
   otp:otp
 } 
 
-console.log(otp)
 
    let url = ServerUrl+'/api/reg/user/otp';
     axios.post(url, fd, config)

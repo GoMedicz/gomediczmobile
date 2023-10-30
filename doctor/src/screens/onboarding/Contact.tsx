@@ -29,9 +29,7 @@ const height =
 type RootStackParamList = {
   Contact: undefined;
     Welcome:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Contact'>;
@@ -56,7 +54,8 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Contact'>;
   })
 
 const handleBack =()=>{
-  navigation.goBack();
+ 
+  navigation.navigate('BottomTabs');
 }
 
 const AnimationStart =()=>{
@@ -68,15 +67,14 @@ const AnimationStart =()=>{
   Animated.timing(fadeValue, config).start()
 
 }
-
-const fetchStore = async()=>{
+const fetchProfile = async()=>{
 
   const code = await getData('code');
-  let url = ServerUrl+'/api/vendor/display_one/'+code
+  let url = ServerUrl+'/api/doctor/profile/'+code
   try{
 let config = await configToken()
  await axios.get(url, config).then(response=>{
-  if(response.data.type==='success'){
+  if(response.data.statusCode===200){
     setProfile(response.data.data)
     }else{
       setProfile([])
@@ -143,7 +141,7 @@ axios.post(url, fd, configj)
 }
 
 useEffect(()=>{
-  fetchStore()
+  fetchProfile()
   AnimationStart()
 }, [])
 

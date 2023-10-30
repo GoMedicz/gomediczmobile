@@ -87,7 +87,7 @@ const clearTimer = (e:any) => {
   // If you adjust it you should also need to
   // adjust the Endtime formula we are about
   // to code next    
-  setTimer('00:60');
+  setTimer('02:00');
 
   // If you try to remove this line the 
   // updating of timer Variable will be
@@ -105,7 +105,7 @@ const getDeadTime = () => {
   let deadline = new Date();
   // This is where you need to adjust if 
   // you entend to add more time
-  deadline.setSeconds(deadline.getSeconds() + 60);
+  deadline.setSeconds(deadline.getSeconds() + 120);
   return deadline;
 }
 

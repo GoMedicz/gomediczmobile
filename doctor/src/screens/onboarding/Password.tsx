@@ -25,9 +25,7 @@ const height =
 type RootStackParamList = {
   Password: undefined;
   Orders:undefined;
-    BottomTabs:{
-     code:string;
-   }
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Password'>;
@@ -111,9 +109,19 @@ const fd= {
   fullName:item.fullName,
   password:user.password,
   wallet:generateRandom(10),
+  serviceAt:[
+    {code:1, location:''},
+    {code:2, location:''}
+  ],
+  services:[
+    {code:1, title:'Hypertension Treatement'},
+    {code:2, location:'Diabetes Management'}
+  ],
+  specification:[
+    {code:1, title:'Autopedics'},
+    {code:2, location:'Obesity Management'}
+  ]
 }
-
-
 
 
 let url = ServerUrl+'/api/doctor/reg';
@@ -121,16 +129,13 @@ axios.post(url, fd, config)
 .then(response =>{
     if(response.data.statusCode === 200){
 
-console.log(response)
 
       setLoading(false)
       storeData('jwt', response.data.token)
       storeData('code', response.data.data.doctor_code)
       storeData('wallet', response.data.wallet)
 
-         navigation.navigate('BottomTabs', {
-          code:response.data.doctor_code
-         });  
+      navigation.navigate('BottomTabs');
                } else{
                  //unable to create account please retry
                  setModalType('Failed')

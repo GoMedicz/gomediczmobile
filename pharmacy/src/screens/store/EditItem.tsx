@@ -405,7 +405,7 @@ showsVerticalScrollIndicator={false}
 <View style={[styles.imageWrapper, {
      backgroundColor:MODE==='Light'?colors.white:colors.dark}]}>
   
-<Image source={{ uri: image.uri?image.uri:drugs.image_url?ImagesUrl+"/products/"+drugs.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
+<Image source={{ uri: image.uri?image.uri:drugs.image_url?ImagesUrl+"/vendors/products/"+drugs.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 
 <TouchableOpacity onPress={openImagePicker} style={{ display:'flex', justifyContent:'flex-start', alignItems:'flex-start'}}>

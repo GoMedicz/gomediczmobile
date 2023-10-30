@@ -16,32 +16,20 @@ export  const dynamicStyles =(MODE:string)=> StyleSheet.create({
     color:MODE==='Light'?colors.dark:colors.white,
   },
 
- 
-  header:{
-  
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:10,
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    height:60
+  infoText:{
+    fontSize:10,
+    color:'#9E9E9E',
+    fontWeight:'500'
+
   },
+  
   title:{
     fontSize:20,
     fontWeight:'600',
     color:MODE==='Light'?colors.dark:colors.white,
 
   },
-  box:{
-    backgroundColor:MODE==='Light'?colors.white:colors.dark,
-    width:(width/2)-15,
-    padding:10,
-    marginVertical:5,
-    borderRadius:5,
-    height:80
-
-  },
+  
   
 boxCart:{
   height:(height/3)-30,
@@ -141,4 +129,50 @@ boxCart:{
       opacity:0.6
   
     },
+
+    box:{
+      backgroundColor:MODE==='Light'?colors.white:colors.dark,
+      width:(width/2)-15,
+      padding:10,
+      marginVertical:5,
+      borderRadius:5,
+      height:80
+  
+    },
+    header:{
+  
+      display:'flex',
+      justifyContent:'space-between',
+      flexDirection:'row',
+      alignItems:'center',
+      paddingHorizontal:10,
+      backgroundColor:MODE==='Light'?colors.white:colors.dark,
+      height:60
+    },
+
+    boxRider:{
+      width:width,
+      backgroundColor:MODE==='Light'?colors.white:colors.dark,
+      display:'flex',
+      flexDirection:'row',
+      justifyContent:'center',
+      paddingVertical:20,
+      position:'absolute',
+      bottom:0,
+      borderTopLeftRadius:20,
+      borderTopRightRadius:20,
+      alignItems:'center',
+      zIndex:1,
+    
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 3,
+        height: 0
+      },
+      
+      shadowOpacity: 0.5,
+      shadowRadius: 6,
+      elevation: 5,
+      
+        }
     })

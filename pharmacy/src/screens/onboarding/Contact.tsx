@@ -116,7 +116,7 @@ setLoading(true)
 
 const fd = {
   message:message.content,
-  email:profile.email,
+  email:profile.email_address,
   user_code:profile.code
 }
 let url = ServerUrl+'/api/general/contact';
@@ -186,7 +186,7 @@ useEffect(()=>{
   placeholderTextColor={colors.grey}
   style={[styles.inputText,{
     color:MODE==='Light'?colors.dark:colors.white} ]}
-  value={profile.email}
+  value={profile.email_address}
     editable={false}
   />
 </View>

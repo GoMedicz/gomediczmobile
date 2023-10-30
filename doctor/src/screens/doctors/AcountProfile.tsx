@@ -1,20 +1,14 @@
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, Animated } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import axios from 'axios';
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
 import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
 import { getData } from '../../components/globalFunction';
@@ -32,7 +26,7 @@ const height =
 type RootStackParamList = {
   AccountProfile: undefined;
   Profiles:undefined; 
-
+  BottomTabs:undefined;
   Theme:undefined;
   Wallet:undefined;
   Insight:undefined;
@@ -48,7 +42,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
  const AccountProfile =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
 
@@ -70,10 +63,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
 
     {title:"Earnings", label:'Sell Overview', icon:'monetization-on', screen:'Earnings'},
 
-    {title:"Insight", label:'See the progress', icon:'insert-chart', screen:'Insight'},
-
-    {title:"My Orders", label:'List of Orders', icon:'article', screen:'Orders'},
-    
     {title:"Change Language", label:'Change Language', icon:'language', screen:'Language'},
     {title:"Change Theme", label:'Change Theme', icon:'palette', screen:'Theme'},
     {title:"T&C", label:'Company Policies', icon:'article', screen:'Terms'},
@@ -96,14 +85,14 @@ const AnimationStart =()=>{
 
 
 
-const fetchStore = async()=>{
+const fetchProfile = async()=>{
 
   const code = await getData('code');
-  let url = ServerUrl+'/api/vendor/display_one/'+code
+  let url = ServerUrl+'/api/doctor/profile/'+code
   try{
 let config = await configToken()
  await axios.get(url, config).then(response=>{
-  if(response.data.type==='success'){
+  if(response.data.statusCode===200){
     setProfile(response.data.data)
     }else{
       setProfile([])
@@ -115,19 +104,15 @@ let config = await configToken()
 }
 
 
-
-
-
 useEffect(()=>{
-  fetchStore()
+  fetchProfile()
   AnimationStart()
 }, [])
-
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
     
     <View style={dynamicStyle.header}>
-      <View/>
+<View />
    <Text style={dynamicStyle.label}>Account</Text>
 <View/>
     </View>
@@ -139,7 +124,8 @@ useEffect(()=>{
 <Animated.View style={{opacity:fadeValue}}>
 <View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:MODE==='Light'?colors.white:colors.dark, paddingBottom:20, paddingTop:20}}>
   
-<Image  source={{ uri: profile.image_url?profile.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
+
+<Image source={{ uri: profile.profilePicture?ImagesUrl+"/doctors/profile/"+profile.profilePicture:ImagesUrl+"/no.png"}} style={globalStyles.profile} />
 
 <View style={{marginLeft:5}}>
 
@@ -202,10 +188,10 @@ const styles = StyleSheet.create({
   },
 
   profile:{
-    width:120,
-    height:120,
+    width:(width/2)-20,
     marginHorizontal:10,
-    resizeMode:'cover',
+    height:150,
+    resizeMode:'cover'
   },
 
   row:{
