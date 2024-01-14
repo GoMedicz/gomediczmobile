@@ -54,7 +54,7 @@ boxCart:{
   
     },
   textWrapper:{
-    height:45,
+    height:50,
     width:width-40,
     marginVertical:8,
     marginHorizontal:10,
@@ -72,7 +72,6 @@ boxCart:{
     marginLeft:10,
     fontSize:14,
     width:width-90,
-    
 
   },
   
@@ -97,7 +96,7 @@ boxCart:{
       padding:10,
       marginVertical:5,
       borderRadius:5,
-      color:MODE==='Light'?colors.grey:colors.white,
+      color:MODE==='Light'?colors.dark:colors.white,
       fontWeight:'600'
     },
     selectText:{

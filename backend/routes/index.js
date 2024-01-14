@@ -3,7 +3,19 @@ var fs = require('fs');
 var multer  = require('multer')
 //const upload = multer();
 const router  = express.Router();
-const {General, categoryController, ProductController, StoreController, UserController, DoctorController, PaymentController, WithdrawalController, OrderController, RiderController  } = require('../controllers/index');
+const {
+  General, 
+  categoryController, 
+  ProductController, 
+  StoreController, 
+  UserController, 
+  DoctorController, 
+  PaymentController, 
+  WithdrawalController, 
+  OrderController, 
+  RiderController,
+  SpecialityController
+} = require('../controllers/index');
 
 var ride = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -105,8 +117,6 @@ router.post('/api/vendor/registration', StoreController.addNewStore);
 router.get('/api/vendor/display_one/:code', General.AuthenticateToken, StoreController.getOneStore);
 
 
-//User Controller
-router.post('/api/user/add_new', General.AuthenticateToken, UserController.AddNewUser);
 
 
 router.post('/api/login_vendor', General.AuthenticateToken, UserController.loginUser);
@@ -149,7 +159,14 @@ router.post('/api/vendor/order/update', General.AuthenticateToken, OrderControll
 
 //Doctors' Controller
 router.post('/api/doctor/verification', DoctorController.VerifyVendor);
+router.post('/api/doctor/registration', DoctorController.AddNewDoctor);
+router.post('/api/doctor/update', DoctorController.UpdateDoctor);
+router.get('/api/doctor/search/:title', DoctorController.searchDoctor);
+router.get('/api/doctor/profile/:code', DoctorController.getDoctorProfile);
 
+//Speciality controller
+router.post('/api/speciality/add', SpecialityController.addNewSpeciality);
+router.get('/api/doctor/speciality', SpecialityController.getSpeciality);
 
 
 
@@ -165,5 +182,28 @@ router.get('/api/rider/summary/:code', General.AuthenticateToken, RiderControlle
 
 
 router.post('/api/rider/field/update', General.AuthenticateToken, RiderController.UpdateField);
+
+
+
+
+
+
+
+//user controller
+
+
+
+router.post('/api/user/verification', UserController.VerifyUser);
+router.post('/api/user/login', UserController.loginUser);
+router.post('/api/user/registration', UserController.AddNewUser);
+
+router.get('/api/user/display_one/:code', General.AuthenticateToken, UserController.getOneUser);
+
+
+
+
+
+
+
 
 module.exports = router;

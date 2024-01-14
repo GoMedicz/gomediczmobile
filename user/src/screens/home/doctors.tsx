@@ -9,6 +9,7 @@ const Doctors = () => {
   )
 }
 
+
 export default Doctors
 
 const styles = StyleSheet.create({})

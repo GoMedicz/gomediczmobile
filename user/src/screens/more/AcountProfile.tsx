@@ -1,7 +1,7 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useRef, useState, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, Animated, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
@@ -51,6 +51,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+  const fadeValue = useRef(new Animated.Value(0)).current 
   const MODE = useZustandStore((store:any) => store.theme);
   const dynamicStyle = dynamicStyles(MODE);
 
@@ -69,25 +70,52 @@ const handleNext =()=>{
 
 
 
+const [items, setItems] = useState([
 
-const ITEM = [
+  {title:"Appointments", label:'Doctor Appointments', icon:'assignment-ind', screen:'MyAppointment'}, 
+  {title:"Lab Tests", label:'Test Booking', icon:'event-available', screen:'MyLabTest'},
+  {title:"Wallet", label:'Quick Payments', icon:'account-balance-wallet', screen:'Wallet'},
+  {title:"My Orders", label:'List of Orders', icon:'article', screen:'Orders'},
 
-  {
-    id:1,
-    label:'Appointments',
-    title:'Doctor Appointments',
-    navigation:'MyAppointment',
-    icon:'assignment-ind'
-  },
-  {
-    id:2,
-    label:'Lab Tests',
-    title:'Test Booking',
-    navigation:'MyLabTest',
-    icon:'event-available'
-  }
-]
+
+  {title:"Pill Reminders", label:'Take Pill on time', icon:'alarm', screen:'Reminder'},
+
+  {title:"My Address", label:'Saved Address', icon:'location-on', screen:'Address'},
+
+  {title:"Saved", label:'Medics & Doctor', icon:'bookmark', screen:'SavedItems'},
+  
+
+
+  {title:"Profile", label:'Setup Profile', icon:'store', screen:'StoreProfile'},
+
+  {title:"Change Language", label:'Change Language', icon:'language', screen:'Language'},
+  {title:"Change Theme", label:'Change Theme', icon:'palette', screen:'Theme'},
+  {title:"T&C", label:'Company Policies', icon:'article', screen:'Terms'},
+  {title:"Contact Us", label:'Let us help you', icon:'mail', screen:'Contact'},
+  {title:"FAQs", label:'Quick Answer', icon:'feedback', screen:'Faqs'},
+  {title:"Logout", label:'See you soon', icon:'logout', screen:'SignIn'},
+])
     
+
+
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
+
+
+
+useEffect(()=>{
+  //fetchStore()
+  AnimationStart()
+}, [])
+
+
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
    // FetchContent()
@@ -125,156 +153,24 @@ const ITEM = [
 <View style={{ marginHorizontal:10, marginVertical:5, display:'flex', flexDirection:'row', flexWrap:'wrap', justifyContent:'space-between'}}>
 
 
-{ITEM.map((list:any, index:number)=>
-<TouchableOpacity key={index} activeOpacity={0.8} onPress={()=>navigation.navigate(list.navigation)} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>{list.label}</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>{list.title}</Text>
-    
-<MaterialIcon name={list.icon} size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
+
+
+{items.map((item:any, index:number)=>
+<TouchableOpacity key={index} onPress={()=>navigation.navigate(item.screen)} activeOpacity={0.9} style={dynamicStyle.box}>
+  <Animated.View style={{opacity:fadeValue}}>
+  <Text style={dynamicStyle.label}>{item.title}</Text>
+  </Animated.View>
+
+
+  <View style={[globalStyles.rowCenterBetween, {marginVertical:5, opacity:0.6}]}>
+    <Text style={[styles.infoText, {fontSize:10} ]}>{item.label}</Text>
+
+<MaterialIcon name={item.icon} size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} /> 
   </View>
-</TouchableOpacity>
-)}
+</TouchableOpacity>)} 
 
 
 
-
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Wallet')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Wallet</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Payments</Text>
-    
-<MaterialIcon name="account-balance-wallet" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('MyOrder')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>My Order</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Order Status</Text>
-    
-<MaterialIcon name="two-wheeler" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Reminder')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Pill Reminders</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Take Pill on time</Text>
-    
-<MaterialIcon name="alarm" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Address')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>My Address</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Saved Address</Text>
-    
-<MaterialIcon name="location-on" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('SavedItems')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Saved</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Medics & Doctor</Text>
-    
-<MaterialIcon name="bookmark" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Language')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Change Language</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Change Language</Text>
-    
-<MaterialIcon name="language" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Theme')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Change Theme</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Change Theme</Text>
-    
-<MaterialIcon name="palette" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Terms')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>T&C</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Company Policies</Text>
-    
-<MaterialIcon name="article" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Contact')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Contact Us</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Let us help you</Text>
-    
-<MaterialIcon name="mail" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8} onPress={()=>navigation.navigate('Faqs')} style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>FAQs</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>Quick Answer</Text>
-    
-<MaterialIcon name="feedback" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
-
-
-
-<TouchableOpacity activeOpacity={0.8}  style={dynamicStyle.box}>
-  <Text style={dynamicStyle.label}>Logout</Text>
-  <View style={[globalStyles.rowCenterBetween, {marginVertical:10, opacity:0.6}]}>
-  <Text style={[styles.infoText, {fontSize:10} ]}>See you soon</Text>
-    
-<MaterialIcon name="logout" size={30} color={MODE==='Light'?colors.grey1Opacity:colors.white} />
-  </View>
-</TouchableOpacity>
 
 </View>
 

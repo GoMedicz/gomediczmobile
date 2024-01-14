@@ -1,5 +1,5 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
@@ -7,10 +7,11 @@ import MaterialIcon  from 'react-native-vector-icons/MaterialIcons'
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATCOLOR,  DOCTORSCATEGORY, LANGUAGELIST, OFFER, SELLER, SPECIALITY } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CATCOLOR,  DOCTORSCATEGORY, LANGUAGELIST, OFFER } from '../../components/data';
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import axios from 'axios';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -26,7 +27,9 @@ type RootStackParamList = {
   DoctorHome: undefined;
   Offers:undefined;
   Cart:undefined;
-  DoctorsList:undefined; 
+  DoctorsList:{
+    title:string;
+  }; 
     BottomTabs:{
      code:string;
    }
@@ -35,41 +38,69 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'DoctorHome'>;
  const DoctorHome =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+  const [content, setContent]= useState([] as any)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
 
 const handleOffer =()=>{
   navigation.navigate('Offers');
 }
 
-const handleDoctor =()=>{
-  navigation.navigate('DoctorsList');
-}
 
 const handleCart =()=>{
   navigation.navigate('Cart');
 }
 
-const handleNext =()=>{
-  navigation.navigate('DoctorsList');
+
+
+
+
+const handleNext =(title:string)=>{
+  navigation.navigate('DoctorsList', {title:title});
+
 }
 
-  const onRefresh = useCallback(()=>{
+
+
+
+const fetchSpeciality = async()=>{
+  let config = await configToken()
+  let url = ServerUrl+'/api/doctor/speciality'
+  try{
+
+ await axios.get(url, config).then(response=>{
+   
+    if(response.data.type==='success'){
+      setContent(response.data.data)
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
     setRefreshing(false)
-   // FetchContent()
-    }, [])
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+
+const onRefresh = useCallback(()=>{
+setRefreshing(true)
+fetchSpeciality()
+}, [])
+
+
+useEffect(()=>{
+  fetchSpeciality()
+},[])
+
 
 const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', '#9BE471' ]
 
     const CardCategory =({item}:{item:any})=>{
-        return <TouchableOpacity activeOpacity={0.8} onPress={handleDoctor} style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
+        return <TouchableOpacity activeOpacity={0.8} onPress={()=>handleNext(item.title)} style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
 
           <Text style={{color:colors.white, fontSize:10, marginLeft:15, marginTop:15, fontWeight:'600'}}>{item.title}</Text>
 
@@ -97,20 +128,70 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
 
 
 
-            const Speciality =({item}:{item:any})=>{
-                return <Pressable style={[styles.seller]} onPress={handleNext}>
-        
-                <View style={{ display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
-                  <Text style={{fontSize:12, width:width-50, fontWeight:'700'}}>{item.title}</Text>
+  const Speciality =({item}:{item:any})=>{
+      return <Pressable style={[styles.seller]} onPress={()=>handleNext(item.title)}>
+
+      <View style={{ display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
+        <Text style={{fontSize:12, width:width-50, fontWeight:'700'}}>{item.title}</Text>
 
     <MaterialIcon name="arrow-forward-ios" size={14} color={colors.grey3}  /> 
-                 </View>
+        </View>
+          </Pressable>
+      }
 
 
-    
-                   </Pressable>
+      const Header =()=>{
+
+        return <View>
+
+<View style={[styles.contentWrapper, {marginLeft:0}]}>
+
+<Text style={styles.infoText}>Find Specialities</Text>
+<Text style={[styles.infoText,{color:colors.primary}]}>View all</Text>
+
+
+</View>
+
+<View style={{ marginVertical:15, width:width}}>
+<FlatList 
+data={DOCTORSCATEGORY}
+horizontal
+showsHorizontalScrollIndicator={false}
+snapToInterval={width-20}
+snapToAlignment='center'
+decelerationRate="fast"
+renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+
+/>
+
+</View>
+
+
+<View style={[styles.contentWrapper, {marginTop:4, marginLeft:0} ]}>
+<Text style={styles.infoText}>Sponsor ad</Text>
+</View>
+
+
+<View style={{ marginVertical:15, width:width}}>
+<FlatList 
+data={OFFER}
+horizontal
+showsHorizontalScrollIndicator={false}
+snapToInterval={width-20}
+snapToAlignment='center'
+decelerationRate="fast"
+renderItem={({item})=> <CardOffer key={item.id} item={item} />}
+
+/>
+
+</View>
+
+<View style={[styles.contentWrapper, {marginTop:4, marginLeft:0, marginBottom:20} ]}>
+<Text style={styles.infoText}>List of specialities</Text>
+</View>
+
+                  </View>
                 }
-
 
   return (<SafeAreaView style={[ { backgroundColor:colors.white, flex:1}]}>
     
@@ -132,10 +213,10 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
         </Pressable>
     </View>
 
+
+
     <ScrollView>
-
     <Text style={styles.h1}>Find Doctors</Text> 
-
 
     <View style={styles.textWrapper}>
     <MaterialIcon name="search" size={14} color={colors.icon}  /> 
@@ -146,77 +227,35 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
 
 
 
-<View style={styles.contentWrapper}>
-
-<Text style={styles.infoText}>Find Specialities</Text>
-
-<Text style={[styles.infoText,{color:colors.primary}]}>View all</Text>
-</View>
-
-<View style={{marginLeft:20, marginVertical:15}}>
-<FlatList 
-data={DOCTORSCATEGORY}
-horizontal
-showsHorizontalScrollIndicator={false}
-snapToInterval={width-20}
-snapToAlignment='center'
-decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
-
-/>
-
-</View>
-
-<View style={[styles.contentWrapper, {marginTop:4} ]}>
-<Text style={styles.infoText}>Sponsor ad</Text>
-</View>
-
-
-<View style={{marginLeft:20, marginVertical:15}}>
-<FlatList 
-data={OFFER}
-horizontal
-showsHorizontalScrollIndicator={false}
-snapToInterval={width-20}
-snapToAlignment='center'
-decelerationRate="fast"
-renderItem={({item})=> <CardOffer key={item.id} item={item} />}
-
-/>
-
-</View>
-
-<View style={[styles.contentWrapper, {marginTop:4} ]}>
-<Text style={styles.infoText}>List of specialities</Text>
-</View>
-
-
-
 
 <ScrollView
   horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%'}}
+  contentContainerStyle={{width: '100%', height: '100%', marginBottom:40}}
 >
 <FlatList 
-data={SPECIALITY}
+data={content}
 numColumns={1}
 snapToInterval={width-20}
-contentContainerStyle={{ paddingHorizontal:20, marginTop:10}}
+ListHeaderComponent={<Header />}
+contentContainerStyle={{paddingHorizontal:20, marginTop:10}}
 showsHorizontalScrollIndicator={false}
 renderItem={({item})=> <Speciality key={item.id} item={item} />}
-
+refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
+}
 />
 </ScrollView>
+
+
 </ScrollView>
 
 
 
-{/* <View style={styles.locationWrapper}>
+{/*  <View style={styles.locationWrapper}>
   <Text style={styles.labelLocation}>Wallington</Text>
   <Text style={styles.labelLocation}>Office</Text>
   <Text style={styles.labelLocation}>Other</Text>
   <Text style={styles.labelLocation}>Set Location</Text>
-</View> */}
+</View> */} 
     </SafeAreaView>
   )
 }

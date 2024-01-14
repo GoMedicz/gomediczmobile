@@ -1,18 +1,21 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
 import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
+import { FormatNumber, getAge } from '../../components/globalFunction';
+import Loader from '../../components/loader';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -25,7 +28,10 @@ const height =
 
 
 type RootStackParamList = {
-  DoctorsDetails: undefined;
+  DoctorsDetails:{
+    code:string;
+    title:string;
+  }
   DoctorReviews:undefined; 
   Appointment:undefined;
    };
@@ -33,16 +39,18 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'DoctorsDetails'>;
  const DoctorsDetails =({ route, navigation }:Props)=> {
 
+
+const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
-
+  const [content, setContent]= useState([] as any)
+  const [doctor, setDoctor]= useState({
+    speciality:[] as any,
+    service:[] as any,
+    specialities:[] as any,
+    total_speciality:0
+  })
 
 
 const handleBack =()=>{
@@ -58,24 +66,64 @@ const handleReview =()=>{
 }
 
 
+const fetchDoctor = async()=>{
+  setLoading(true)
+  let config = await configToken()
 
-  
+  let url = ServerUrl+'/api/doctor/profile/'+route.params.code
+  try{
 
-    
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+      try{
+        setContent(response.data.data[0])
+        let speciality = JSON.parse(response.data.data[0].speciality)
+
+        setDoctor({...doctor, 
+          
+          speciality:speciality.slice(0,5),
+          specialities:speciality,
+          total_speciality:speciality.length
+        
+        })
+        console.log(speciality)
+      }catch(e){
+
+      }
+      
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
+    setRefreshing(false)
+    setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+
+useEffect(()=>{
+  fetchDoctor()
+}, [route])
+
+
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    fetchDoctor()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
-    <View style={styles.header}>
+    <View style={globalStyles.header}>
     <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={18} color={colors.dark}  /> 
     <MaterialIcon name="bookmark-outline" size={18} color={colors.dark}  /> 
 
     </View>
-
-<ScrollView>
+<ScrollView >
 
 
 
@@ -84,14 +132,14 @@ const handleReview =()=>{
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
   
-<Image source={{ uri:ImagesUrl+"/doctors/doc1.png"}} style={styles.profile} />
+<Image source={{ uri:content.image_url!==''?ImagesUrl+"/doctors/"+content.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 <View style={{marginLeft:5}}>
   <Text style={[styles.infoText]}>Experience</Text>
-  <Text style={styles.label}>18 years</Text>
+  <Text style={styles.label}>{getAge(content.date_started)} years</Text>
 
   <Text style={[styles.infoText, { marginTop:15}]}>Consultancy Fees</Text>
-  <Text style={styles.label}>$28</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(content.fees)}</Text>
 </View>
 </View>
 
@@ -100,8 +148,8 @@ const handleReview =()=>{
 
 <View style={[styles.row]}>
   <View style={{width:(width/2)-20}}>
-  <Text style={styles.title}>Dr.</Text>
-  <Text style={styles.title}>Joseph Williamson</Text>
+  <Text style={[styles.title, {flexWrap:'wrap'}]}>{content.fullname}</Text>
+
   </View>
 
 
@@ -129,7 +177,7 @@ const handleReview =()=>{
 <View style={[styles.row,{paddingVertical:5}]}>
 <View style={{display:'flex',  justifyContent:'flex-end', alignItems:'flex-end'}}>
 
-<Text style={styles.infoText}>Cardiac Surgeon</Text>
+<Text style={styles.infoText}>{content.job_title}</Text>
 </View>
 <View>
   <View style={{display:'flex', flexDirection:'row'}}>
@@ -148,7 +196,7 @@ const handleReview =()=>{
 <View style={styles.card}>
 <Text style={styles.infoText}>About</Text>
 
-<Text style={[styles.label, {marginVertical:4}]}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Laborum alias placeat velit, laudantium at tempore tenetur fuga nam perferendis pariatur doloribus numquam ratione enim accusamus minus, sequi asperiores modi quibusdam! Lorem ipsum dolor sit amet consectetur, sequi asperiores modi quibusdam! Lorem ipsum dolor sit  </Text>
+<Text style={[styles.label, {marginVertical:4}]}>{content.about}  </Text>
 
 </View>
 
@@ -184,9 +232,13 @@ const handleReview =()=>{
 
 
 <View style={styles.card}>
-<Text style={styles.infoText}>Service at</Text>
+<Text style={styles.infoText}>Specialities</Text>
 
 <View style={{marginTop:10}}>
+{doctor.speciality.map((item:any, index:number)=>
+<Text style={styles.h3} key={index}>{item.title}</Text>
+)}
+
 <Text style={styles.h3}>Hypertension Treatment</Text>
 <Text style={styles.h3}>COPD Treatment</Text>
 <Text style={styles.h3}>Diabetes Management</Text>
@@ -195,7 +247,7 @@ const handleReview =()=>{
 </View>
 
 <View>
-  <Text style={[styles.label, {color:colors.primary, marginVertical:10}]}>+5 More</Text>
+{Number(content.total_speciality)>Number(content.speciality.length)?<Text style={[styles.label, {color:colors.primary, marginVertical:10}]} onPress={()=>setDoctor({...doctor, speciality:doctor.specialities})}> +{Number(content.total_speciality)-Number(content.speciality.length)} More</Text>:[]}
 </View>
 
 </View>
@@ -219,6 +271,13 @@ const handleReview =()=>{
 
 </View>
 
+<Loader 
+    isModalVisible={loading} 
+    type={modalType}
+    message={''} 
+    action={()=>setLoading(false)}
+     />
+
 
 <PrimaryButtonChildren
 
@@ -234,6 +293,7 @@ handleAction={handleAppointment}
 
 
 </ScrollView>
+{/* )} */}
     </View>
   )
 }
@@ -243,16 +303,7 @@ export default DoctorsDetails
 
 const styles = StyleSheet.create({
 
-  header:{
-
-    display:'flex',
-    justifyContent:'space-between',
-    flexDirection:'row',
-    alignItems:'center',
-    paddingHorizontal:20,
-    backgroundColor:colors.white,
-    height:60
-  },
+  
   label:{
     fontWeight:'600',
     fontSize:12,

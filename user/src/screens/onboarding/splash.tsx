@@ -21,7 +21,6 @@ const height =
 type RootStackParamList = {
    Splash: undefined;
    SignIn:undefined; 
-   Welcome:undefined;
   };
   
   type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;

@@ -222,12 +222,12 @@ renderItem={({item})=> <Seller key={item.id} item={item} />}
 </ScrollView>
 
 
-<View style={styles.locationWrapper}>
+{/* <View style={styles.locationWrapper}>
   <Text style={styles.labelLocation}>Wallington</Text>
   <Text style={styles.labelLocation}>Office</Text>
   <Text style={styles.labelLocation}>Other</Text>
   <Text style={styles.labelLocation}>Set Location</Text>
-</View>
+</View> */}
     </SafeAreaView>
   )
 }

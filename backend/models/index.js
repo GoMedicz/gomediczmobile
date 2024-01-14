@@ -11,7 +11,7 @@ const getWithdrawalModel = require("./withdrawal.model");
 const getOrdersModel = require("./orders.model");
 const getOrderItemsModel = require("./order_items.model");
 const getRiderModel = require("./rider.model");
-
+const getSpecialityModel = require("./speciality.model");
 
 const models = {
   Category: getCategoryModel(connection, Sequelize),
@@ -23,7 +23,8 @@ const models = {
  Withdrawal: getWithdrawalModel(connection, Sequelize),
  Orders: getOrdersModel(connection, Sequelize),
  OrderItems: getOrderItemsModel(connection, Sequelize),
- Rider:getRiderModel(connection, Sequelize)
+ Rider:getRiderModel(connection, Sequelize),
+ Speciality:getSpecialityModel(connection, Sequelize)
  
 };
 

@@ -8,7 +8,7 @@ const PaymentController = require('./payment.controller');
 const WithdrawalController = require('./withdrawal.controller');
 const OrderController = require('./orders.controller');
 const RiderController = require('./rider.controller');
-
+const SpecialityController = require('./speciality.controller');
 
 const Controllers = {
     categoryController,
@@ -20,7 +20,8 @@ const Controllers = {
     PaymentController,
     WithdrawalController,
     OrderController,
-    RiderController
+    RiderController,
+    SpecialityController
   };
 
 

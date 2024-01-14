@@ -14,34 +14,27 @@ const height =
       );
 
 
-const Loader = ({isModalVisible, action, type, message}:{isModalVisible:boolean, action?:()=>void, type?:String, message?:string}) => {
+const ErrorModal = ({isModalVisible, action, message}:{isModalVisible:boolean, action?:()=>void, message:string}) => {
 
   return (
     <Modal 
     
-  
     visible={isModalVisible} 
     animationType="fade"
             transparent={true}>
     <View style={styles.centeredView}>
 
-
-
-    {type!=='load'? <View  style={styles.modalView}>
+              <View  style={styles.modalView}>
 
                 
-                <Text style={{color:type==='Failed'?colors.red:colors.primary, fontSize:16, marginTop:15}}>{type==='Failed'?'Failed':'Success'}</Text>
+                <Text style={{color:colors.red, fontSize:16, marginTop:15}}>Failed</Text>
 
                 <Text style={{color:colors.black, fontSize:16, marginTop:15}}>{message}</Text>
 
                 <Pressable onPress={action} style={{marginTop:35, marginBottom:10}}>
                   <Text style={{color:colors.primary, fontSize:15, fontWeight:'700'}}>CLOSE </Text>
                 </Pressable>
-                </View>:
-
-                <View style={styles.modalView}>
-             <Image source={{ uri:ImagesUrl+"/loader.gif" }} style={styles.logo} /> 
-             </View>}
+                </View>
         
  
     </View>
@@ -52,7 +45,7 @@ const Loader = ({isModalVisible, action, type, message}:{isModalVisible:boolean,
   )
 }
 
-export default Loader
+export default ErrorModal
 
 const styles = StyleSheet.create({
     centeredView: {

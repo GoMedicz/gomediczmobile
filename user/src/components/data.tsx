@@ -1,3 +1,9 @@
+export const THEME = [
+    {title:'Light', isDefault:'No', id:1},
+    {title:'Dark', isDefault:'No', id:2},
+]
+
+
 export const LANGUAGELIST = [
     {title:'English', isDefault:'Yes', id:1},
     {title:'Arabic', isDefault:'No', id:2},
@@ -14,10 +20,7 @@ export const LANGUAGELIST = [
     {title:'Romana', isDefault:'No', id:11},
 ]
 
-export const THEME = [
-    {title:'Light', isDefault:'Yes', id:1},
-    {title:'Dark', isDefault:'No', id:2},
-]
+
 
 export const CATEGORY = [
 

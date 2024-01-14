@@ -1,5 +1,5 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
@@ -8,10 +8,13 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
+import axios from 'axios';
+import Loader from '../../components/loader';
+import { FormatNumber, getAge } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -24,61 +27,74 @@ const height =
 
 
 type RootStackParamList = {
-  DoctorsList: undefined;
-  Cart:undefined; 
+  DoctorsList:{
+    title:string;
+  }; 
+  BottomTabs:undefined; 
   DoctorsDetails:{
      code:string;
+     title:string;
    }
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DoctorsList'>;
  const DoctorsList =({ route, navigation }:Props)=> {
 
+  const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const [content, setContent]= useState([] as any)
 
+  const [search, setSearch] = useState({
+    
+    title:'',
+  
+  })
+
+
+const handleChange =(name:string, text:string)=>{
+  setSearch({...search, [name]:text})
+}
 
 
 const handleBack =()=>{
-  navigation.goBack();
+  navigation.navigate('BottomTabs');
 }
 
-const handleNext =()=>{
+const handleNext =(item:any)=>{
    navigation.navigate('DoctorsDetails', {
-    code:'cds',
+    code:item.code,
+    title:item.category
   });  
 }
 
 
 
 
-  const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+  const Doctor =({item}:{item:any})=>{
+    return <Pressable onPress={()=>handleNext(item)} style={[styles.box]}>
 
 
 <View style={styles.content}>
 
 <View style={globalStyles.rowCenterCenter}>
-<Image source={{ uri:ImagesUrl+"/doctors/"+item.image }} style={styles.profile} />
+<Image source={{ uri:item.image_url!==''?ImagesUrl+"/doctors/"+item.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
     
     <View style={[{display:'flex'}, {marginLeft:2}]}>
       <Text style={{color:colors.dark, fontSize:12, fontWeight:'600', marginBottom:2}}>{item.fullname}</Text>
 
 
-      <Text style={styles.infoText}>Cardiac Surgeon <Text style={{color:colors.grey, opacity:0.5}}>at</Text> Apple Hospital</Text>
+      <Text style={styles.infoText}>{item.job_title} <Text style={{color:colors.grey, opacity:0.5}}>at</Text> {item.office}</Text>
 
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center', marginTop:10}}>
-      <Text style={[styles.infoText]}>Exp. <Text style={{color:colors.dark}}>22 years</Text> </Text>
-      <Text style={[styles.infoText, {marginLeft:10}]}>Fees <Text style={{color:colors.dark}}>$30</Text></Text>
+
+      <Text style={[styles.infoText]}>Exp. <Text style={{color:colors.dark}}>{getAge(item.date_started)} years</Text> </Text>
+
+
+      <Text style={[styles.infoText, {marginLeft:10}]}>Fees <Text style={{color:colors.dark}}>{CURRENCY+ FormatNumber(item.fees)}</Text></Text>
       </View>
     </View> 
 </View>
@@ -103,12 +119,48 @@ const handleNext =()=>{
     }
 
 
-  
-
     
-  const onRefresh = useCallback(()=>{
+
+
+
+
+
+const fetchDoctor = async(title:string)=>{
+  let config = await configToken()
+
+  let tit = title===''?'All':title
+  let url = ServerUrl+'/api/doctor/search/'+tit
+  try{
+
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+      setContent(response.data.data)
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
     setRefreshing(false)
-   // FetchContent()
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+const handleSearch =()=>{
+  fetchDoctor(search.title)
+}
+
+useEffect(()=>{
+  setSearch({...search, title:route.params.title})
+  fetchDoctor(route.params.title)
+}, [route])
+
+
+
+  const onRefresh = useCallback(()=>{
+    setRefreshing(true)
+    fetchDoctor(search.title)
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
@@ -119,39 +171,47 @@ const handleNext =()=>{
       
       <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
     <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
-    <TextInput placeholder='Search' style={styles.textInput} />
+    <TextInput 
+    
+  autoCapitalize='none'
+  keyboardType='email-address' 
+   autoCorrect={false}
+   value={search.title}
+   onChangeText={text =>handleChange('title', text)}
+    placeholder='Search' 
+    style={styles.textInput}  />
     </View>
 
-    <MaterialIcon name="search" size={18} color={colors.dark}  />
+    <MaterialIcon onPress={handleSearch} name="search" size={18} color={colors.dark}  />
 
     </View>
+    <View style={[styles.header,{width:width, marginTop:10, borderRadius:0, marginHorizontal:0}]}>
+   <Text style={styles.label}>{content.length} Results found</Text>
 
-
-   <View style={[styles.header,{width:width, marginTop:10, borderRadius:0, marginHorizontal:0}]}>
-    <Text style={styles.label}>27 Results found</Text>
-
-    </View> 
-
+   </View> 
     </View>
-
+    <Loader 
+    isModalVisible={loading} 
+    type={modalType}
+    message={''} 
+    action={()=>setLoading(false)}
+     />
 
     <View style={styles.catItems}>
 
 <FlatList 
-data={DOCTORS}
+data={content}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+renderItem={({item})=> <Doctor key={item.id} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />
 
 </View>
-
-
 
     </View>
   )

@@ -42,6 +42,11 @@ const getDoctorModel = (sequelize, { DataTypes }) => {
           defaultValue: "[]",
           allowNull: true
         },
+        specification: {
+          type: DataTypes.TEXT,
+          defaultValue: "[]",
+          allowNull: true
+        },
         about: {
           type: DataTypes.TEXT,
           allowNull: true
@@ -49,6 +54,22 @@ const getDoctorModel = (sequelize, { DataTypes }) => {
         service: {
           type: DataTypes.TEXT,
           defaultValue: "[]",
+          allowNull: true
+        },
+        date_started: {
+          type: DataTypes.DATE,
+          allowNull: true
+        },
+        job_title: {
+          type: DataTypes.STRING,
+          allowNull: true
+        },
+        office: {
+          type: DataTypes.STRING,
+          allowNull: true
+        },
+        category: {
+          type: DataTypes.STRING,
           allowNull: true
         },
         experience: {
@@ -75,7 +96,6 @@ const getDoctorModel = (sequelize, { DataTypes }) => {
   },
    {
     indexes:[
-     
       {
         unique: false,
         name:'doctor_code',

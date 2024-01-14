@@ -122,12 +122,13 @@ const VerifyVendor= (req, res, next) => {
 
     const getDoctorProfile= (req, res, next) => {
 
-      sequelize.sync().then(() => {
-        models.Doctor.findOne({
-         where: {
-         code: req.params.code
-     }
-     }).then(result => {
+      let query = "SELECT  d.code, d.fullname, ifnull(d.gender, '') as gender, ifnull(d.image_url, '') as image_url, d.telephone, ifnull(d.date_started,'') as date_started, ifnull(d.job_title, '') as job_title, ifnull(d.category, '') as category, ifnull(d.about, '') as about, ifnull(d.fees, 0) as fees, ifnull(d.office, '') as office, service, specification, speciality from tbl_doctors d where d.code =? ";
+
+       sequelize.query(query,
+         {
+           replacements: [req.params.code],
+           type: sequelize.QueryTypes.SELECT
+         }).then(result => {
   
       if(result){
         return res.send({type:'success', data:result, status:200})
@@ -138,11 +139,33 @@ const VerifyVendor= (req, res, next) => {
          }).catch((error) => {
           return res.send({type:'error', message:JSON.stringify(error, undefined, 2), status:404})
          });
-       }).catch((error) => {
-         return res.send({type:'error', message:JSON.stringify(error, undefined, 2), status:404})
-       }); 
           
       };
+
+
+      const searchDoctor = async(req, res, next) => {
+       let query = "SELECT  d.code, d.fullname, ifnull(d.gender, '') as gender, ifnull(d.image_url, '') as image_url, d.telephone, ifnull(d.date_started,'') as date_started, ifnull(d.job_title, '') as job_title, ifnull(d.category, '') as category, ifnull(d.fees, 0) as fees, ifnull(d.office, '') as office from tbl_doctors d where d.id <> '' ";
+
+       if (req.params.title!=='' && req.params.title!=='All'){
+        query = query + " AND d.category LIKE '%"+req.params.title+"%' OR d.job_title LIKE '%"+req.params.title+"%' OR  d.speciality LIKE '%"+req.params.title+"%' OR  d.about LIKE '%"+req.params.title+"%' OR d.fullname LIKE '%"+req.params.title+"%'"
+       }
+        sequelize.query(query,
+          {
+            replacements: [],
+            type: sequelize.QueryTypes.SELECT
+          }
+      ).then(result => {
+        if(result.length!==0 && Array.isArray(result)){
+
+          return res.send({type:'success', data:result})
+        }else{
+          return res.send({type:'error', message:'There are no data to display'})
+        }
+              }).catch((error) => {
+               return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+              });
+            
+        };
 
 
 const loginDoctor = (req, res, next) => {
@@ -231,7 +254,12 @@ if(!String(data.telephone).trim()){
               about: data.about,
               service: data.service,
               experience: data.experience,
-              fees: data.fees
+              fees: data.fees,
+              category: data.category,
+              date_started: data.date_started,
+              job_title: data.job_title,
+              office: data.office,
+
 
               },{
                 where: {
@@ -256,5 +284,6 @@ getDoctorByPhone,
 loginDoctor,
 UpdateDoctor,
 getDoctorProfile,
-VerifyVendor
+VerifyVendor,
+searchDoctor
 };

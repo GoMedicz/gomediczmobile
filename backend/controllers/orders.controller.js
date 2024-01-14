@@ -153,8 +153,6 @@ if(!formIsValid){
 
 const getTransactions = async(req, res, next) => {
 
-
-
   const items = await  models.OrderItems.findAll({
     where: {
       vendor_code: req.params.code
