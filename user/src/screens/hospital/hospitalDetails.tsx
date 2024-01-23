@@ -1,18 +1,18 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, ImageBackground, StatusBar } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, ImageBackground, StatusBar } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import axios from 'axios';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
+import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { DOCTORS } from '../../components/data';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
+import { PrimaryButtonChildren } from '../../components/include/button';
+import { FormatNumber, getAge } from '../../components/globalFunction';
+import Doctor from '../doctors/doctor';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -25,18 +25,23 @@ const height =
 
 
 type RootStackParamList = {
-  HospitalDetails: undefined;
-  Cart:undefined; 
-  BottomTabs:{
-     code:string;
-   }
+  HospitalDetails:{
+    code:undefined;
+  };
+  DoctorsDetails:{
+    code:string;
+    title:string;
+  }
+  Hospital:undefined; 
+  BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HospitalDetails'>;
  const HospitalDetails =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+  const [doctors, setDoctors]= useState([] as any)
+  const [content, setContent]= useState([] as any)
   const [refreshing, setRefreshing] = useState(false)
 
 interface item {
@@ -44,74 +49,94 @@ interface item {
   isDefault:string,
   id:number
 }
+const [hospital, setHospital]= useState({
+  facility:[] as any,
+  total_facility:4,
+  active:'about',
+  department:[] as any
+})
 
 
 
-const handleBack =()=>{
-  navigation.goBack();
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let url = ServerUrl+'/api/hospital/view/'+route.params.code
+  
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+      setContent(response.data.data)
+      setDoctors(response.data.doctors)
+      let department = JSON.parse(response.data.data.department)
+      let facility = JSON.parse(response.data.data.facility)
+
+      setHospital({...hospital, 
+        facility:facility,
+        total_facility:facility.length>4?4:facility.length,
+        department:department
+      })
+    }else{
+      setContent([])
+    }
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
 }
+
+
+
+const handleSlide =(code:string)=>{ 
+
+  const currentContent = hospital.department.map((list:any)=>{
+                 
+      if(list.code ===code){
+          return {...list, status:list.status==='false'?'true':'false'}
+      }
+
+       return list
+        })
+
+setHospital({...hospital, department:currentContent}) 
+      
+     }
+
+     const handleDetails =(item:any)=>{
+      navigation.navigate('DoctorsDetails', {
+       code:item.doctor_code,
+       title:item.category
+     });  
+   }
 
 const handleNext =()=>{
-  navigation.navigate('BottomTabs', {
-    code:'cds',
-  }); 
+  navigation.navigate('BottomTabs'); 
 }
-
 
 
 
   const CardCategory =({item}:{item:any})=>{
+
+
     return <View style={{backgroundColor:colors.white, marginBottom:5}}>
       
-    <Pressable onPress={handleNext} style={[styles.box]}>
+    <Pressable  style={[styles.box]}>
+      <Text style={[styles.infoText, {color:colors.dark}]}>{item.title} </Text>
 
-      <Text style={[styles.infoText, {color:colors.dark}]}>Cardiology Departments </Text>
 
-      <MaterialIcon name="keyboard-arrow-down" size={18} color={colors.primary}  />
+      <MaterialIcon onPress={()=>handleSlide(item.code)} name={item.status==='true'?"keyboard-arrow-down":"keyboard-arrow-up"} size={18} color={colors.primary}  />
+
       </Pressable>
+{item.status==='true'?<View>
+{(doctors.filter((ls:any)=>ls.department_code===item.code)).map((list:any, index:number)=> 
+      <Doctor key={index} item={list} navigation={navigation} />)}
+</View>:[]}
 
-
-      <View style={[styles.content, {backgroundColor:colors.white}]}>
-
-<View style={globalStyles.rowCenterCenter}>
-<Image source={{ uri:ImagesUrl+"/doctors/"+item.image }} style={styles.profile} />
-
-    
-    <View style={[{display:'flex'}, {marginLeft:2}]}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600', marginBottom:2}}>{item.fullname}</Text>
-
-
-      <Text style={styles.infoText}>Cardiac Surgeon <Text style={{color:colors.grey, opacity:0.5}}>at</Text> Apple Hospital</Text>
-
-
-<View style={{display:'flex', flexDirection:'row', alignItems:'center', marginTop:10}}>
-      <Text style={[styles.infoText, {marginRight:5}]}>Exp. <Text style={{color:colors.dark}}>22 years</Text> </Text>
-      <Text style={[styles.infoText]}>Fees <Text style={{color:colors.dark}}>$30</Text></Text>
-
-      <View style={[globalStyles.rowCenterCenter]}>
-      <View style={[globalStyles.rowCenterCenter]}>
-      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
-      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
-      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
-      <MaterialIcon name="star" size={12} color={'#EEA31E'}  />
-      <MaterialIcon name="star" size={12} color={colors.grey}  />
-      </View>
-      <Text style={styles.infoText}>(20)</Text>
-  </View> 
-
-      </View>
-    </View> 
-</View>
-
-
-
-</View>
       </View>
     }
-
-
   
-
+    useEffect(()=>{
+    FetchContent()
+    }, [route])
     
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
@@ -120,7 +145,7 @@ const handleNext =()=>{
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     <StatusBar barStyle={'dark-content'} />
-<ScrollView>
+
 
 
     <ImageBackground 
@@ -130,7 +155,7 @@ const handleNext =()=>{
     
     >
       <View style={{marginTop:40 }}>
-    <MaterialIcon name="arrow-back-ios" size={18} color={colors.white} onPress={handleBack} /> 
+    <MaterialIcon name="arrow-back-ios" size={18} color={colors.white} onPress={handleNext} /> 
     </View>
 
     </ImageBackground>
@@ -139,33 +164,40 @@ const handleNext =()=>{
     <View style={{backgroundColor:colors.white,  paddingHorizontal:10, paddingVertical:15}}>
 
 
-    <Text style={{color:colors.dark, fontSize:16, fontWeight:'600', marginBottom:5}}>Apple Hospital</Text>
+    <Text style={{color:colors.dark, fontSize:16, fontWeight:'600', marginBottom:5}}>{content.hospital_name}</Text>
 
-<Text style={styles.infoText}>General Hospital</Text>
+<Text style={styles.infoText}>{content.category}</Text>
 
 
 <View style={{display:'flex', flexDirection:'row', marginVertical:20}}>
-  <Text style={ {color:colors.primary, fontSize:12, fontWeight:'600'}}>About</Text>
-  <Text style={{color:'#9E9E9E', fontSize:12, fontWeight:'600', marginLeft:20}}>Departments</Text>
+  <Pressable onPress={()=>setHospital({...hospital, active:'about'})}>
+  <Text style={ {color:hospital.active==='about'?colors.primary:'#9E9E9E', fontSize:12, fontWeight:'600'}}>About</Text>
+  </Pressable>
+  <Pressable onPress={()=>setHospital({...hospital, active:'department'})}>
+  <Text style={{color:hospital.active==='department'?colors.primary:'#9E9E9E', fontSize:12, fontWeight:'600', marginLeft:20}}>Departments</Text>
+  </Pressable>
 </View>
 
 </View>
 
-
+{hospital.active==='about'?<View>
+<ScrollView>
 <View style={styles.card}>
 <Text style={styles.infoText}>Facilities</Text>
 
 <View style={{marginTop:15}}>
-<Text style={styles.h3}>Minor OT/Dressing Room</Text>
-<Text style={styles.h3}>Emergency Ward</Text>
-<Text style={styles.h3}>DRadiology/X-ray facility</Text>
-<Text style={styles.h3}>Laboratory Services</Text>
-<Text style={styles.h3}>Ambulance Services</Text>
+{hospital.facility.length!==0?hospital.facility.slice(0,hospital.total_facility).map((item:any, index:number)=>
+
+<Text style={styles.h3} key={index}>{item.title}</Text>
+):<Text style={styles.h3} >{'No record found'}</Text>}
 </View>
 
-<View>
-  <Text style={[styles.label, {color:colors.primary, marginVertical:10}]}>+5 More</Text>
-</View>
+
+{hospital.total_facility!==hospital.facility.length?
+<View style={{marginTop:5}}>
+  <Pressable onPress={()=>setHospital({...hospital, total_facility:hospital.facility.length})} ><Text style={[styles.label, {color:colors.primary}]}>+{((hospital.facility.length)-hospital.total_facility)} More</Text></Pressable>
+</View>:[]}
+
 
 </View>
    
@@ -179,43 +211,16 @@ const handleNext =()=>{
 <View style={{display:'flex', flexDirection:'row', marginBottom:5, marginTop:10, alignItems:'center'}}>
 
 <MaterialIcon name="add-location" size={14} color={colors.grey}  />
-<Text style={[styles.infoText, {fontWeight:'700', marginLeft:5}]}>Walter street, Wallington, New York.</Text>
+<Text style={[styles.infoText, {fontWeight:'700', marginLeft:5}]}>{content.address}</Text>
 
 <MaterialIcon name="navigation" size={18} color={colors.primary}  />
 </View>
 
+
+
+
+
 </View>
-
-
-
-
-
-<ScrollView
-  horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%'}}
->
-
-<FlatList 
-data={DOCTORS}
-numColumns={1}
-showsVerticalScrollIndicator={false}
-snapToInterval={width-20}
-snapToAlignment='center'
-decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
-
-/>
-
-</ScrollView>
-
-
-
-
-
-
-
-
-
 
 
 <View>
@@ -227,8 +232,38 @@ renderItem={({item})=> <CardCategory key={item.id} item={item} />}
 
 
 </View>
-
 </ScrollView>
+</View>
+:
+ <ScrollView
+ horizontal={true}
+ >
+
+ <FlatList 
+data={hospital.department}
+numColumns={1}
+showsVerticalScrollIndicator={false}
+snapToInterval={width-20}
+snapToAlignment='center'
+decelerationRate="fast"
+renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+
+/> 
+
+ </ScrollView> }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <PrimaryButtonChildren handleAction={handleNext} style={{position:'absolute', bottom:0}}>
   <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>

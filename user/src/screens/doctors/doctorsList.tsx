@@ -1,20 +1,16 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST } from '../../components/data';
 import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
 import axios from 'axios';
 import Loader from '../../components/loader';
 import { FormatNumber, getAge } from '../../components/globalFunction';
+import Doctor from './doctor';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -47,9 +43,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'DoctorsList'>;
   const [content, setContent]= useState([] as any)
 
   const [search, setSearch] = useState({
-    
-    title:'',
-  
+    title:''
   })
 
 
@@ -70,9 +64,7 @@ const handleNext =(item:any)=>{
 }
 
 
-
-
-  const Doctor =({item}:{item:any})=>{
+ /*  const Doctor =({item}:{item:any})=>{
     return <Pressable onPress={()=>handleNext(item)} style={[styles.box]}>
 
 
@@ -113,21 +105,13 @@ const handleNext =(item:any)=>{
 
 </View>
 
-
-
       </Pressable>
-    }
-
-
-    
-
-
+    } */
 
 
 
 const fetchDoctor = async(title:string)=>{
   let config = await configToken()
-
   let tit = title===''?'All':title
   let url = ServerUrl+'/api/doctor/search/'+tit
   try{
@@ -151,16 +135,21 @@ const handleSearch =()=>{
   fetchDoctor(search.title)
 }
 
+
+
+
 useEffect(()=>{
-  setSearch({...search, title:route.params.title})
   fetchDoctor(route.params.title)
+  setSearch({...search, title:route.params.title})
+ 
 }, [route])
 
 
 
   const onRefresh = useCallback(()=>{
-    setRefreshing(true)
+   setRefreshing(true)
     fetchDoctor(search.title)
+    
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
@@ -186,7 +175,7 @@ useEffect(()=>{
 
     </View>
     <View style={[styles.header,{width:width, marginTop:10, borderRadius:0, marginHorizontal:0}]}>
-   <Text style={styles.label}>{content.length} Results found</Text>
+   <Text style={styles.label}>{content&&content.length} Results found</Text>
 
    </View> 
     </View>
@@ -206,7 +195,7 @@ showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
-renderItem={({item})=> <Doctor key={item.id} item={item} />}
+renderItem={({item})=> <Doctor key={item.id} item={item} navigation={navigation} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />

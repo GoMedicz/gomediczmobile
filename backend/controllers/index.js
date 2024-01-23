@@ -9,6 +9,13 @@ const WithdrawalController = require('./withdrawal.controller');
 const OrderController = require('./orders.controller');
 const RiderController = require('./rider.controller');
 const SpecialityController = require('./speciality.controller');
+const ReviewController = require('./review.controller');
+const AppointmentController = require('./appointment.controller');
+const HospitalController = require('./hospital.controller');
+const DepartmentDoctorController = require('./department_doctor.controller');
+
+const LabController = require('./lab.controller');
+const LabTestController = require('./labTest.controller');
 
 const Controllers = {
     categoryController,
@@ -21,7 +28,13 @@ const Controllers = {
     WithdrawalController,
     OrderController,
     RiderController,
-    SpecialityController
+    SpecialityController,
+    ReviewController,
+    AppointmentController,
+    HospitalController,
+    DepartmentDoctorController,
+    LabController,
+    LabTestController  
   };
 
 

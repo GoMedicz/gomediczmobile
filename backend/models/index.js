@@ -12,6 +12,12 @@ const getOrdersModel = require("./orders.model");
 const getOrderItemsModel = require("./order_items.model");
 const getRiderModel = require("./rider.model");
 const getSpecialityModel = require("./speciality.model");
+const getReviewModel = require("./review.model");
+const getAppointmentModel = require("./appointment.model");
+const getHospitalModel = require("./hospital.model");
+const getDoctorsDepartmentModel = require("./doctors_department.model")
+const getLabModel = require("./lab.model");
+const getLabTestModel = require("./test.model");
 
 const models = {
   Category: getCategoryModel(connection, Sequelize),
@@ -24,9 +30,16 @@ const models = {
  Orders: getOrdersModel(connection, Sequelize),
  OrderItems: getOrderItemsModel(connection, Sequelize),
  Rider:getRiderModel(connection, Sequelize),
- Speciality:getSpecialityModel(connection, Sequelize)
- 
+ Speciality:getSpecialityModel(connection, Sequelize),
+ Review:getReviewModel(connection, Sequelize),
+ Appointment:getAppointmentModel(connection, Sequelize),
+ Hospital:getHospitalModel(connection, Sequelize),
+ DoctorDepartment:getDoctorsDepartmentModel(connection, Sequelize),
+ Lab:getLabModel(connection, Sequelize),
+  LabTest:getLabTestModel(connection, Sequelize),
 };
+
+
 
 Object.keys(models).forEach((key) => {
   if ('associate' in models[key]) {

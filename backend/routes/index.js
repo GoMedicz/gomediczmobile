@@ -14,7 +14,13 @@ const {
   WithdrawalController, 
   OrderController, 
   RiderController,
-  SpecialityController
+  SpecialityController,
+  ReviewController,
+  AppointmentController,
+  HospitalController,
+  DepartmentDoctorController,
+  LabController,
+  LabTestController 
 } = require('../controllers/index');
 
 var ride = multer.diskStorage({
@@ -64,19 +70,25 @@ var prescription = multer.diskStorage({
 
   },
   filename: function (req, file, cb) {
- 
     cb(null, req.body.code+'.png')
-
   },
-  
-  
 })
+
+var appointment = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/images/doctors/appointment/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.body.image_url)
+  },
+})
+
 
 const prescribe = multer({ storage: prescription });
 const profile = multer({ storage:store });
   const upload = multer({ storage: storage });
   const rider = multer({ storage:ride });
-
+  const attachment = multer({ storage:appointment });
 //Category controller
 router.post('/api/pharmacy/category/add_new', General.AuthenticateToken, categoryController.addNewCategory);
 
@@ -203,7 +215,47 @@ router.get('/api/user/display_one/:code', General.AuthenticateToken, UserControl
 
 
 
+//Review controller
+router.post('/api/review/add', ReviewController.addNewReview);
+router.get('/api/review/all', ReviewController.getReview);
 
 
+
+
+
+//Appointment controller
+router.post('/api/doctor/appointment/add', General.AuthenticateToken, attachment.single('image'), AppointmentController.addNewAppointment);
+router.get('/api/doctor/appointment/all', AppointmentController.getAppointment);
+
+
+
+
+//Hospital controller
+router.post('/api/hospital/add',  HospitalController.addNewHospital);
+router.get('/api/hospital/all',  HospitalController.getHospital);
+router.get('/api/hospital/view/:code',  HospitalController.getOneHospital);
+
+
+
+
+//Hospital Department controller
+router.post('/api/hospital/department/add',   DepartmentDoctorController.addNewDoctorDepartment);
+router.get('/api/hospital/department/all',    DepartmentDoctorController.getDoctorsDepartment);
+router.get('/api/hospital/department/view/:code',    DepartmentDoctorController. getHospitalDoctor);
+
+
+
+
+//Lab controller
+router.post('/api/lab/add',  LabController.addNewLab);
+router.get('/api/lab/all',  LabController.getLab);
+router.get('/api/lab/view/:code', LabController.getOneLab);
+
+
+
+//LabTest controller
+router.post('/api/lab/test/add',  LabTestController.addNewLabTest);
+router.get('/api/lab/test/all',  LabTestController.getLabTest);
+router.get('/api/lab/test/view/:code', LabTestController.getOneLabTest);
 
 module.exports = router;

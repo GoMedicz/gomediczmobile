@@ -138,3 +138,19 @@ export const getAge =(dob:string)=>{
   return '0'
 }
 }
+
+
+export const getMonthYear=()=>{
+
+  var dateString = new Date().toISOString().slice(0,10)
+  var months = ['January', 'February', 'March', 
+  'April', 'May', 'June', 'July', 
+  'August', 'September', 'October', 'November', 'December'];
+
+var splitDate = dateString.split('-');
+var month = Number(splitDate[1])-1; //Javascript months are 0-11
+
+let newDate =  months[month]+ ' '+splitDate[0]
+
+return newDate
+}

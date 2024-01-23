@@ -1,19 +1,15 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import axios from 'axios';
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
 import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
+import { PrimaryButtonChildren } from '../../components/include/button';
 import { FormatNumber, getAge } from '../../components/globalFunction';
 import Loader from '../../components/loader';
 
@@ -32,8 +28,12 @@ type RootStackParamList = {
     code:string;
     title:string;
   }
-  DoctorReviews:undefined; 
-  Appointment:undefined;
+  DoctorReviews: {
+    code:string;
+  }; 
+  Appointment:{
+    code:string;
+  };
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DoctorsDetails'>;
@@ -48,26 +48,33 @@ const [modalType, setModalType] = useState('load')
   const [doctor, setDoctor]= useState({
     speciality:[] as any,
     service:[] as any,
-    specialities:[] as any,
-    total_speciality:0
+    specification:[] as any,
+    total_specification:5,
+    total_speciality:5,
+    total_service:2
   })
-
 
 const handleBack =()=>{
   navigation.goBack();
 }
 
-const handleAppointment =()=>{
-  navigation.navigate('Appointment');
+const handleAppointment =(code:string)=>{
+  navigation.navigate('Appointment',{
+    code:code
+  });
 }
 
-const handleReview =()=>{
-  navigation.navigate('DoctorReviews');
+
+const handleReview =(code:string)=>{
+  navigation.navigate('DoctorReviews',{
+    code:code
+  });
 }
+
 
 
 const fetchDoctor = async()=>{
-  setLoading(true)
+  //setLoading(true)
   let config = await configToken()
 
   let url = ServerUrl+'/api/doctor/profile/'+route.params.code
@@ -76,17 +83,23 @@ const fetchDoctor = async()=>{
  await axios.get(url, config).then(response=>{
     if(response.data.type==='success'){
       try{
+
         setContent(response.data.data[0])
         let speciality = JSON.parse(response.data.data[0].speciality)
+      let service = JSON.parse(response.data.data[0].service)
+      let specification = JSON.parse(response.data.data[0].specification)
+
 
         setDoctor({...doctor, 
           
-          speciality:speciality.slice(0,5),
-          specialities:speciality,
-          total_speciality:speciality.length
-        
+          speciality:speciality,
+          service:service,
+          total_speciality:speciality.length>5?5:speciality.length,
+          total_service:service.length>2?2:service.length,
+          specification:specification,
+          total_specification:specification.length>5?5:specification.length,
+
         })
-        console.log(speciality)
       }catch(e){
 
       }
@@ -97,13 +110,12 @@ const fetchDoctor = async()=>{
 
   }).finally(()=>{
     setRefreshing(false)
-    setLoading(false)
+   // setLoading(false)
   }) 
 }catch(e){
   console.log('error:',e)
 }
 }
-
 
 
 useEffect(()=>{
@@ -153,7 +165,7 @@ useEffect(()=>{
   </View>
 
 
-  <View style={{marginRight:0}}>
+  <Pressable onPress={()=>handleReview(route.params.code)} style={{marginRight:0}}>
     <Text style={styles.infoText}>Feedbacks</Text>
 
     <View style={{display:'flex', flexDirection:'row', alignItems:'center', marginTop:5}}>
@@ -168,7 +180,7 @@ useEffect(()=>{
     </View>
 
 
-  </View>
+  </Pressable>
 </View>
 
 
@@ -207,27 +219,23 @@ useEffect(()=>{
 <Text style={styles.infoText}>Service at</Text>
 
 
-<View style={[styles.hospital, {marginTop:5}]}>
+{doctor.service.length!==0?doctor.service.slice(0,doctor.total_service).map((item:any, index:number)=>
+<View style={[styles.hospital, {marginTop:5}]} key={index}>
 <View>
-  <Text style={styles.label}>Apple Hospital</Text>
-  <Text style={[styles.infoText, {color:colors.grey1, opacity:0.6, marginTop:2}]}>JJ Towers, Johnson street, Hemilton</Text>
+  <Text style={styles.label}>{item.name}</Text>
+  <Text style={[styles.infoText, {color:colors.grey1, opacity:0.6, marginTop:2}]}>{item.address}</Text>
   </View>
     <MaterialIcon name="arrow-forward-ios" size={12} color={colors.grey}  />
-</View>
+</View>):<Text style={styles.h3} >{'No record found'}</Text>}
 
 
-<View style={styles.hospital}>
-<View>
-  <Text style={styles.label}>Seven Star Clinic</Text>
-  <Text style={[ {color:colors.grey1, opacity:0.6, marginTop:2, fontSize:10}]}>Hemilton Bridge City Point, Hemilton</Text>
-  </View>
-    <MaterialIcon name="arrow-forward-ios" size={12} color={colors.grey}  />
-</View>
+{doctor.total_service!==doctor.service.length?
+<View style={{marginTop:5}}>
+  <Pressable onPress={()=>setDoctor({...doctor, total_service:doctor.service.length})} ><Text style={[styles.label, {color:colors.primary}]}>+{((doctor.service.length)-doctor.total_service)} More</Text></Pressable>
+</View>:[]}
 
 
-<View>
-  <Text style={[styles.label, {color:colors.primary}]}>+1 More</Text>
-</View>
+
 </View>
 
 
@@ -235,20 +243,20 @@ useEffect(()=>{
 <Text style={styles.infoText}>Specialities</Text>
 
 <View style={{marginTop:10}}>
-{doctor.speciality.map((item:any, index:number)=>
-<Text style={styles.h3} key={index}>{item.title}</Text>
-)}
 
-<Text style={styles.h3}>Hypertension Treatment</Text>
-<Text style={styles.h3}>COPD Treatment</Text>
-<Text style={styles.h3}>Diabetes Management</Text>
-<Text style={styles.h3}>ECG</Text>
-<Text style={styles.h3}>Obesity Treatment</Text>
+{doctor.speciality.length!==0?doctor.speciality.slice(0,doctor.total_speciality).map((item:any, index:number)=>
+
+<Text style={styles.h3} key={index}>{item.name}</Text>
+):<Text style={styles.h3} >{'No record found'}</Text>}
+
 </View>
 
-<View>
-{Number(content.total_speciality)>Number(content.speciality.length)?<Text style={[styles.label, {color:colors.primary, marginVertical:10}]} onPress={()=>setDoctor({...doctor, speciality:doctor.specialities})}> +{Number(content.total_speciality)-Number(content.speciality.length)} More</Text>:[]}
-</View>
+
+{doctor.total_speciality!==doctor.speciality.length?
+<View style={{marginTop:5}}>
+  <Pressable onPress={()=>setDoctor({...doctor, total_speciality:doctor.speciality.length})} ><Text style={[styles.label, {color:colors.primary}]}>+{((doctor.speciality.length)-doctor.total_speciality)} More</Text></Pressable>
+</View>:[]}
+
 
 </View>
 
@@ -258,16 +266,21 @@ useEffect(()=>{
 <Text style={styles.infoText}>Specification</Text>
 
 <View style={{marginTop:10}}>
-<Text style={styles.h3}>General Physician</Text>
-<Text style={styles.h3}>Family Physician</Text>
-<Text style={styles.h3}>Cardiologist</Text>
-<Text style={styles.h3}>Consultant Physician</Text>
-<Text style={styles.h3}>Diabetologist</Text>
+
+{doctor.specification.length!==0?doctor.specification.slice(0,doctor.total_specification).map((item:any, index:number)=>
+
+<Text style={styles.h3} key={index}>{item.name}</Text>
+):<Text style={styles.h3} >{'No record found'}</Text>}
+
 </View>
 
-<View>
-  <Text style={[styles.label, {color:colors.primary, marginVertical:10}]}>+1 More</Text>
-</View>
+
+{doctor.total_specification!==doctor.specification.length?
+<View style={{marginTop:5}}>
+  <Pressable onPress={()=>setDoctor({...doctor, total_specification:doctor.specification.length})} ><Text style={[styles.label, {color:colors.primary}]}>+{((doctor.specification.length)-doctor.total_specification)} More</Text></Pressable>
+</View>:[]}
+
+
 
 </View>
 
@@ -281,7 +294,7 @@ useEffect(()=>{
 
 <PrimaryButtonChildren
 
-handleAction={handleAppointment}
+handleAction={()=>handleAppointment(route.params.code)}
 >
 
 <View style={globalStyles.rowCenterCenter}>

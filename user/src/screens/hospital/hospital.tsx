@@ -1,14 +1,15 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, StatusBar } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATEGORY, DOCTORSCATEGORY, LANGUAGELIST, OFFER, SELLER } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -24,7 +25,9 @@ const height =
 
 type RootStackParamList = {
     Hospital: undefined;
-    HospitalDetails:undefined;
+    HospitalDetails:{
+      code:undefined;
+    };
     Language:undefined; 
     BottomTabs:{
      code:string;
@@ -35,8 +38,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Hospital'>;
  const Hospital =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+
+  const [content, setContent]= useState([] as any)
 
 interface item {
   title:string,
@@ -44,13 +48,42 @@ interface item {
   id:number
 }
 
+
+
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+
+  let url = ServerUrl+'/api/hospital/all'
+  try{
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+      setContent(response.data.data)
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+
+useEffect(()=>{
+  FetchContent()
+}, [])
+
 const Header = ()=>{
   return(
 <View style={{backgroundColor:colors.white, padding:10}}>
-<Text style={[styles.infoText]}>Hello, Sam Smith,</Text>
+<Text style={[styles.infoText]}>Hello, Sam Smith</Text>
 
     <Text style={styles.h1}>Find Hospital</Text> 
-
 
     <View style={styles.textWrapper}>
     <MaterialIcon name="search" size={14} color={colors.icon}  /> 
@@ -63,7 +96,7 @@ const Header = ()=>{
 
 <View style={styles.contentWrapper}>
 
-<Text style={styles.infoText}>Shop by category</Text>
+<Text style={styles.infoText}>Search by category</Text>
 
 <Text style={[styles.infoText,{color:colors.primary}]}>View all</Text>
 </View>
@@ -90,17 +123,16 @@ renderItem={({item})=> <CardCategory key={item.id} item={item} />}
   )
 }
 
-const handleCart =()=>{
-  navigation.navigate('HospitalDetails');
-}
 
-const handleNext =()=>{
-  navigation.navigate('HospitalDetails');
+const handleNext =(code:any)=>{
+  navigation.navigate('HospitalDetails', {
+    code:code
+  });
 }
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchContent()
     }, [])
 
 const CATCOLOR = ['','#4CD1BC', '#75B4FC', '#FC9680', '#9BE471', '#585AE1', '#FFDA6E']
@@ -126,23 +158,22 @@ const CardCategory =({item}:{item:any})=>{
 
 
             const Clinic =({item}:{item:any})=>{
-                return <Pressable onPress={handleNext} style={[styles.clinic]}>
+                return <Pressable onPress={()=>handleNext(item.code)} style={[styles.clinic]}>
     
    
 
 <View style={globalStyles.rowCenterBetween}>
     <View >
-<Text style={{fontSize:12, fontWeight:'600'}}>{item.title}</Text>
-<Text style={[styles.infoText, {fontSize:10}]}>{item.address}</Text>
+<Text style={{fontSize:12, fontWeight:'600'}}>{item.hospital_name}</Text>
+<Text style={[styles.infoText, {fontSize:10}]}>{item.category}</Text>
 </View>
 
 
 
 
 <View style={globalStyles.rowCenterCenter} >
+{JSON.parse(item.image_list).slice(0,2).map((list:any, index:number)=><Image key={index} source={{ uri:list.image_url!==''?ImagesUrl+"/hospital/"+list.image_url:ImagesUrl+"/no.png"}} style={styles.clinicImage} />)}
 
-<Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.clinicImage} />
-<Image source={{ uri:ImagesUrl+"/seller/"+item.image }} style={styles.clinicImage} />
 
 </View>
 </View>
@@ -155,7 +186,7 @@ const CardCategory =({item}:{item:any})=>{
 
 <View style={globalStyles.rowCenterCenter}>
 <MaterialIcon name="location-on" size={10} color={colors.grey}  />
-<Text style={[styles.infoText, {fontSize:8}]}>Walter street, Wallington, New York</Text>
+<Text style={[styles.infoText, {fontSize:8}]}>{item.address}</Text>
 </View>
 
 
@@ -170,6 +201,7 @@ const CardCategory =({item}:{item:any})=>{
    </Pressable>
                 }
 
+              
 
   return (<SafeAreaView style={[ { backgroundColor:colors.white, flex:1}]}>
     
@@ -186,11 +218,14 @@ const CardCategory =({item}:{item:any})=>{
    
 
 <FlatList 
-data={SELLER}
+data={content}
 snapToInterval={width}
 ListHeaderComponent={<Header />}
 contentContainerStyle={{  backgroundColor:colors.lightSkye}}
 showsHorizontalScrollIndicator={false}
+
+refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />}
+
 renderItem={({item})=> <Clinic key={item.id} item={item} />}
 
 />
