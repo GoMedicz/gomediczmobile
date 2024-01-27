@@ -68,7 +68,8 @@ if(!formIsValid){
           subcategory_code: data.subcategory_code,
           description: data.description,
           require_prescription: data.require_prescription,
-          price_list:data.price_list,
+          price:data.price,
+          qty:data.qty,
           status: 'Pending',
 
         }).then(result => {
@@ -86,13 +87,50 @@ if(!formIsValid){
 
 
 
+const getProductByCategory = (req, res, next) => {
+
+  //Only active products should be display i.e where status = active
+  sequelize.query(
+    'SELECT p.id, p.code, p.product_name, p.product_id, p.image_url, p.require_prescription, p.price, p.qty, s.title as category FROM tbl_pharmacy_products p LEFT JOIN tbl_sub_categories s on s.code = p.subcategory_code  where  (p.category_code = ? or p.subcategory_code = ?) order by p.id DESC',
+    {
+      replacements: [req.params.code, req.params.code],
+      type: sequelize.QueryTypes.SELECT
+    }
+).then(result => {
+          return res.send({type:'success', data:result})
+        }).catch((error) => {
+         return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+        });
+      
+  };
+
+
+
+
+const searchOneProduct = (req, res, next) => {
+
+  //Only active products should be display i.e where status = active
+  sequelize.query(
+    'SELECT p.code, p.product_name, p.product_id, p.image_url, p.require_prescription, p.price, p.qty, c.title as category, p.description, s.code as store_code, s.store_name, s.image_url as store_image, s.address FROM tbl_pharmacy_stores s, tbl_pharmacy_products p  LEFT JOIN tbl_sub_categories c on c.code = p.subcategory_code WHERE  s.code = p.pharmacy_code and p.code =? order by p.id DESC',
+    {
+      replacements: [req.params.code],
+      type: sequelize.QueryTypes.SELECT
+    }
+).then(result => {
+          return res.send({type:'success', data:result})
+        }).catch((error) => {
+         return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+        });
+      
+  };
 
 
 const getProducts = (req, res, next) => {
 
   //Only active products should be display i.e where status = active
   sequelize.query(
-    'SELECT p.id, p.code, p.product_name, p.product_id, p.image_url, p.require_prescription, p.price_list, c.category_name FROM tbl_pharmacy_products p LEFT JOIN tbl_pharmacy_products_categories c on  p.category_code = c.code where  p.pharmacy_code = ? order by p.id DESC',
+
+    'SELECT p.id, p.code, p.product_name, p.product_id, p.image_url, p.require_prescription, p.price, p.qty, c.title as category, p.description FROM tbl_pharmacy_products p  LEFT JOIN tbl_sub_categories c on c.code = p.subcategory_code WHERE   p.pharmacy_code =? order by p.id DESC',
     {
       replacements: [req.params.code],
       type: sequelize.QueryTypes.SELECT
@@ -182,7 +220,8 @@ const getProducts = (req, res, next) => {
                 subcategory_code: data.subcategory_code,
                 description: data.description,
                 require_prescription: data.require_prescription,
-                price_list: data.price_item,
+                price: data.price,
+                qty: data.qty,
               },{
                 where: {
                   code: data.code,
@@ -204,5 +243,7 @@ module.exports = {
     AddNewProduct,
     getProducts,
     getOneProduct,
-    UpdateProduct
+    UpdateProduct,
+    getProductByCategory,
+    searchOneProduct
 };

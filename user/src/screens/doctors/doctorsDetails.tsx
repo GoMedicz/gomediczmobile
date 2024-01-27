@@ -196,7 +196,7 @@ useEffect(()=>{
     <Text style={[styles.infoText,{marginRight:30}]}>Availability</Text>
     <MaterialIcon name="arrow-forward-ios" size={12} color={colors.grey}  />
   </View>
-  <Text style={[styles.label, {marginTop:4}]}>12:00 to 13:00</Text>
+  <Text style={[styles.label, {marginTop:4}]}>07:00 AM to 17:00 PM</Text>
   </View>
 
 </View>

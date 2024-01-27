@@ -1,19 +1,19 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Platform, Dimensions, Pressable, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
+import { CURRENCY, ServerUrl, configToken } from '../../components/includes';
+
+import axios from 'axios';
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
 import { PrimaryButtonChildren } from '../../components/include/button';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { FormatNumber, getData, storeData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -28,65 +28,173 @@ const height =
 type RootStackParamList = {
   Reviews: undefined;
   ConfirmBooking:undefined; 
- SearchLab:undefined;
+ SearchLab:{
+  code:undefined,
+  name:undefined
+ };
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SearchLab'>;
  const SearchLab =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+  const [content, setContent]= useState([] as any)
+  const [filterContent, setFilterContent]= useState([] as any)
+  const [cart, setCart]= useState({
+    search:'',
+    total:0
+  })
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
+
+
+const handleClear =()=>{
+  setCart({...cart, search:''});
+  setFilterContent(content)
 }
 
+const handleChange =(name:string, text:string)=>{
+  
+  setCart({...cart, [name]:text});
+
+  if(text!==''){
+      const filteredItems = content.filter(
+          (item:any) =>  item.title.toLowerCase().includes(text.toLowerCase()) ||
+          item.fees.includes(text.toLowerCase()),
+      );
+
+      setFilterContent(filteredItems)
+  }else{
+      setFilterContent(content)
+  } 
+
+}
 
 
 const handleBack =()=>{
   navigation.goBack();
 }
 
-const handleNext =()=>{
-  navigation.navigate('ConfirmBooking'); 
+const handleBook =async()=>{
+
+  if(Number(cart.total)>0){
+    const Test = filterContent.filter((item:any)=>item.status==='true')
+    try{
+
+      let data:any  = await getData('cart');
+     
+
+      if(data){
+        let item =  JSON.parse(data)
+        let allItems =  item.concat(Test)
+        storeData('cart', JSON.stringify(allItems))
+      }else{
+        storeData('cart', JSON.stringify(Test))
+      }
+      navigation.navigate('ConfirmBooking');
+
+    }catch(e){
+
+    }
+
+  } 
+
+}
+
+const handleCheckOne =(item:any)=>{
+    const currentContent = content.map((list:any)=>{
+                   
+        if(list.code ===item.code){
+            return {...list, status:list.status==='false'?'true':'false'}
+        }
+
+         return list
+          })
+
+
+
+          const amount = currentContent.filter((item:any)=>item.status==='true').reduce((acc:number, item:any)=>acc+parseFloat(item.fees), 0)
+
+          setCart({...cart, total:amount})
+
+   setFilterContent(currentContent) 
+   setContent(currentContent)
 }
 
 
+const getTotal =()=>{
 
+  const amount = filterContent.filter((item:any)=>item.status==='true').reduce((acc:number, item:any)=>acc+parseFloat(item.fees), 0)
+
+  setCart({...cart, total:amount})
+
+}
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <View style={[styles.box]}>
 
 
-<Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>Complete Blood Count</Text>
+<Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>{item.title}</Text>
 
 <View style={[globalStyles.rowCenterBetween, {marginTop:10, paddingVertical:5}]}>
 
-      <Text style={styles.infoText}>$20.00</Text>
-      <Text style={[styles.infoText, {color:colors.primary, marginRight:15}]}>ADD</Text>
+      <Text style={styles.infoText}> {CURRENCY+FormatNumber(item.fees)}</Text>
+      {item.status==='false'? <Pressable onPress={()=>handleCheckOne(item)}><Text style={[styles.infoText, {color:colors.primary, marginRight:15, fontWeight:'700'}]}>ADD</Text></Pressable> :
+
+<Pressable onPress={()=>handleCheckOne(item)} style={globalStyles.rowCenterBetween}>
+<MaterialIcon name="check" size={10} color={colors.navyBlue}   /> 
+<Text style={[styles.infoText, {color:colors.navyBlue, marginRight:15,  fontWeight:'700'}]}>ADDED</Text>
+</Pressable>}
+      
+
  
 </View>
-      </Pressable>
+      </View>
     }
 
 
   
 
+    const  FetchContent = async()=>{
+      //setLoading(true)
+      let config = await configToken()
+      let url = ServerUrl+'/api/lab/test/view/'+route.params.code
+      try{
+     await axios.get(url, config).then(response=>{
+        if(response.data.type==='success'){
+          setFilterContent(response.data.data)
+          setContent(response.data.data)
+        }else{
+          setFilterContent([])
+          setContent([])
+        }
+      }).finally(()=>{
+        setRefreshing(false)
+       // setLoading(false)
+      }) 
+    }catch(e){
+      console.log('error:',e)
+    }
+    }
+
+
+
+useEffect(()=>{
+  FetchContent()
+}, [route])
     
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+   FetchContent()
+   getTotal()
     }, [])
 
-  return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
+  return (<SafeAreaView style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={{width:width, backgroundColor:colors.white}}>
     <View style={styles.header}>
     <MaterialIcon name="arrow-back-ios" size={18} color={colors.dark} onPress={handleBack}  /> 
-    <Text style={[styles.label, {marginLeft:30} ]}>City Cure Labs</Text>
+    <Text style={[styles.label, {marginLeft:30} ]}>{route.params.name}</Text>
     
     
 </View>
@@ -94,16 +202,26 @@ const handleNext =()=>{
     
     <View style={styles.textWrapper}>
     <MaterialIcon name="search" size={16} color={colors.grey}  /> 
-  <TextInput placeholder='Search Tests' 
+
+  <TextInput 
+  placeholder='Search Tests' 
   placeholderTextColor={'#959595'}
-  style={styles.textInput} />
-  <MaterialIcon name="close" size={16} color={colors.grey}  /> 
+  style={styles.textInput}
+  autoCapitalize='none'
+  keyboardType='email-address' 
+  autoFocus={true}
+  autoCorrect={false}
+value={cart.search}
+onChangeText={text=>handleChange('search', text)}
+  
+  />
+  <MaterialIcon name="close" size={16} onPress={handleClear} color={colors.grey}  /> 
 </View>
 
 
 
 <View style={[styles.textWrapper, {marginTop:0, borderRadius:0, marginHorizontal:0, width:width}]}>
-    <Text style={styles.infoText}>Total 125 tests</Text> 
+    <Text style={styles.infoText}>Total {filterContent.length} tests</Text> 
 </View>
 
 </View>
@@ -111,7 +229,7 @@ const handleNext =()=>{
     <View style={styles.catItems}>
 
 <FlatList 
-data={CATEGORY}
+data={filterContent}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
@@ -127,12 +245,12 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 <PrimaryButtonChildren
 style={{position:'absolute', bottom:0}}
-handleAction={handleNext}
+handleAction={handleBook}
 >
 
   <View style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexDirection:'row', width:width, paddingHorizontal:20}}>
 
-    <Text style={globalStyles.buttonText}>$20.00</Text>
+    <Text style={globalStyles.buttonText}>{CURRENCY+FormatNumber(cart.total)}</Text>
 
 
     <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
@@ -147,7 +265,7 @@ handleAction={handleNext}
 
   
 </PrimaryButtonChildren>
-    </View>
+    </SafeAreaView>
   )
 }
 

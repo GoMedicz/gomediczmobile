@@ -1,17 +1,20 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useRef, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
+import axios from 'axios';
+import { FormatNumber } from '../../components/globalFunction';
+
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -24,96 +27,129 @@ const height =
 
 
 type RootStackParamList = {
-  StoreItems: undefined;
-  Cart:undefined; 
-  Reviews:{
-     code:string;
-   }
+  StoreItems: {
+    code:string;
+    address:string;
+    store_name:string;
+    image_url:string;
+  };
+  DrugDetails:{
+    code:string
+  }; 
+  BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'StoreItems'>;
  const StoreItems =({ route, navigation }:Props)=> {
+  const fadeValue = useRef(new Animated.Value(0)).current 
 
+  const [content, setContent]= useState([] as any)
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
+
+  const handleBack =()=>{
+    navigation.navigate('BottomTabs');
+  }
+
+
+
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let url = ServerUrl+'/api/vendor/products/all/'+route.params.code
+  try{
+ await axios.get(url, config).then(response=>{
+
+    if(response.data.type==='success'){
+      setContent(response.data.data)
+      AnimationStart()
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
 }
 
-const handleBack =()=>{
-  navigation.goBack();
+
+const onRefresh = useCallback(()=>{
+  setRefreshing(false)
+  FetchContent()
+  }, [])
+
+  useEffect(()=>{
+    FetchContent()
+  }, [route])
+
+  const handleNext =(code:string)=>{
+    navigation.navigate('DrugDetails', {
+      code:code,
+    }); 
+  }
+
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
 }
-
-const handleCart =()=>{
-  navigation.navigate('Cart');
-}
-
-const handleNext =()=>{
-  navigation.navigate('Reviews', {
-    code:'cds',
-  }); 
-}
-
-
-
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <TouchableOpacity activeOpacity={0.8} onPress={()=>handleNext(item.code)}  style={[styles.box]}>
 
+<Animated.View style={{opacity:fadeValue}}>
 <View style={{display:'flex', alignItems:'flex-end'}}>
 <Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.px} />
 </View>
 
-<Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
+<Image source={{ uri:item.image_url!=='' && item.image_url!==null ?ImagesUrl+"/vendors/products/"+item.image_url:ImagesUrl+"/no.png"}} style={styles.catImage} />
 
 <View style={{marginTop:15}}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>Allerygy Relief</Text>
+      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>{item.product_name}</Text>
 
-      <Text style={{color:colors.dark, fontSize:10,  fontWeight:'600'}}>Tablet</Text>
+      <Text style={{color:colors.dark, fontSize:10,  fontWeight:'600'}}>{item.category}</Text>
 
-      <Text style={{color:colors.dark, fontSize:12,  fontWeight:'700', marginTop:10}}>$3.50</Text>
+      <Text style={{color:colors.dark, fontSize:12,  fontWeight:'700', marginTop:10}}>{CURRENCY+ FormatNumber(item.price)}</Text>
       </View>
 
   <View style={styles.addItem}>
 <MaterialIcon name="add" size={18} color={colors.white}  />
       </View>
-
-      </Pressable>
+      </Animated.View>
+      </TouchableOpacity>
     }
 
 
-  
-
-    
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
     <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={18} color={colors.dark}  /> 
-{/*     <ShoppingCart num={1} handleAction={handleCart} /> */}
+
     </View>
 
 
     <View style={styles.container}>
 
 <View style={styles.companyLogo}>
-<Image source={{ uri:ImagesUrl+"/seller/profile.jpg" }} style={styles.sellerImage} />
+<Image source={{ uri:route.params.image_url!=='' && route.params.image_url!==null ?ImagesUrl+"/vendors/profiles/"+route.params.image_url:ImagesUrl+"/no.png"}}  style={styles.sellerImage} />
             
 </View>
 
 <View style={{marginLeft:10, width:width-150}}>
-<Text style={{fontSize:18, fontWeight:'700'}}>Well Life Store Well Life Store Well Life Store</Text>
+<Text style={{fontSize:18, fontWeight:'700'}}>{route.params.store_name}</Text>
 <View style={styles.address}>
 <MaterialIcon name="location-on" size={14} color={colors.grey}  /> 
-<Text style={{fontSize:14, color:colors.grey, marginLeft:5}}>Willinton Bridge</Text>
+<Text style={{fontSize:14, color:colors.grey, marginLeft:5}}>{route.params.address}</Text>
 
 </View>
 </View>
@@ -128,7 +164,7 @@ const handleNext =()=>{
     <View style={styles.catItems}>
 
 <FlatList 
-data={CATEGORY}
+data={content}
 numColumns={2}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
@@ -177,7 +213,6 @@ const styles = StyleSheet.create({
 
 
 box:{
-  height:(height/3)-40,
   width:(width/2)-15,
   backgroundColor:colors.white,
   borderRadius:10,

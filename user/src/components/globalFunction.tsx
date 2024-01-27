@@ -99,7 +99,40 @@ let newDate = parseInt(splitDate[2])+ ' '+ months[month]+ ' '+splitDate[0]
 return newDate
 }
 
+export function timeAddMinutes(time:any, min:any) {
+  var t = time.split(":"),      // convert to array [hh, mm, ss]
+      h = Number(t[0]),         // get hours
+      m = Number(t[1]);         // get minutes
+  m+= min % 60;                 // increment minutes
+  h+= Math.floor(min/60);       // increment hours
+  if (m >= 60) { h++; m-=60 }   
+  
+  return (h+"").padStart(2,"0")  +":"  //create string padded with zeros for HH and MM
+         +(m+"").padStart(2,"0") +":"
+         +t[2];                        // original seconds unchanged
+  } 
 
+
+
+  export const getNumWorkDays =(startDate:any, endDate:any)=>{
+   
+    var numWorkDays = [];
+    const theDate = new Date(startDate)
+    const theEnd =  new Date(endDate)
+    while (theDate <= theEnd){
+            numWorkDays.push({
+              day:theDate.getDate(),
+              date:theDate.toISOString().slice(0,10),
+              title:getDays(String(theDate.getDay())),
+              status:false
+              }
+              )
+        theDate.setDate(theDate.getDate()+1)
+    }
+    return numWorkDays 
+  }
+
+  
 export const getTime =(value:any)=>{
   var timeString = String(value)
  var hourEnd = timeString.indexOf(":");

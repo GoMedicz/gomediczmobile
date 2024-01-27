@@ -1,17 +1,17 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
+import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATCOLOR,  DOCTORSCATEGORY, LABTEST, LANGUAGELIST, OFFER, SELLER, SPECIALITY } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
-import { globalStyles } from '../../components/globalStyle';
+import { CATCOLOR,  LABTEST, OFFER } from '../../components/data';
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
+import axios from 'axios';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -25,19 +25,22 @@ const height =
 type RootStackParamList = {
   LabHome: undefined;
   Offers:undefined;
-  TestList:undefined;
+  LabList:undefined;
   SearchLab:undefined;
   DoctorsList:undefined; 
     BottomTabs:{
      code:string;
-   }
+   },
+   LabDetails:{
+    code:string;
+  }
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LabHome'>;
  const LabHome =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+  const [content, setContent]= useState([] as any)
   const [refreshing, setRefreshing] = useState(false)
 
 interface item {
@@ -46,25 +49,62 @@ interface item {
   id:number
 }
 
+
+
+
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let url = ServerUrl+'/api/lab/test/all'
+  try{
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+      setContent(response.data.data)
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+const handleLab =()=>{
+  navigation.navigate('LabList');
+}
+
+
 const handleOffer =()=>{
   navigation.navigate('Offers');
 }
 const handleTest =()=>{
-  navigation.navigate('TestList');
+  navigation.navigate('LabList');
 }
 
 const handleCart =()=>{
-  navigation.navigate('TestList');
+  navigation.navigate('LabList');
 }
 
-const handleNext =()=>{
-  navigation.navigate('SearchLab');
+const handleNext =(code:string)=>{
+  navigation.navigate('LabDetails',{
+    code:code
+  });
 }
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchContent()
     }, [])
+
+    useEffect(()=>{
+      FetchContent()
+    }, [])
+
 
 const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', '#9BE471' ]
 
@@ -98,7 +138,7 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
 
 
             const Speciality =({item}:{item:any})=>{
-                return <Pressable style={[styles.seller]} onPress={handleNext}>
+                return <Pressable style={[styles.seller]} onPress={()=>handleNext(item.lab_code)}>
         
                 <View style={{ display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
                   <Text style={{fontSize:12, width:width-50, fontWeight:'700'}}>{item.title}</Text>
@@ -151,7 +191,8 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
 
 <Text style={styles.infoText}>Health Checkups and Screenings For</Text>
 
-<Text style={[styles.infoText,{color:colors.primary}]}>View all</Text>
+<Pressable onPress={handleLab}>
+<Text style={[styles.infoText,{color:colors.primary}]}>View all</Text></Pressable>
 </View>
 
 <View style={{marginLeft:20, marginVertical:15}}>
@@ -199,7 +240,7 @@ renderItem={({item})=> <CardOffer key={item.id} item={item} />}
   contentContainerStyle={{width: '100%', height: '100%'}}
 >
 <FlatList 
-data={SPECIALITY}
+data={content}
 numColumns={1}
 snapToInterval={width-20}
 contentContainerStyle={{ paddingHorizontal:20, marginTop:10}}

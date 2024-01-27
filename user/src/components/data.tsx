@@ -63,7 +63,7 @@ export const CATITEMS = [
 ]
 
 
-export const CATCOLOR = ['','#4CD1BC', '#75B4FC', '#FC9680', '#9BE471', '#585AE1', '#FFDA6E']
+export const CATCOLOR = ['#4CD1BC', '#75B4FC', '#FC9680', '#9BE471', '#585AE1', '#FFDA6E', '#4CD1BC', '#585AE1']
 
 export const DOCTORS = [
 

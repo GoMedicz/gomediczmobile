@@ -1,15 +1,15 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, StatusBar } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TextInput, StatusBar } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import axios from 'axios';
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATEGORY, DOCTORSCATEGORY, LANGUAGELIST, OFFER, SELLER } from '../../components/data';
+import { DOCTORSCATEGORY } from '../../components/data';
 import { globalStyles } from '../../components/globalStyle';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 

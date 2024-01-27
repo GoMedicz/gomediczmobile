@@ -52,8 +52,12 @@ const getProductModel = (sequelize, { DataTypes }) => {
             defaultValue:false,
             allowNull: true
           },
-          price_list: {
-            type: DataTypes.JSON,
+          price: {
+            type: DataTypes.STRING,
+            allowNull: false
+          },
+          qty: {
+            type: DataTypes.STRING,
             allowNull: true
           },
           status: {

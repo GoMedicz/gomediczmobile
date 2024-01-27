@@ -34,7 +34,7 @@ import DoctorReviews from './src/screens/doctors/DoctorReviews';
 import Appointment from './src/screens/doctors/appointment';
 import Feedback from './src/screens/doctors/feedback';
 import HospitalDetails from './src/screens/hospital/hospitalDetails';
-import TestList from './src/screens/lab/TestList';
+import TestList from './src/screens/lab/LabList';
 import LabDetails from './src/screens/lab/LabDetails';
 import LabMapView from './src/screens/lab/LabMapView';
 import SearchLab from './src/screens/lab/SearchLab';
@@ -117,7 +117,7 @@ const StackNavigator=()=>{
 
 
 
-<Stack.Screen  name='TestList'>{(props:any) =><TestList  {...props}  />}</Stack.Screen>
+<Stack.Screen  name='LabList'>{(props:any) =><TestList  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='LabDetails'>{(props:any) =><LabDetails  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='LabMapView'>{(props:any) =><LabMapView  {...props}  />}</Stack.Screen>
 <Stack.Screen  name='SearchLab'>{(props:any) =><SearchLab  {...props}  />}</Stack.Screen>

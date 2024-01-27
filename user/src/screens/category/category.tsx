@@ -1,16 +1,15 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CATCOLOR } from '../../components/data';
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
+import axios from 'axios';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -25,8 +24,10 @@ const height =
 type RootStackParamList = {
   Category: undefined;
   Payment:undefined; 
+  BottomTabs:undefined;
   CategoryDetails:{
-     code:string;
+     title:string,
+     code:string
    }
    };
 
@@ -34,32 +35,46 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Category'>;
  const Category =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+  const [category, setCategory]= useState([] as any)
+  const [content, setContent]= useState([] as any)
   const [refreshing, setRefreshing] = useState(false)
-
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const [items, setItems]= useState([] as any)
 
 
 
 const handleBack =()=>{
-  navigation.goBack();
+  navigation.navigate('BottomTabs');
 }
 
-const handleNext =()=>{
+const handleNext =(item:any)=>{
   navigation.navigate('CategoryDetails', {
-    code:'cds',
+    title:item.title,
+    code:item.sub_code
   }); 
 }
 
+const handleCheck =(item:any)=>{
 
+let rs = content.filter((list:any)=>list.main_code===item.main_code && list.sub_title!==null)
+
+setItems(rs)
+const currentContent = category.map((list:any)=>{
+                 
+  if(list.main_code ===item.main_code){
+      return {...list, status:'true'}
+  }else{
+    return {...list, status:'false'}
+  }
+
+    })
+
+setCategory(currentContent)
+
+}
 const CardItem =({item}:{item:any})=>{
-  return <Pressable onPress={handleNext} style={[styles.card]}>
+  return <Pressable onPress={()=>handleNext(item)} style={[styles.card]}>
 
-    <Text style={[styles.label, {fontWeight:'700'}]}>Sexual Wellness</Text>
+    <Text style={[styles.label, {fontWeight:'700'}]}>{item.sub_title}</Text>
 
     <MaterialIcon name="arrow-forward-ios" size={16} color={colors.grey}  />
 
@@ -68,27 +83,70 @@ const CardItem =({item}:{item:any})=>{
 
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
+   
+    return <Pressable onPress={()=>handleCheck(item)} style={[styles.box, {backgroundColor:CATCOLOR[item.id]} ]}>
 
       <Text style={{color:colors.white, fontSize:10, marginLeft:15, marginTop:15, fontWeight:'600'}}>{ item.title.toUpperCase()}</Text>
 
-      <Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
+      <Image source={{ uri:item.image_url!=='' && item.image_url!==null ?ImagesUrl+"/pharmacy/category/"+item.image_url:ImagesUrl+"/no.png"}}  style={styles.catImage} />
 
-      <View style={styles.overlay}>
+
+     {item.status==='true'? <View  style={styles.overlay}>
       <MaterialIcon name="arrow-forward-ios" size={20} color={colors.dark}  />
-      </View>
+      </View>:[]}
+
       </Pressable>
     }
 
 
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+    const onRefresh = useCallback(()=>{
+      setRefreshing(false)
+      FetchContent()
+      }, [])
+  
+  
+  const  FetchContent = async()=>{
+    //setLoading(true)
+    let config = await configToken()
+    let url = ServerUrl+'/api/store/sub_category/all'
+    try{
+   await axios.get(url, config).then(response=>{
+      if(response.data.type==='success'){
+       
+let data = response.data.data
+
+
+
+const allCategory =	data.map((e:any)=>e['main_code'])
+.map((e:any,i:any,final:any)=>final.indexOf(e)===i&&i)
+.filter((e:any)=>data[e])
+.map((e:any)=>data[e])
+
+setCategory(allCategory)
+        setContent(data)
+      }else{
+        setContent([])
+      }
+  
+    }).finally(()=>{
+      setRefreshing(false)
+     // setLoading(false)
+    }) 
+  }catch(e){
+    console.log('error:',e)
+  }
+  }
+  
+  
+  
+    useEffect(()=>{
+      FetchContent()
+    }, [route])
+    
 
   return (<View style={[ {flex:1, backgroundColor:colors.white}]}>
     
-    <View style={styles.header}>
+    <View style={globalStyles.header}>
     <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={18} color={colors.dark}  /> 
     <Text style={styles.label}>Shop by Category</Text>
     <View />
@@ -101,7 +159,7 @@ const CardItem =({item}:{item:any})=>{
 
 
 <FlatList 
-data={CATEGORY}
+data={category}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
@@ -118,7 +176,7 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 <View style={{ marginHorizontal:10 }}>
 <FlatList 
-data={CATITEMS}
+data={items}
 numColumns={1}
 showsHorizontalScrollIndicator={false}
 snapToInterval={width-20}

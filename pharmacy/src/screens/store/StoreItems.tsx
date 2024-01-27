@@ -11,7 +11,7 @@ import { CURRENCY, ImagesUrl, PHARMACY_CODE, ServerUrl, configToken, } from '../
 import { globalStyles } from '../../components/globalStyle';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
-import { getData } from '../../components/globalFunction';
+import { FormatNumber, getData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -77,17 +77,6 @@ const AnimationStart =()=>{
 
   const CardItem =({item}:{item:any})=>{
 
-    let price =0;
-try{
-    let priceList = JSON.parse(item.price_list)
-    price = priceList.length!==0? priceList[0].price:0
-
-
-
-}catch(e){
-
-}
-
 
     return <TouchableOpacity activeOpacity={0.8} onPress={()=>handleEdit(item.code)}  style={[dynamicStyle.boxCart]} >
 
@@ -113,7 +102,7 @@ try{
       </View>
 
   <View style={styles.addItem}>
-  <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:12,  fontWeight:'700'}}>{CURRENCY+price}</Text>
+  <Text style={{color:MODE==='Light'?colors.dark:colors.white, fontSize:12,  fontWeight:'700'}}>{CURRENCY+ FormatNumber(item.price)}</Text>
 <Text style={styles.infoText}>119 sold</Text>
       </View>
 

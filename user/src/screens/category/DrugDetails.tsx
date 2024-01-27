@@ -1,19 +1,19 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useRef, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
 import { PrimaryButton } from '../../components/include/button';
 
+import axios from 'axios';
+import { FormatNumber, getData, storeData } from '../../components/globalFunction';
+import Loader from '../../components/loader';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -25,25 +25,26 @@ const height =
 
 
 type RootStackParamList = {
-  DrugDetails: undefined;
+  DrugDetails: {
+    code:string;
+  };
   Cart:undefined; 
-  StoreItems:{
-     code:string;
-   }
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DrugDetails'>;
  const DrugDetails =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+  const fadeValue = useRef(new Animated.Value(0)).current 
+  const [content, setContent]= useState([] as any)
+  const [loading, setLoading] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const [modalType, setModalType] = useState('load')
+
+  const [errors, setErrors] = useState({
+    errorMessage:'',
+    successMessage:''
+  });
 
 const handleBack =()=>{
   navigation.goBack();
@@ -54,20 +55,85 @@ const handleCart =()=>{
   navigation.navigate('Cart');
 }
 
-const handleNext =()=>{
-  navigation.navigate('StoreItems', {
-    code:'cds',
-  }); 
+
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
+
+const AddToCart =async()=>{
+  try{
+    let data:any  = await getData('drug');
+
+    
+    let drug = [{
+      code:route.params.code,
+      amount:content.price,
+      qty:content.qty
+    }]
+
+
+    if(data){
+      let item =  JSON.parse(data)
+      let allItems =  item.concat(drug)
+      storeData('drug', JSON.stringify(allItems))
+    }else{
+      storeData('drug', JSON.stringify(drug))
+    }
+    setLoading(true)
+    setModalType('Success')
+    setErrors({...errors, errorMessage: 'Successfully Added'})
+
+  
+  }catch(e){
+
+  }
+}
+const handleClose =()=>{
+  setLoading(false)
+  navigation.goBack();
+}
+
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let url = ServerUrl+'/api/vendor/product/details/'+route.params.code
+  try{
+ await axios.get(url, config).then(response=>{
+
+    if(response.data.type==='success'){
+
+      setContent(response.data.data[0])
+      AnimationStart()
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
 }
 
 
+const onRefresh = useCallback(()=>{
+  setRefreshing(false)
+  FetchContent()
+  }, [])
 
-
+  useEffect(()=>{
+    FetchContent()
+  }, [route])
     
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+ 
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
@@ -84,18 +150,19 @@ const handleNext =()=>{
 
 <ScrollView>
 
+<Animated.View style={{opacity:fadeValue}}>
     <View style={[styles.box]}>
 
 <View style={{display:'flex', alignItems:'flex-end'}}>
 <Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.px} />
 </View>
 
-<Image source={{ uri:ImagesUrl+"/category/care.png"}} style={styles.catImage} />
+<Image source={{ uri:content.image_url!=='' && content.image_url!==null ?ImagesUrl+"/vendors/products/"+content.image_url:ImagesUrl+"/no.png"}} style={styles.catImage} />
 
 <View style={{marginVertical:10}}>
   
   <View style={[globalStyles.rowCenterBetween,{marginTop:15}]}>
-      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>Salospir 100mg Tablet</Text>
+      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600'}}>{content.product_name}</Text>
 
 <View style={globalStyles.rowCenterCenter}>
       <MaterialIcon name="star" size={18} color={'#EEA31E'}  />
@@ -106,7 +173,7 @@ const handleNext =()=>{
       </View>
 
 <View style={[globalStyles.rowCenterBetween,{marginVertical:5, marginRight:5}]}>
-<Text style={styles.infoText}>Health Care</Text>
+<Text style={styles.infoText}>{content.category}</Text>
 
 
 <View style={globalStyles.rowCenterCenter}>
@@ -124,7 +191,7 @@ const handleNext =()=>{
 <View style={styles.card}>
   <Text style={styles.infoText}>Description</Text>
 
-  <Text style={{marginTop:10, fontSize:12, textAlign:'justify', fontFamily:'ariel' }}>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consectetur veritatis impedit numquam.</Text>
+  <Text style={{marginTop:10, fontSize:12, textAlign:'justify', fontFamily:'ariel' }}>{content.description}</Text>
 </View>
 
 
@@ -134,18 +201,16 @@ const handleNext =()=>{
 <View style={[globalStyles.rowCenterBetween, {marginTop:10}]}>
   <View style={globalStyles.rowCenterCenter}>
 
-
-
     <View style={styles.companyLogo}>
-    <Image source={{ uri:ImagesUrl+"/seller/profile.jpg" }} style={styles.sellerImage} />
+    <Image source={{ uri:content.store_image!=='' && content.store_image!==null ?ImagesUrl+"/vendors/profiles/"+content.store_image:ImagesUrl+"/no.png"}} style={styles.sellerImage} />
                 
 </View>
 
 <View style={{marginLeft:10}}>
-<Text style={{fontSize:12, fontWeight:'700'}}>Well Life Store</Text>
+<Text style={{fontSize:12, fontWeight:'700'}}>{content.store_name}</Text>
 <View style={styles.address}>
 <MaterialIcon name="location-on" size={10} color={colors.grey}  /> 
-<Text style={{fontSize:10, color:colors.grey, marginLeft:5}}>Willinton Bridge</Text>
+<Text style={{fontSize:10, color:colors.grey, marginLeft:5}}>{content.address}</Text>
 
 </View>
 </View>
@@ -164,22 +229,29 @@ const handleNext =()=>{
 
 </View>
 
-
+</Animated.View>
 </ScrollView>
+
+
+<Loader isModalVisible={loading} 
+    type={modalType}
+
+    message={errors.errorMessage} 
+    action={handleClose}
+     />
 
 <View style={styles.footer}>
 
 <View style={[globalStyles.rowCenterBetween,{marginVertical:15, marginHorizontal:10}]}>
-  <Text style={styles.label}>$ 3.50</Text>
+  <Text style={styles.label}>{CURRENCY+ FormatNumber(content.price)}</Text>
 
 
   <View style={[globalStyles.rowCenterCenter]}>
-<Text style={[styles.infoText, {fontSize:10}]}>Pack of 8</Text>
+<Text style={[styles.infoText, {fontSize:10}]}>{content.qty}</Text>
 
-<MaterialIcon name="expand-more" size={10} color={'#9E9E9E'}  /> 
 </View>
 </View>
-  <PrimaryButton title='Add to Cart' handleAction={handleNext} />
+  <PrimaryButton title='Add to Cart' handleAction={AddToCart} />
 
 </View>
       

@@ -1,19 +1,17 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, ImageBackground, StatusBar } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
+import { PrimaryButtonChildren } from '../../components/include/button';
 
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
+
+import axios from 'axios';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -25,19 +23,28 @@ const height =
 
 
 type RootStackParamList = {
-  LabDetails: undefined;
+  LabDetails:{
+    code:undefined
+   }
+
+  BottomTabs:undefined; 
   Cart:undefined; 
-  LabMapView:{
+  SearchLab:{
      code:string;
+  name:undefined;
    }
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LabDetails'>;
- const LabDetails =({ route, navigation }:Props)=> {
+ const LabDetails =({  route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+  const [content, setContent]= useState([] as any)
+  const [lab, setLab]= useState({
+    facility:[] as any,
+    total_facility:4
+  })
 
 interface item {
   title:string,
@@ -48,22 +55,53 @@ interface item {
 
 
 const handleBack =()=>{
-  navigation.goBack();
+  navigation.navigate('BottomTabs');
 }
 
-const handleNext =()=>{
- navigation.navigate('LabMapView', {
-    code:'cds',
+const handleNext =(item:any)=>{
+ navigation.navigate('SearchLab', {
+    code:item.code,
+    name:item.lab_name
   });  
 }
 
 
-  
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let url = ServerUrl+'/api/lab/view/'+route.params.code
+  try{
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+ let facility = JSON.parse(response.data.data.facility)
+      setLab({...lab, 
+          
+        facility:facility,
+        total_facility:facility.length>4?4:facility.length
+
+      }) 
+      setContent(response.data.data)
+    }else{
+      setContent([])
+    }
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
 
     
+useEffect(()=>{
+  FetchContent()
+}, [route])
+
+
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchContent
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
@@ -78,16 +116,15 @@ const handleNext =()=>{
 
     <View style={{backgroundColor:colors.white, paddingVertical:10,  paddingHorizontal:20, display:'flex', flexDirection:'row'}}>
 
-
-    <Image source={{ uri:ImagesUrl+"/seller/profile_4.png" }} style={styles.profile} />
+    <Image source={{ uri:content.image_url!=='' && content.image_url!==null ?ImagesUrl+"/lab/"+content.image_url:ImagesUrl+"/no.png"}}  style={styles.profile} />
 
 
 <View style={{marginTop:10, marginLeft:10}}>
-    <Text style={{color:colors.dark, fontSize:17, fontWeight:'700', marginBottom:5}}>City Cure Labs</Text>
+    <Text style={{color:colors.dark, fontSize:17, fontWeight:'700', marginBottom:5}}>{content.lab_name}</Text>
 
 <View style={{display:'flex', flexDirection:'row', marginTop:15}}>
     <MaterialIcon name="add-location" size={14} color={colors.grey}  /> 
-<Text style={[styles.infoText, {marginLeft:5}]}>Willington Bridge</Text>
+<Text style={[styles.infoText, {marginLeft:5}]}>{content.address}</Text>
 </View>
 
 
@@ -98,7 +135,7 @@ const handleNext =()=>{
 </View> 
 
 
-<Text style={styles.label}>12:00 to 13:00</Text>
+<Text style={styles.label}>07:00 AM to 17:00 PM</Text>
 </View>
 
 </View>
@@ -108,8 +145,7 @@ const handleNext =()=>{
 <View style={styles.card}>
 <Text style={styles.infoText}>About</Text>
 
-<Text style={[styles.infoText, {marginTop:10}]}>
-  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Rerum, excepturi totam? Fugiat, rerum necessitatibus pariatur cumque quos minima quidem hic id quas aut dolorem corrupti repellat beatae ullam laborum provident. Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius, veniam atque corporis iure unde mollitia laboriosam
+<Text style={[styles.infoText, {marginTop:10}]}>{content.about}
 </Text>
 
 </View>
@@ -117,18 +153,17 @@ const handleNext =()=>{
 
 <View style={[styles.card,{marginTop:0}]}>
 <Text style={styles.infoText}>Facilities</Text>
+{lab.facility.length!==0?lab.facility.slice(0,lab.total_facility).map((item:any, index:number)=>
+<View style={{marginTop:5}} key={index}>
+<Text style={styles.h3}>{item.title}</Text>
+</View>):<Text style={styles.h3} >{'No record found'}</Text>}
 
-<View style={{marginTop:15}}>
-<Text style={styles.h3}>Minor OT/Dressing Room</Text>
-<Text style={styles.h3}>Emergency Ward</Text>
-<Text style={styles.h3}>DRadiology/X-ray facility</Text>
-<Text style={styles.h3}>Laboratory Services</Text>
-<Text style={styles.h3}>Ambulance Services</Text>
-</View>
 
-<View>
-  <Text style={[styles.label, {color:colors.navyBlue, marginVertical:10}]}>+5 More</Text>
-</View>
+{lab.total_facility!==lab.facility.length?
+<View style={{marginTop:5}}>
+  <Pressable onPress={()=>setLab({...lab, total_facility:lab.facility.length})} ><Text style={[styles.label, {color:colors.navyBlue, marginVertical:10}]}>+{((lab.facility.length)-lab.total_facility)} More</Text></Pressable>
+</View>:[]}
+
 
 </View>
    
@@ -143,15 +178,13 @@ const handleNext =()=>{
 
 <View style={{display:'flex', flexDirection:'row'}}>
 <MaterialIcon name="add-location" size={14} color={colors.grey}  />
-<Text style={[styles.infoText, {fontWeight:'700', marginLeft:5}]}>Walter street, Wallington, New York.</Text>
+<Text style={[styles.infoText, {fontWeight:'700', marginLeft:5}]}>{content.address}</Text>
 </View>
 
 <MaterialIcon name="navigation" size={18} color={colors.navyBlue}  />
 </View>
 
 </View>
-
-
 
 
 
@@ -167,7 +200,7 @@ const handleNext =()=>{
 
 </ScrollView>
 
-<PrimaryButtonChildren handleAction={handleNext} style={{position:'absolute', bottom:0}}>
+<PrimaryButtonChildren handleAction={()=>handleNext(content)} style={{position:'absolute', bottom:0}}>
   <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
 
   <MaterialIcon name="search" size={14} color={colors.white}  />

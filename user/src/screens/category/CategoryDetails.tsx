@@ -1,17 +1,16 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity, Animated, ImageBackground } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
 
+import axios from 'axios';
+import { FormatNumber } from '../../components/globalFunction';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -23,7 +22,10 @@ const height =
 
 
 type RootStackParamList = {
-  CategoryDetails: undefined;
+  CategoryDetails: {
+    title:string,
+    code:string
+  };
   Cart:undefined; 
   DrugDetails:{
      code:string;
@@ -34,14 +36,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CategoryDetails'>;
  const CategoryDetails =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+  
   const [refreshing, setRefreshing] = useState(false)
+  const fadeValue = useRef(new Animated.Value(0)).current 
+  const [content, setContent]= useState([] as any)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
 
 const handleBack =()=>{
   navigation.goBack();
@@ -51,53 +50,96 @@ const handleCart =()=>{
   navigation.navigate('Cart');
 }
 
-const handleNext =()=>{
+const handleNext =(code:string)=>{
   navigation.navigate('DrugDetails', {
-    code:'cds',
+    code:code,
   }); 
 }
 
 
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
+
+
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let url = ServerUrl+'/api/user/products/'+route.params.code
+  try{
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+      setContent(response.data.data)
+      AnimationStart()
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+const onRefresh = useCallback(()=>{
+  setRefreshing(false)
+  FetchContent()
+  }, [])
+
+  useEffect(()=>{
+    FetchContent()
+  }, [route])
+
 
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <TouchableOpacity activeOpacity={0.8} onPress={()=>handleNext(item.code)}   style={[styles.box]}>
 
-<View style={{display:'flex', alignItems:'flex-end'}}>
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.px} />
-</View>
+<Animated.View style={{opacity:fadeValue}}>
 
-<Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
+<ImageBackground source={{ uri:item.image_url!=='' && item.image_url!==null ?ImagesUrl+"/vendors/products/"+item.image_url:ImagesUrl+"/no.png"}}   style={styles.catImage}>
 
-<View style={{marginTop:15}}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>Allerygy Relief</Text>
+{item.require_prescription?<View style={{justifyContent:'flex-end', alignItems:'flex-end'}}>
+<Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={globalStyles.px} /></View>:[]}
 
-      <Text style={{color:colors.dark, fontSize:10,  fontWeight:'600'}}>Tablet</Text>
+</ImageBackground>
 
-      <Text style={{color:colors.dark, fontSize:12,  fontWeight:'700', marginTop:10}}>$3.50</Text>
+
+
+<View style={{ padding:10}}>
+      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>{item.product_name}</Text>
+
+      <Text style={{color:colors.dark, fontSize:10,  fontWeight:'600'}}>{item.category}</Text>
+
+      <Text style={{color:colors.dark, fontSize:12,  fontWeight:'700', marginTop:10}}>{CURRENCY+ FormatNumber(item.price)}</Text>
       </View>
 
   <View style={styles.addItem}>
 <MaterialIcon name="add" size={18} color={colors.white}  />
       </View>
-
-      </Pressable>
+      </Animated.View>
+      </TouchableOpacity>
     }
 
 
   
 
     
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
     <View style={styles.header}>
     <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={colors.dark}  /> 
-    <Text style={styles.label}>Health Care</Text>
+    <Text style={styles.label}>{route.params.title}</Text>
     
     
     <Pressable onPress={handleCart} style={styles.cart}>
@@ -113,9 +155,9 @@ const handleNext =()=>{
 
 
     <View style={styles.catItems}>
-
+    {content.length!==0?
 <FlatList 
-data={CATEGORY}
+data={content}
 numColumns={2}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
@@ -124,7 +166,11 @@ decelerationRate="fast"
 renderItem={({item})=> <CardCategory key={item.id} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
-/>
+/>:
+<View style={styles.nothing}>
+  <Text> There's nothing to show!</Text>
+</View>
+ }
 
 </View>
 
@@ -164,18 +210,19 @@ const styles = StyleSheet.create({
 
 
 box:{
-  height:(height/3)-40,
   width:(width/2)-15,
   backgroundColor:colors.white,
   borderRadius:10,
   marginBottom:10,
   display:'flex',
-  paddingVertical:5,
-  paddingHorizontal:10,
   marginHorizontal:5
   
     },
-
+    catImageWrapper:{
+      height:(height/2)*0.35,
+      width:(width/2)-15,
+      backgroundColor:colors.white,
+        },
 catItems:{
 flex:1,
 marginTop:10,
@@ -203,12 +250,12 @@ px:{
   width:25,
   resizeMode:'cover',
     },
-catImage:{
-height:(height/2)*0.2,
-width:(width/2)-40,
-resizeMode:'contain',
-marginTop:15
-  },
+    catImage:{
+      height:(height/2)*0.25,
+      resizeMode:'cover',
+      borderTopLeftRadius:10,
+      borderTopRightRadius:10
+        },
 
 modal:{
  width:width-120,
@@ -271,5 +318,11 @@ bottomItem:{
   flexDirection:'row',
   backgroundColor:'red',
 
-}
+},
+nothing:{ 
+  height:height-50, 
+  width:width-40, 
+  display:'flex', 
+  justifyContent:'center',
+   alignItems:'center'}
 })

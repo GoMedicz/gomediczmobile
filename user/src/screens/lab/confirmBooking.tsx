@@ -1,5 +1,5 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
@@ -8,9 +8,12 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATITEMS, DATES, LANGUAGELIST, TIMES } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
+import { FormatNumber, getData, getMonthYear, getNumWorkDays, getTime, storeData, timeAddMinutes } from '../../components/globalFunction';
+import axios from 'axios';
+import Loader from '../../components/loader';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -24,7 +27,9 @@ const height =
       
 type RootStackParamList = {
   ConfirmBooking: undefined;
-  Payment:undefined; 
+  Payment:{
+    order_code:string;
+  }; 
     BottomTabs:{
      code:string;
    }
@@ -33,9 +38,31 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'ConfirmBooking'>;
  const ConfirmBooking =({ route, navigation }:Props)=> {
 
+
+let date = new Date()
+var today = date.toISOString().slice(0,10)
+var weekend:any =new Date(date.setDate(date.getDate()+6)).toISOString().slice(0,10)
+
+
+const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+
+  const [dateList, setDateList]= useState([] as any)
+  const [timeList, setTimeList]= useState([] as any)
+  const [errors, setErrors] = useState({
+    title:'',
+    date:'',
+    time:'',
+    errorMessage:''
+  });
+  const [cart, setCart]= useState({
+ 
+    data:[] as any,
+    subtotal:0,
+    charge:0,
+    total:0,
+  })
 
 interface item {
   title:string,
@@ -47,92 +74,237 @@ const handleBack =()=>{
   navigation.goBack();
 }
 
-const handlePayment =()=>{
-  navigation.navigate('Payment');
-}
-
-const handleNext =()=>{
-  navigation.navigate('BottomTabs', {
-    code:'cds',
-  }); 
+const handlePayment =(code:string)=>{
+  navigation.navigate('Payment',{
+    order_code:code
+  });
 }
 
 
-const CardCategory =({item}:{item:any})=>{
-  return <Pressable style={[styles.card]}>
- 
-<Text style={styles.label}>{item.title}</Text> 
 
-<View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
-<Text style={[styles.infoText, {marginTop:10}]}>City Cure Labs</Text>
-<Text style={[styles.label, {fontWeight:'700'}]}>N44.00</Text>
-</View>
 
-    </Pressable>
+
+
+
+const handleSubmit =async()=>{
+       
+  let error = {...errors}; 
+let formIsValid = true;
+
+let msg ='This field is required';
+
+if(cart.data.length===0){
+  error.title = 'There are no items in your cart';
+    formIsValid = false;
+} 
+
+
+  const date = dateList.filter((item:any)=>item.status===true)[0]
+  const time = timeList.filter((item:any)=>item.status===true)[0]
+
+
+  if(!date){
+    error.date = msg;
+      formIsValid = false;
+  } 
+
+  if(!time){
+    error.time = msg;
+      formIsValid = false;
+  } 
+
+
+if(!formIsValid){
+  setErrors(error) 
   }
 
+if(formIsValid) {
+ 
+   setLoading(true)
 
+ 
+      let config = await configToken()
+    let order_code = Math.random().toString(36).substring(2, 9);
+
+
+      const user_code = await getData('code');
+      const wallet = await getData('wallet');
+
+/* 
+      const fd = {
+        subtotal:cart.subtotal,
+        total:cart.total,
+        charge:cart.charge,
+        time:time.startTime,
+        date:date.date,
+        user_code:user_code,
+        order_code:order_code,
+        items:JSON.stringify(cart.data),
+        wallet:wallet
+
+      } */
+      const fd = new FormData();
+      fd.append('subtotal',  cart.subtotal)
+      fd.append('total',  cart.total)
+      fd.append('charge',  cart.charge)
+      fd.append('time',  time.startTime)
+      fd.append('date',  date.date)
+      fd.append('user_code',  user_code)
+      fd.append('order_code',  order_code)
+
+      fd.append('items',  JSON.stringify(cart.data))
+      fd.append('wallet',  wallet)
+
+  let url = ServerUrl+'/api/lab/test/booking';
+     axios.post(url, fd, config)
+     .then(response =>{
+       if(response.data.type === 'success'){
+        
+        storeData('order_code', order_code);
+        storeData('cart', '[]');
+
+        setModalType('Success')
+        setErrors({...errors, errorMessage: 'Successfully Booked'})
+        handlePayment(order_code)
+
+      } else{
+        setModalType('Failed')
+            setErrors({...errors, errorMessage: response.data.message})
+                 }   
+             })
+             .catch((error)=>{
+              setModalType('Failed')
+            setErrors({...errors, errorMessage: error.message})
+
+             }).finally(()=>{
+              handleReset()
+            
+             }) 
+            }
+}
+
+
+
+const  FetchContent = async()=>{
+  
+  try{
+    let data:any  = await getData('cart');
+    let cat = JSON.parse(data)
+
+    const subtotal = cat.reduce((acc:number, item:any)=>acc+parseFloat(item.fees), 0)
+let charge = 100
+
+    setCart({...cart, 
+      data:cat, 
+      subtotal:subtotal, 
+      charge:charge,
+      total:subtotal+charge
+    })
+
+
+    getTimeInterval('07:00:00', '18:30:00', 30)
+    setDateList(getNumWorkDays(today, weekend))
+
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+const getTimeInterval =(startTime:any, endTime:any, minuteToAdd:any)=>{
+  var futureDate = timeAddMinutes(startTime, minuteToAdd);
+  let timeList =[];
+  var maxSlot =24; //maximum slot per day in 30 minutes interval
+  
+  for(var i=0; i<=maxSlot; i++){
+      if(String(futureDate)<= endTime){
+          timeList.push({
+            startTime:startTime, 
+            label:getTime(startTime),
+            status:false
+          })
+          startTime = futureDate;
+          futureDate = timeAddMinutes(startTime, minuteToAdd);
+      }
+  }
+  setTimeList(timeList)
+}
+
+const handleChooseDate =(date:string)=>{  
+  const currentContent = dateList.map((item:any)=>{
+                 
+      if(item.date ===date){
+          return {...item, status:true}
+      }else{
+        return {...item, status:false}
+      }
+        })
+
+ setDateList(currentContent) 
+ setErrors({...errors, date:''}) 
+     }
+
+const handleReset =()=>{
+
+  const currentContent = timeList.map((item:any)=>{
+    return {...item, status:false}
+      })
+      const currentDate = dateList.map((item:any)=>{
+        return {...item, status:false}
+          })
+
+          //setUser({...user, code:'a'+Math.random().toString(36).substring(2, 9)})
+            
+            
+ setDateList(currentDate) 
+setTimeList(currentContent) 
+
+}
+
+
+const handleChooseTime =(startTime:string)=>{  
+  const currentContent = timeList.map((item:any)=>{
+                 
+      if(item.startTime ===startTime){
+          return {...item, status:true}
+      }else{
+        return {...item, status:false}
+      }
+        })
+
+ setTimeList(currentContent) 
+    
+  setErrors({...errors, time:''})  
+     }
+
+    
+     
 
 const CardDate =({item}:{item:any})=>{
-  return <Pressable style={styles.box}>
-<Text style={[styles.infoText, {fontSize:10}]}>{item.day}</Text>
-<Text style={styles.date}>{item.date}</Text>
+  return <Pressable style={[styles.box, item.status===true?styles.active:[]]} onPress={()=>handleChooseDate(item.date)}>
+<Text style={[styles.infoText, {fontSize:10}]}>{item.title}</Text>
+<Text style={[styles.date, item.status===true?{color:colors.white}:[]]}>{item.day}</Text>
     </Pressable>
   }
   
 
   const CardTime =({item}:{item:any})=>{
-    return <Pressable style={[styles.timeBox]}>
-  <Text style={styles.time}>{item.time}</Text>
+    return <Pressable style={[styles.timeBox, item.status===true?styles.active:[] ]} onPress={()=>handleChooseTime(item.startTime)}>
+  <Text style={[styles.time, item.status===true?{color:colors.white}:[]]}>{item.label}</Text>
       </Pressable>
     }
 
 
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
+useEffect(()=>{
+  FetchContent()
+}, [route])
 
-  return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
-    
-    <ScrollView>
-    <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
-    <Text style={styles.label}>Confirm Booking</Text>
-    <View />
-    </View>
+const Footer =()=>{
 
-
-
-    <Pressable style={[styles.card]}>
- 
- <Text style={styles.label}>Complete Blood Count</Text> 
- 
- <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
- <Text style={[styles.infoText, {marginTop:10}]}>City Cure Labs</Text>
- <Text style={[styles.label, {fontWeight:'700'}]}>N44.00</Text>
- </View>
- 
-     </Pressable>
-
-
-   {/*   <Pressable style={[styles.card]}>
- 
- <Text style={styles.label}>Complete Blood Count</Text> 
- 
- <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
- <Text style={[styles.infoText, {marginTop:10}]}>City Cure Labs</Text>
- <Text style={[styles.label, {fontWeight:'700'}]}>N44.00</Text>
- </View>
- 
-     </Pressable>
- */}
-
-
-    
-
+  return <>
+  
+  
 <View style={styles.card}>
-<Text style={styles.infoText}>Pickup Address</Text>
+<Text style={styles.infoText}>Default House Address</Text>
 <View style={styles.address}>
 <MaterialIcon name="home" size={18} color={colors.icon}  />
 
@@ -145,28 +317,32 @@ const CardDate =({item}:{item:any})=>{
 </View>
 </View>
 
+
+
+    
+
+
 <View style={{backgroundColor:colors.white, marginTop:10}}>
+
 <View style={[styles.row, {marginTop:25, paddingBottom:0}]}>
 <Text style={styles.infoText}>Select Date</Text>
 
-<Text style={[styles.label]}>June 2020</Text>
+<Text style={[styles.label]}>{getMonthYear()}</Text>
 </View>
 
 <View style={[styles.row]}>
-
-  
 <FlatList 
-data={DATES}
+data={dateList}
 horizontal
 showsHorizontalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
-renderItem={({item})=> <CardDate key={item.id} item={item} />}
+renderItem={({item})=> <CardDate key={item.date} item={item} />}
 
 />
 
-</View>
+</View><Text style={[styles.infoText, {color:colors.red, marginLeft:10} ]}>{errors.date}</Text>
 
 <View style={[styles.row, {marginTop:20}]}>
 <Text style={styles.infoText}>Select Time</Text>
@@ -174,43 +350,96 @@ renderItem={({item})=> <CardDate key={item.id} item={item} />}
 </View>
 
 
-<View style={[styles.row, {paddingVertical:10}]}>
+
+<View style={[styles.row, {paddingTop:0}]}>
 <FlatList 
-data={TIMES}
+data={timeList}
 horizontal
 showsHorizontalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
-renderItem={({item})=> <CardTime key={item.id} item={item} />}
+renderItem={({item})=> <CardTime key={item.startTime} item={item} />}
 
 />
 
+</View><Text style={[styles.infoText, {color:colors.red, marginLeft:10} ]}>{errors.time}</Text>
+
+
 </View>
+
+  </>
+}
+const Cart = ({item}:{item:any})=>{
+  return <Pressable style={[styles.card]} >
+ 
+  <Text style={styles.label}>{item.title}</Text> 
+  
+  <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
+  <Text style={[styles.infoText, {marginTop:10}]}>{item.lab_name}</Text>
+  <Text style={[styles.label, {fontWeight:'700'}]}>{CURRENCY+FormatNumber(item.fees)}</Text>
+  </View>
+  
+   </Pressable>
+}
+  const onRefresh = useCallback(()=>{
+    setRefreshing(false)
+    FetchContent()
+    }, [])
+
+  return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
+    
+    
+    <View style={styles.header}>
+    <MaterialIcon name="arrow-back-ios" size={18} onPress={handleBack} color={colors.dark}  /> 
+    <Text style={styles.label}>Confirm Booking</Text>
+    <View />
+    </View>
+
+<View style={{height:height-200}}>
+    <FlatList 
+data={cart.data}
+numColumns={1}
+snapToInterval={width-20}
+showsVerticalScrollIndicator={false}
+snapToAlignment='center'
+decelerationRate="fast"
+ListFooterComponent={<Footer />}
+renderItem={({item})=> <Cart  key={item.code} item={item} />}
+refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
+
+
+}
+/>
 </View>
 
 
+<Loader isModalVisible={loading} 
+    type={modalType}
 
-</ScrollView>
+    message={errors.errorMessage} 
+    action={()=>setLoading(false)}
+     />
+
 <View style={styles.container}>
 
 
 <View style={styles.row}>
   <Text style={styles.label}>Sub total</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(cart.subtotal)}</Text>
 </View>
 
 <View style={styles.row}>
-  <Text style={styles.label}>Pickup Charge</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>Service Charge</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(cart.charge)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Amount to Pay</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(cart.total)}</Text>
 </View>
 
-<TouchableOpacity onPress={handlePayment} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, } ]}>
+<TouchableOpacity onPress={handleSubmit} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, } ]}>
   <Text style={globalStyles.buttonText}>Continue to Pay</Text> 
 </TouchableOpacity>
 
@@ -317,7 +546,10 @@ modal:{
  width:width-120,
  height:undefined
 },
-
+active:{
+  backgroundColor:colors.primary,
+  color:colors.white
+},
 modalContent:{
   display:'flex',
   justifyContent:'center',

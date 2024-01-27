@@ -44,7 +44,6 @@ export  const dynamicStyles =(MODE:string)=> StyleSheet.create({
   },
   
 boxCart:{
-  height:(height/3)-30,
   width:(width/2)-15,
   backgroundColor:MODE==='Light'?colors.white:colors.dark,
   borderRadius:10,

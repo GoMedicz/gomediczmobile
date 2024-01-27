@@ -20,7 +20,8 @@ const {
   HospitalController,
   DepartmentDoctorController,
   LabController,
-  LabTestController 
+  LabTestController,
+  MainCategoryController 
 } = require('../controllers/index');
 
 var ride = multer.diskStorage({
@@ -83,18 +84,53 @@ var appointment = multer.diskStorage({
   },
 })
 
+var labPic = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/images/lab/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.body.image_url)
+  },
+})
+
+
+var categoryUpload = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/images/pharmacy/category/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.body.image_url)
+  },
+})
+
 
 const prescribe = multer({ storage: prescription });
 const profile = multer({ storage:store });
   const upload = multer({ storage: storage });
   const rider = multer({ storage:ride });
   const attachment = multer({ storage:appointment });
+
+  const lab = multer({ storage:labPic });
+  const category = multer({ storage: categoryUpload });
+
+
+//MainCategory controller
+router.post('/api/store/category/add', General.AuthenticateToken, category.single('image'), MainCategoryController.addNewCategory);
+
+router.post('/api/store/subcategory/add', General.AuthenticateToken, MainCategoryController.addNewSubCategory);
+
+router.get('/api/store/sub_category/all', General.AuthenticateToken, MainCategoryController.getSubCategory);
+
+router.get('/api/store/category/all', General.AuthenticateToken, MainCategoryController.getCategory);
+
+
+
+
 //Category controller
 router.post('/api/pharmacy/category/add_new', General.AuthenticateToken, categoryController.addNewCategory);
 
 router.get('/api/vendor/products/category/all', General.AuthenticateToken, categoryController.getCategory);
 
-router.get('/api', categoryController.greetings);
 
 
 //General controller
@@ -110,9 +146,11 @@ router.get('/api/vendor/product/view/:pharmacy_code/:code', General.Authenticate
 
 router.post('/api/vendor/product/update', General.AuthenticateToken, upload.single('image'), ProductController.UpdateProduct);
 
+router.get('/api/user/products/:code', General.AuthenticateToken, ProductController.getProductByCategory);
 
 router.get('/api/vendor/products/all/:code', General.AuthenticateToken, ProductController.getProducts);
 
+router.get('/api/vendor/product/details/:code', General.AuthenticateToken, ProductController.searchOneProduct);
 
 
 //Store Controller
@@ -247,7 +285,7 @@ router.get('/api/hospital/department/view/:code',    DepartmentDoctorController.
 
 
 //Lab controller
-router.post('/api/lab/add',  LabController.addNewLab);
+router.post('/api/lab/add', lab.single('image'), LabController.addNewLab);
 router.get('/api/lab/all',  LabController.getLab);
 router.get('/api/lab/view/:code', LabController.getOneLab);
 
@@ -257,5 +295,7 @@ router.get('/api/lab/view/:code', LabController.getOneLab);
 router.post('/api/lab/test/add',  LabTestController.addNewLabTest);
 router.get('/api/lab/test/all',  LabTestController.getLabTest);
 router.get('/api/lab/test/view/:code', LabTestController.getOneLabTest);
+
+router.post('/api/lab/test/booking', LabTestController.AddNewBooking);
 
 module.exports = router;

@@ -40,6 +40,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'EditItem'>;
   const params = route.params
   const [loading, setLoading] = useState(false)
 
+  const [content, setContent]= useState([] as any)
   const MODE = useZustandStore(store => store.theme);
   const dynamicStyle = dynamicStyles(MODE);
 
@@ -87,6 +88,9 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
     if(name==='category_code'){
       fetchSubCategory(text)
     }
+    if(name==='price'){
+      text = text.replace(/[^0-9]/g, "").substring(0, 10)
+    }
     setDrugs({...drugs, [name]:text})
     setErrors({...errors, [name]:''})
   }
@@ -97,28 +101,36 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
 
   const fetchSubCategory =(code:string)=>{
 
-    const res = category&&category.filter((item:any)=>item.parent_code===code)
+    const res = content&&content.filter((item:any)=>item.main_code===code)
+   
     if(res.length!==0){
       setSubCategory(res)
     }else{
       setSubCategory([])
     }
-    
-
   }
 
-
-  const fetchCategory = async()=>{
+  const  fetchCategory = async()=>{
+    //setLoading(true)
     let config = await configToken()
-
-    let url = ServerUrl+'/api/vendor/products/category/all'
+    let url = ServerUrl+'/api/store/sub_category/all'
     try{
    await axios.get(url, config).then(response=>{
       if(response.data.type==='success'){
-        setCategory(response.data.data)
+       
+let data = response.data.data
+
+const allCategory =	data.map((e:any)=>e['main_code'])
+.map((e:any,i:any,final:any)=>final.indexOf(e)===i&&i)
+.filter((e:any)=>data[e])
+.map((e:any)=>data[e])
+
+setCategory(allCategory)
+        setContent(data)
       }else{
-        setCategory([])
+        setContent([])
       }
+  
     }) 
   }catch(e){
     console.log('error:',e)
@@ -138,8 +150,6 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
       if(response.data.type==='success'){
         setDrugs(response.data.data)
 
-          let prices = JSON.parse(response.data.data.price_list)
-       setQuantity(prices)
       }else{
         setDrugs([])
         //handleBack()
@@ -299,12 +309,8 @@ const handleBack =()=>{
         formIsValid = false;
     }
 
-    if(quantity.length===0){
-      error.price = msg;
-        formIsValid = false;
-    }
 
-    const newQuantity = quantity.map((data:any)=>{
+/*     const newQuantity = quantity.map((data:any)=>{
       if(data.price===''){
         error.price= 'Please enter price';
         formIsValid = false;
@@ -313,7 +319,7 @@ const handleBack =()=>{
             error.qty= 'Please enter quantity';
             formIsValid = false;
               };
-  })
+  }) */
 
 
     if(!formIsValid){
@@ -333,7 +339,7 @@ const handleBack =()=>{
         fd.append('image',  image)
       }
           
-      fd.append('price_item',  JSON.stringify(quantity, null, 2))
+   
       let config = await configToken()
       let url = ServerUrl+'/api/vendor/product/update';
          axios.post(url, fd, config)
@@ -474,7 +480,7 @@ showsVerticalScrollIndicator={false}
       value={drugs.category_code}
       items={
         category&&category.map((list:any, id:number)=>{
-            return {key:id, value:list.code, label:list.category_name, parent_code:list.parent_code}
+            return {key:id, value:list.main_code, label:list.title}
                 })} 
       setItems={setItems}
       setOpen={setIsCategoryOpen}
@@ -518,7 +524,8 @@ showsVerticalScrollIndicator={false}
       value={drugs.subcategory_code}
       items={
         subCategory&&subCategory.map((list:any, id:number)=>{
-            return {key:id, value:list.code, label:list.category_name, parent_code:list.parent_code}
+            return {key:id, value:list.sub_code, label:list.sub_title, main_code:list.main_code}
+                
                 })}
       setItems={setItems}
       setOpen={setIsSubCategoryOpen}
@@ -604,21 +611,20 @@ showsVerticalScrollIndicator={false}
 </View>
 
 
-{quantity&&quantity.map((item:any, index:number)=>
-<View key={index} style={[globalStyles.rowCenterBetween, {marginTop:5}]}>
+<View  style={[globalStyles.rowCenterBetween, {marginTop:5}]}>
 
   <TextInput 
   placeholder='e.g 300' 
   
   style={[dynamicStyle.qty, errors.price?styles.error:[]]}
   placeholderTextColor={colors.grey}
-  value={item.price}
+  value={drugs.price}
   keyboardType='numeric' 
   autoCapitalize='none' 
    autoFocus={true}
    autoCorrect={false}
 
-  onChangeText={text=>handleChangeQty('price', item.code, text)}
+  onChangeText={text=>handleChange('price',  text)}
 
   />
 
@@ -627,27 +633,27 @@ showsVerticalScrollIndicator={false}
     placeholder='e.g Pack of 4'
    style={[dynamicStyle.qty, errors.qty?styles.error:[]]} 
    placeholderTextColor={colors.grey}
-  value={item.qty}
+  value={drugs.qty}
   
   keyboardType='email-address'
   autoCapitalize='none' 
    autoFocus={true}
    autoCorrect={false}
-  onChangeText={text=>handleChangeQty('qty', item.code, text)}
+  onChangeText={text=>handleChange('qty',  text)}
   />
-</View>)}
+</View>
 
 <View style={{width:width-40, marginVertical:5, justifyContent:'flex-end', display:'flex', alignItems:'flex-end', flexDirection:'row', marginHorizontal:20 }}>
 
 
-<TouchableOpacity style={[styles.addItem, {backgroundColor:colors.red}]} onPress={removeRow}>
+{/* <TouchableOpacity style={[styles.addItem, {backgroundColor:colors.red}]} onPress={removeRow}>
 <MaterialIcon name="remove" size={18} color={MODE==='Light'?colors.white:colors.dark}  /> 
-</TouchableOpacity>
+</TouchableOpacity> */}
 
 
-<TouchableOpacity style={styles.addItem} onPress={createNewRow}>
+{/* <TouchableOpacity style={styles.addItem} onPress={createNewRow}>
 <MaterialIcon name="add" size={18} color={MODE==='Light'?colors.white:colors.dark}  /> 
-</TouchableOpacity>
+</TouchableOpacity> */}
 </View>
 
 </View>

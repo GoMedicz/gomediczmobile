@@ -4,11 +4,11 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TextInput, TouchableOpacity } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { PrimaryButton } from '../../components/include/button';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { getData, getDays, getMonthYear, getTime } from '../../components/globalFunction';

@@ -40,6 +40,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AddItem'>;
   const dynamicStyle = dynamicStyles(MODE);
   const [loading, setLoading] = useState(false)
 
+  const [content, setContent]= useState([] as any)
 const Initials ={
   code: 'p'+Math.random().toString(36).substring(2, 9),
   staff_code: 'staff',
@@ -77,6 +78,11 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
     if(name==='category_code'){
       fetchSubCategory(text)
     }
+
+    if(name==='price'){
+      text = text.replace(/[^0-9]/g, "").substring(0, 10)
+    }
+
     setDrugs({...drugs, [name]:text})
     setErrors({...errors, [name]:''})
   }
@@ -85,36 +91,47 @@ const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
     setDrugs({...drugs, [name]:!text})
   }
 
+
+
   const fetchSubCategory =(code:string)=>{
 
-    const res = category&&category.filter((item:any)=>item.parent_code===code)
+    const res = content&&content.filter((item:any)=>item.main_code===code)
+   
     if(res.length!==0){
       setSubCategory(res)
     }else{
       setSubCategory([])
     }
-    
-
   }
-  const fetchCategory = async()=>{
-   
+
+
+  const  fetchCategory = async()=>{
+    //setLoading(true)
+    let config = await configToken()
+    let url = ServerUrl+'/api/store/sub_category/all'
     try{
-
-      let config = await configToken()
-      
-
-      let url = ServerUrl+'/api/vendor/products/category/all'
    await axios.get(url, config).then(response=>{
       if(response.data.type==='success'){
-        setCategory(response.data.data)
+       
+let data = response.data.data
+
+const allCategory =	data.map((e:any)=>e['main_code'])
+.map((e:any,i:any,final:any)=>final.indexOf(e)===i&&i)
+.filter((e:any)=>data[e])
+.map((e:any)=>data[e])
+
+setCategory(allCategory)
+        setContent(data)
       }else{
-        setCategory([])
+        setContent([])
       }
+  
     }) 
   }catch(e){
     console.log('error:',e)
   }
   }
+
 
 
 
@@ -187,20 +204,20 @@ const list = {
 
 } 
 
-const createNewRow =()=>{
+/* const createNewRow =()=>{
   setQuantity(quantity.concat({...list, code:Math.random().toString(36).substring(2, 9)}))
 
-}
+} */
 
-const removeRow=()=>{
+/* const removeRow=()=>{
 
 if(quantity.length!==1){
   let item = quantity.splice(quantity, quantity.length-1)
   setQuantity(item)
   }
- }
+ } */
 
-
+/* 
  const handleChangeQty =(name:string, code:string, text:string)=>{
 
   if(name==='price'){
@@ -217,7 +234,7 @@ if(quantity.length!==1){
   })
   setQuantity(newQuantity)
   setErrors({...errors, [name]:''})
-}
+} */
 
 
 const handleBack =()=>{
@@ -247,7 +264,7 @@ const handleBack =()=>{
         formIsValid = false;
     }
 
-      
+  /*     
     const newQuantity = quantity.map((data:any)=>{
       if(data.price===''){
         error.price= 'Please enter price';
@@ -257,7 +274,7 @@ const handleBack =()=>{
             error.qty= 'Please enter quantity';
             formIsValid = false;
               };
-  })
+  }) */
 
 
     if(!formIsValid){
@@ -279,8 +296,8 @@ const handleBack =()=>{
 
           let config = await configToken()
           const pharmacy_code = await getData('code');
-        
-      fd.append('price_list',  JSON.stringify(quantity, null, 2))
+        /* 
+      fd.append('price_list',  JSON.stringify(quantity, null, 2)) */
       fd.append('image',  image)
       fd.append('pharmacy_code',  pharmacy_code)
 
@@ -318,7 +335,6 @@ const handleBack =()=>{
 
 
     useEffect(()=>{
-      GenerateRow()
       fetchCategory()
     }, [])
 
@@ -415,7 +431,7 @@ showsVerticalScrollIndicator={false}
       value={drugs.category_code}
       items={
         category&&category.map((list:any, id:number)=>{
-            return {key:id, value:list.code, label:list.category_name, parent_code:list.parent_code}
+            return {key:id, value:list.main_code, label:list.title}
                 })} 
       setItems={setItems}
       setOpen={setIsCategoryOpen}
@@ -458,7 +474,7 @@ showsVerticalScrollIndicator={false}
       value={drugs.subcategory_code}
       items={
         subCategory&&subCategory.map((list:any, id:number)=>{
-            return {key:id, value:list.code, label:list.category_name, parent_code:list.parent_code}
+            return {key:id, value:list.sub_code, label:list.sub_title, main_code:list.main_code}
                 })}
       setItems={setItems}
       setOpen={setIsSubCategoryOpen}
@@ -545,21 +561,20 @@ showsVerticalScrollIndicator={false}
 </View>
 
 
-{quantity&&quantity.map((item:any, index:number)=>
-<View key={index} style={[globalStyles.rowCenterBetween, {marginTop:5}]}>
+<View  style={[globalStyles.rowCenterBetween, {marginTop:5}]}>
 
   <TextInput 
   placeholder='e.g 3.50' 
   
   style={[dynamicStyle.qty, errors.price?styles.error:[]]}
   placeholderTextColor={colors.grey}
-  value={item.price}
+  value={drugs.price}
   keyboardType='numeric' 
   autoCapitalize='none' 
    autoFocus={true}
    autoCorrect={false}
 
-  onChangeText={text=>handleChangeQty('price', item.code, text)}
+  onChangeText={text=>handleChange('price', text)}
 
   />
 
@@ -568,27 +583,27 @@ showsVerticalScrollIndicator={false}
     placeholder='e.g Pack of 4'
    style={[dynamicStyle.qty, errors.qty?styles.error:[]]} 
    placeholderTextColor={colors.grey}
-  value={item.qty}
+  value={drugs.qty}
   
   keyboardType='email-address'
   autoCapitalize='none' 
    autoFocus={true}
    autoCorrect={false}
-  onChangeText={text=>handleChangeQty('qty', item.code, text)}
+  onChangeText={text=>handleChange('qty', text)}
   />
-</View>)}
+</View>
 
 <View style={{width:width-40, marginVertical:5, justifyContent:'flex-end', display:'flex', alignItems:'flex-end', flexDirection:'row', marginHorizontal:20 }}>
 
-{quantity.length>1?
+{/* {quantity.length>1?
 <TouchableOpacity style={[styles.addItem, {backgroundColor:colors.red}]} onPress={removeRow}>
 <MaterialIcon name="remove" size={18} color={MODE==='Light'?colors.white:colors.dark}  /> 
-</TouchableOpacity>:[]}
+</TouchableOpacity>:[]} */}
 
-
+{/* 
 <TouchableOpacity style={styles.addItem} onPress={createNewRow}>
 <MaterialIcon name="add" size={18} color={MODE==='Light'?colors.white:colors.dark}  /> 
-</TouchableOpacity>
+</TouchableOpacity> */}
 </View>
 
 </View>

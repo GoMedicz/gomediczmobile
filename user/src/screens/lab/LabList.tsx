@@ -1,17 +1,15 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LAB, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
-import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
+import { LANGUAGELIST } from '../../components/data';
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
+
+import axios from 'axios';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -37,6 +35,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'TestList'>;
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+  const [content, setContent]= useState([] as any)
 
 interface item {
   title:string,
@@ -50,9 +49,9 @@ const handleBack =()=>{
   navigation.goBack();
 }
 
-const handleNext =()=>{
+const handleNext =(code:string)=>{
   navigation.navigate('LabDetails', {
-    code:'cds',
+    code:code,
   }); 
 }
 
@@ -60,21 +59,22 @@ const handleNext =()=>{
 
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <Pressable onPress={()=>handleNext(item.code)} style={[styles.box]}>
 
-<Image source={{ uri:ImagesUrl+"/seller/profile_4.png" }} style={styles.profile} />
-
+<Image source={{ uri:item.image_url!=='' && item.image_url!==null ?ImagesUrl+"/lab/"+item.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 
 <View style={[{display:'flex'}, {marginLeft:15}]}>
-      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600', marginBottom:5}}>{item.title}</Text>
+      <Text style={{color:colors.dark, fontSize:14, fontWeight:'600', marginBottom:5}}>{item.lab_name}</Text>
 
       <View style={{display:'flex', flexDirection:'row'}}>
 
     <MaterialIcon name="add-location" size={14} color={colors.grey}  />
-    <Text style={[styles.infoText, {marginLeft:5}]}>Willington Bridge</Text> 
+    <Text style={[styles.infoText, {marginLeft:5}]}>{item.address}</Text> 
       </View>
-      <Text style={[styles.infoText, {marginTop:20, fontWeight:'600', color:'#35c2F5'}]}>120 +Tests Available </Text>
+
+      <Text style={[styles.infoText, {marginTop:20, fontWeight:'600', color:'#35c2F5'}]}>{Number(item.total_test)>100?' 100 +':item.total_test} Tests Available </Text>
+
 </View>
       </Pressable>
     }
@@ -82,10 +82,35 @@ const handleNext =()=>{
 
   
 
+    const  FetchContent = async()=>{
+      //setLoading(true)
+      let config = await configToken()
+      let url = ServerUrl+'/api/lab/all'
+      try{
+     await axios.get(url, config).then(response=>{
+        if(response.data.type==='success'){
+          setContent(response.data.data)
+        }else{
+          setContent([])
+        }
     
+      }).finally(()=>{
+        setRefreshing(false)
+       // setLoading(false)
+      }) 
+    }catch(e){
+      console.log('error:',e)
+    }
+    }
+    
+
+    useEffect(()=>{
+      FetchContent()
+    }, [])
+
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchContent
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
@@ -102,7 +127,7 @@ const handleNext =()=>{
     <View style={styles.catItems}>
 
 <FlatList 
-data={LAB}
+data={content}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
