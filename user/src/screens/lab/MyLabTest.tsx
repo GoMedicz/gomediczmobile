@@ -1,19 +1,16 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useRef, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import Icon  from 'react-native-vector-icons/Feather' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { LANGUAGELIST } from '../../components/data';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import axios from 'axios';
+import { FormatNumber, getBritishDate, getData, getTime } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -27,7 +24,11 @@ const height =
 
 type RootStackParamList = {
   MyLabTest: undefined;
-  Cart:undefined; 
+  LabDetails:{
+    code:undefined;
+    order_code:undefined;
+   } 
+  BottomTabs:undefined;
   AppointmentDetails:{
      code:string;
    }
@@ -35,10 +36,14 @@ type RootStackParamList = {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MyLabTest'>;
  const MyLabTest =({ route, navigation }:Props)=> {
-
+  const fadeValue = useRef(new Animated.Value(0)).current 
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+  const [content, setContent]= useState({
+    upcoming:[] as any,
+    past:[] as any,
+  })
 
 interface item {
   title:string,
@@ -48,41 +53,119 @@ interface item {
 
 
 
-const handleBack =()=>{
-  navigation.navigate('Cart');
+useEffect(()=>{
+  FetchContent()
+}, [route])
+
+
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let code = await getData('code')
+  let url = ServerUrl+'/api/user/lab_test/'+code
+  try{
+ await axios.get(url, config).then(response=>{
+ 
+    if(response.data.type==='success'){
+      setContent({
+        upcoming:response.data.upcoming,
+        past:response.data.past
+      })
+      AnimationStart()
+    }else{
+      setContent({
+        upcoming:[],
+        past:[]
+      })
+    }
+
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
 }
 
-const handleNext =()=>{
-  navigation.navigate('AppointmentDetails', {
-    code:'cds',
-  });  
+
+const Header =()=>{
+
+  return <>
+  
+  
+{content.past.length!==0?<View style={{height:45, paddingHorizontal:10, justifyContent:'center'}}>
+<Text style={styles.infoText}>Past</Text>
+</View>:[]}
+
+    <View style={styles.catItems}>
+
+<FlatList 
+data={content.past}
+numColumns={1}
+showsVerticalScrollIndicator={false}
+snapToInterval={width-20}
+snapToAlignment='center'
+decelerationRate="fast"
+renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
+}
+/>
+
+</View>
+  </>
+}
+
+
+const AnimationStart =()=>{
+  const config:any ={
+    toValue:1,
+    duration:1000,
+    useNativeDriver: true
+  }
+  Animated.timing(fadeValue, config).start()
+
+}
+
+
+
+const handleBack =()=>{
+  navigation.navigate('BottomTabs');
+}
+
+const handleNext =(item:any)=>{
+ /*  navigation.navigate('LabDetails', {
+    code:item.code,
+    order_code:item.order_code
+  });  */ 
 }
 
 
 
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <Pressable onPress={()=>handleNext(item)} style={[styles.box]}>
 
 
+<Animated.View style={{opacity:fadeValue}}>
 <View style={styles.content}>
 
 <View style={globalStyles.rowCenterCenter}>
-<Image source={{ uri:ImagesUrl+"/hospital/hos.jpeg"}} style={styles.profile} />
+<Image source={{ uri:item.image_url!=='' && item.image_url!==null ?ImagesUrl+"/lab/"+item.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
     
     <View style={[{display:'flex'}, {marginHorizontal:5, flex:1, justifyContent:'center'}]}>
 
       <Text style={{color:colors.dark, fontSize:12, fontWeight:'600',
-       marginBottom:0}}>{item.fullname}</Text>
+       marginBottom:0}}>{item.lab_name}</Text>
 
 
       <View style={{justifyContent:'space-between', display:'flex', flexDirection:'row', alignItems:'center'}}>
-      <Text style={styles.infoText}>Cardiac Surgeon <Text style={{fontWeight:'400'}}>at</Text> Apple Hospital</Text>
+      <Text style={styles.infoText}>{item.title}<Text style={{fontWeight:'400'}}>at</Text>{item.address}</Text>
 
-    <Text style={styles.infoText}>$20.00</Text>
+    <Text style={styles.infoText}>{CURRENCY+FormatNumber(item.fees)}</Text>
       </View>
-      <Text style={[styles.label, {marginTop:10}]}>14 June 2020 | 2:30 pm </Text>
+      <Text style={[styles.label, {marginTop:10}]}>{item.date_book? getBritishDate(item.date_book):''} | {item.time_book?getTime(item.time_book):''} </Text>
 
 
     </View> 
@@ -92,7 +175,7 @@ const handleNext =()=>{
  
 </View>
 
-
+</Animated.View>
 
       </Pressable>
     }
@@ -103,70 +186,42 @@ const handleNext =()=>{
     
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+  FetchContent()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
     
-    <View style={styles.header}>
+    <View style={globalStyles.header}>
     <MaterialIcon name="arrow-back" onPress={handleBack} size={18} color={colors.dark}  /> 
     <Text style={[styles.label, {fontSize:14}]}>My Lab Tests</Text>
 
     <View/>
     </View>
-<ScrollView>
+
+
+    {content.upcoming.length!==0?
 <View style={{height:45, paddingHorizontal:10, justifyContent:'center'}}>
 <Text style={styles.infoText}>Upcoming</Text>
-</View>
+</View>:[]}
 
-<ScrollView
-  horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%'}}
->
-    <View style={styles.catItems}>
+<View style={styles.catItems}>
 
 <FlatList 
-data={DOCTORS}
+data={content.upcoming}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
+ListFooterComponent={<Header />}
 renderItem={({item})=> <CardCategory key={item.id} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />
 
 </View>
-</ScrollView>
 
 
-<View style={{height:45, paddingHorizontal:10, justifyContent:'center'}}>
-<Text style={styles.infoText}>Past</Text>
-</View>
-
-
-<ScrollView
-  horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%'}}
->
-    <View style={styles.catItems}>
-
-<FlatList 
-data={DOCTORS}
-numColumns={1}
-showsVerticalScrollIndicator={false}
-snapToInterval={width-20}
-snapToAlignment='center'
-decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
-refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
-}
-/>
-
-</View>
-</ScrollView>
-</ScrollView>
 
 
     </View>

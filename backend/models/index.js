@@ -22,9 +22,8 @@ const getLabTestModel = require("./test.model");
 const getTestBookingSummaryModel = require("./test_booking_summary.model");
 const getTestBookingModel = require("./test_booking.model");
 const getMainCategoryModel = require("./main_category.model");
-
 const getSubCategoryModel = require("./sub_category.model");
-
+const getReminderModel = require("./reminder.model");
 
 const models = {
   Category: getCategoryModel(connection, Sequelize),
@@ -49,8 +48,8 @@ const models = {
   TestBooking:getTestBookingModel(connection, Sequelize),
 
   MainCategory:getMainCategoryModel(connection, Sequelize),
-
-  SubCategory:getSubCategoryModel(connection, Sequelize)
+  SubCategory:getSubCategoryModel(connection, Sequelize),
+  Reminder:getReminderModel(connection, Sequelize)
 };
 
 

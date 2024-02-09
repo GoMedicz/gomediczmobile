@@ -3,9 +3,10 @@ import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-
+import { dynamicStyles } from '../../components/dynamicStyles';
 import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 
+import { useZustandStore } from '../../api/store';
 import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -47,11 +48,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
-
   const [category, setCategory]= useState([] as any)
   const [content, setContent]= useState([] as any)
-
-
+  const MODE = useZustandStore((store:any) => store.theme);
+  const dynamicStyle = dynamicStyles(MODE);
 
 
   const handleNext =(item:any)=>{
@@ -202,7 +202,7 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
   return (<SafeAreaView style={[ { backgroundColor:colors.white, flex:1}]}>
     
 
-    <View style={styles.header}>
+    <View style={dynamicStyle.header}>
 
 <View style={styles.location}>
     <MaterialIcon name="location-on" size={14} color={colors.primary}  /> 

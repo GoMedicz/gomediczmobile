@@ -111,12 +111,11 @@ if(user.telephone.length<11){
 setLoading(true)
 
 
-
     const fd  ={
       telephone:user.telephone,
       password:user.password
     }
-    let url = ServerUrl+'/api/vendor/login';
+    let url = ServerUrl+'/api/user/login';
    axios.post(url, fd, config)
    .then(response =>{
      if(response.data.type === 'success'){

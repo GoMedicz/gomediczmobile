@@ -1,16 +1,16 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import axios from 'axios';
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
+import { FormatNumber, getData, storeData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -25,17 +25,21 @@ const height =
 type RootStackParamList = {
   Cart: undefined;
   ConfirmOrder:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Cart'>;
  const Cart =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+  const [products, setProducts]= useState([] as any)
+  const [items, setItems]= useState({
+    subtotal:0,
+    promo:0,
+    charges:0,
+    total:0
+  })
 
 interface item {
   title:string,
@@ -45,47 +49,193 @@ interface item {
 
 
 const handleBack =()=>{
-  navigation.goBack();
+  navigation.navigate('BottomTabs');
 }
 
 
-const handleConfirm =()=>{
-  navigation.navigate('ConfirmOrder');
+const GetCart =async(content:any)=>{
+  try{
+
+    const getProduct =(code:string, field:string)=>{
+
+      let rs =  content&&content.filter((item:any)=>item.code===code)
+ 
+      return rs.length!==0?rs[0][field]:''
+    }
+
+
+
+    let data:any  = await getData('drug');
+
+
+    if(data){
+      let records = []
+      let items =  JSON.parse(data)
+     
+      for (var i in items){
+        records.push({
+          id:'i'+Math.random().toString(36).substring(2, 9),
+          code:items[i].code,
+          amount:items[i].amount,
+          qty:items[i].qty,
+          pack:items[i].pack,
+          product_name:getProduct(items[i].code, 'product_name'),
+          image_url:getProduct(items[i].code, 'image_url'),
+          require_prescription:getProduct(items[i].code, 'require_prescription'),
+          store_name:getProduct(items[i].code, 'store_name'),
+          total:Number(items[i].pack) * Number(items[i].amount)
+         
+        })
+
+      }
+      const subtotal = records.reduce((acc:number, item:any)=>acc+parseFloat(item.total), 0)
+
+      setItems({
+        ...items,
+        subtotal:subtotal,
+        total:(subtotal+ items.charges) - items.promo 
+  
+      })
+setProducts(records)
+    
+    }
+  
+  }catch(e){
+
+  }
 }
 
 
-const handleNext =()=>{
-  navigation.navigate('BottomTabs', {
-    code:'cds',
-  }); 
+
+const  FetchProducts = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let url = ServerUrl+'/api/users/drugs/all'
+  try{
+ await axios.get(url, config).then(response=>{
+
+    if(response.data.type==='success'){  
+      GetCart(response.data.data)
+    }
+
+  })
+}catch(e){
+  console.log('error:',e)
 }
+}
+
+
+const handleConfirm =async()=>{
+
+    try{
+      storeData('cartSummary', JSON.stringify(items, null, 2));
+       storeData('drug', JSON.stringify(products, null, 2));
+    
+      navigation.navigate('ConfirmOrder');
+     
+    }catch(e){
+  
+    }
+}
+
+
+
+
+const handleSub =(id:string)=>{
+
+  const currentContent = products.map((list:any)=>{
+                 
+    if(list.id ===id && Number(list.pack) >1){
+
+        return {...list, 
+          pack:Number(list.pack)-1,
+          total:Number(list.amount) *  Number(list.pack)-1
+        
+        }
+    }
+
+     return list
+      })
+
+     
+
+    const subtotal = currentContent.reduce((acc:number, item:any)=>acc+parseFloat(item.total), 0)
+
+    setItems({
+      ...items,
+      subtotal:subtotal,
+      total:(subtotal+ items.charges) - items.promo 
+
+    })
+      setProducts(currentContent)
+
+}
+
+const handleAdd =(id:string)=>{
+
+  const currentContent = products.map((list:any)=>{
+                 
+    if(list.id ===id){
+
+        return {...list, 
+          pack:Number(list.pack)+1,
+          total:Number(list.amount) *  Number(list.pack)+1
+        
+        }
+    }
+
+     return list
+      })
+
+     
+
+    const subtotal = currentContent.reduce((acc:number, item:any)=>acc+parseFloat(item.total), 0)
+
+    setItems({
+      ...items,
+      subtotal:subtotal,
+      total:(subtotal+ items.charges) - items.promo 
+
+    })
+      setProducts(currentContent)
+
+}
+
+useEffect(()=>{
+  FetchProducts()
+ 
+}, [route])
 
 
 const CardCategory =({item}:{item:any})=>{
   return <Pressable style={[styles.card]}>
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-<Image source={{ uri:ImagesUrl+"/products/"+item.image }} style={styles.cardImage} />
+<Image source={{ uri:item.image_url!=='' && item.image_url!==null ?ImagesUrl+"/vendors/products/"+item.image_url:ImagesUrl+"/no.png"}} style={styles.cardImage} />
 
 
 <View>
 
-<Text style={styles.label}>{item.title}</Text>
-<Text style={styles.infoText}>Operum England</Text>
+<Text style={styles.label}>{item.product_name}</Text>
+<Text style={styles.infoText}>{item.qty}</Text>
 
 <View style={styles.addPlus}>
-<MaterialIcon name="remove" size={14} color={colors.primary}   /> 
-  <Text style={{marginHorizontal:10, fontWeight:'500'}}>1</Text>
-  <MaterialIcon name="add" size={14} color={colors.primary}   /> 
+<MaterialIcon name="remove" size={18} onPress={()=>handleSub(item.id)} color={colors.primary}   /> 
+  <Text style={{marginHorizontal:10, fontWeight:'500'}}>{item.pack}</Text>
+  <MaterialIcon name="add" onPress={()=>handleAdd(item.id)} size={18} color={colors.primary}   /> 
 </View>
 </View>
 </View>
 
 
-    <View style={{position:'absolute', bottom:10, right:20}}>
-    <Text style={styles.label}>N44.00</Text>
+<View style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+
+{item.require_prescription===1?<Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.px} />:[]}
+
+<Text style={[styles.label, {marginTop:20}]}>{CURRENCY+FormatNumber(item.total)}</Text>
+
+   
     </View>
-
     </Pressable>
   }
 
@@ -103,9 +253,9 @@ const CardCategory =({item}:{item:any})=>{
     <View />
     </View>
 
-    <View style={{ marginVertical:5, flex:1}}>
+    <View style={{ marginVertical:5, marginBottom:50, flex:1}}>
 <FlatList 
-data={CATITEMS}
+data={products}
 numColumns={1}
 showsHorizontalScrollIndicator={false}
 snapToInterval={width-20}
@@ -137,22 +287,22 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 <View style={styles.row}>
   <Text style={styles.label}>Sub total</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.subtotal)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Promo Code Applied</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.promo)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Service Charge</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.charges)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Amount Payable</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.total)}</Text>
 </View>
 
 <TouchableOpacity  onPress={handleConfirm}activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, flexDirection:'row', justifyContent:'space-between', paddingHorizontal:20} ]}>
@@ -259,6 +409,11 @@ btnOk:{
   borderBottomEndRadius:5
 
 },
+px:{
+  height:25,
+  width:25,
+  resizeMode:'cover',
+    },
 textWrapper:{
 
   display:'flex',

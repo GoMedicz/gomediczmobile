@@ -49,8 +49,68 @@ sequelize.sync().then(() => {
 
 
 
+
+const getUserAppointment = async(req, res, next) => {
+      
+  let query = "SELECT  a.id, d.code as doctor_code, a.code, d.fullname,  ifnull(d.image_url, '') as image_url, d.telephone, ifnull(d.job_title, '') as job_title, ifnull(d.category, '') as category, ifnull(d.fees, 0) as fees, ifnull(d.office, '') as office, a.appointment_date, a.appointment_time, a.title, a.attachment, a.status, a.remark, 'false' as active  from tbl_doctors d, tbl_appointments a where d.code = a.doctor_code  and DATE(a.appointment_date) >= DATE(NOW()) and  a.user_code =? ";
+
+  const upcoming = await  sequelize.query(query,
+    {
+      replacements: [req.params.code],
+      type: sequelize.QueryTypes.SELECT
+    }
+)
+
+
+
+  sequelize.query(
+    "SELECT a.id, d.code as doctor_code, a.code, d.fullname,  ifnull(d.image_url, '') as image_url, d.telephone, ifnull(d.job_title, '') as job_title, ifnull(d.category, '') as category, ifnull(d.fees, 0) as fees, ifnull(d.office, '') as office, a.appointment_date, a.appointment_time, a.title, a.attachment, a.status, a.remark, 'false' as active  from tbl_doctors d, tbl_appointments a where d.code = a.doctor_code and DATE(a.appointment_date) < DATE(NOW()) and  a.user_code =?  ",
+    {
+      replacements: [req.params.code],
+      type: sequelize.QueryTypes.SELECT
+    }
+).then(result => {
+  if(result.length!==0 && Array.isArray(result)){
+    return res.send({type:'success', past:result, upcoming :upcoming })
+  }else{
+    return res.send({type:'error', data:'[]', message:'There are no data to display'})
+  }
+        }).catch((error) => {
+         return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+        });
+      
+  };
+
+
+
+
+
+const getOneUserAppointment = async(req, res, next) => {
+      
+  sequelize.query(
+    "SELECT a.id, d.code as doctor_code, a.code, d.fullname,  ifnull(d.image_url, '') as image_url, d.telephone, ifnull(d.job_title, '') as job_title, ifnull(d.category, '') as category, ifnull(d.fees, 0) as fees, ifnull(d.office, '') as office,  a.appointment_date, a.appointment_time, a.title, a.attachment, a.status, a.remark, 'false' as active  from tbl_doctors d, tbl_appointments a where d.code = a.doctor_code and  a.code =?  ",
+    {
+      replacements: [req.params.code],
+      type: sequelize.QueryTypes.SELECT
+    }
+).then(result => {
+  if(result.length!==0 && Array.isArray(result)){
+    return res.send({type:'success', data:result })
+  }else{
+    return res.send({type:'error', data:'[]', message:'There are no data to display'})
+  }
+        }).catch((error) => {
+         return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+        });
+      
+  };
+
+
+
 module.exports = {
   addNewAppointment,
-  getAppointment
+  getAppointment,
+  getUserAppointment,
+  getOneUserAppointment
 
 };

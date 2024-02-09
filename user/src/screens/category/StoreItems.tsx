@@ -60,7 +60,6 @@ const  FetchContent = async()=>{
   let url = ServerUrl+'/api/vendor/products/all/'+route.params.code
   try{
  await axios.get(url, config).then(response=>{
-
     if(response.data.type==='success'){
       setContent(response.data.data)
       AnimationStart()

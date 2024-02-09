@@ -78,6 +78,7 @@ if(!String(data.reference)){
 if(!formIsValid){
   return res.send({status:'error', message:'Some fields are required'})
   }else{
+    
     try {
 
 
@@ -150,6 +151,11 @@ if(!formIsValid){
 }
   }
   }
+
+
+
+
+
 
 const getTransactions = async(req, res, next) => {
 
@@ -346,6 +352,28 @@ const getTransactions = async(req, res, next) => {
 
 
 
+      const getUserOrder = async(req, res, next) => {
+      
+   
+        sequelize.query(
+          "SELECT i.id, i.code, i.qty, i.amount, i.status, p.product_name, p.require_prescription, s.store_name. s.image_url, s.code as store_code, o.ground_total, o.date_order, o.status, o.createdAt from tbl_order_items i, tbl_pharmacy_products p, tbl_pharmacy_stores s, tbl_orders o WHERE p.code = i.product_code and s.code = i.vendor_code and o.code =i.order_code  and o.user_code =?  ",
+          {
+            replacements: [req.params.code],
+            type: sequelize.QueryTypes.SELECT
+          }
+      ).then(result => {
+        if(result.length!==0 && Array.isArray(result)){
+          return res.send({type:'success', data:result })
+        }else{
+          return res.send({type:'error', data:'[]', message:'There are no data to display'})
+        }
+              }).catch((error) => {
+               return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+              });
+            
+        };
+
+
 
 module.exports = {
   AddNewOrder,
@@ -353,5 +381,6 @@ module.exports = {
   getOrder,
   UploadFile,
   UpdateField,
-  getStatistics
+  getStatistics,
+  getUserOrder
 };

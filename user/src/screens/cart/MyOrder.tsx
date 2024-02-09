@@ -1,19 +1,21 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useRef, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 import Icon  from 'react-native-vector-icons/Feather' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { getData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -27,7 +29,7 @@ const height =
 
 type RootStackParamList = {
   MyOrder: undefined;
-  Cart:undefined; 
+  BottomTabs:undefined; 
   OrderDetails:{
      code:string;
    }
@@ -39,7 +41,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'MyOrder'>;
   const [loading, setLoading] = useState(false)
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
-
+  const fadeValue = useRef(new Animated.Value(0)).current 
+  const [content, setContent]= useState({
+    upcoming:[] as any,
+    past:[] as any,
+  })
 interface item {
   title:string,
   isDefault:string,
@@ -49,7 +55,7 @@ interface item {
 
 
 const handleBack =()=>{
-  navigation.goBack();
+  navigation.navigate('BottomTabs');
 }
 
 const handleNext =()=>{
@@ -107,10 +113,82 @@ const handleNext =()=>{
 
   
 
+    useEffect(()=>{
+      FetchContent()
+    }, [route])
+
+
+    const  FetchContent = async()=>{
+      //setLoading(true)
+      let config = await configToken()
+      let code = await getData('code')
+      let url = ServerUrl+'/api/user/order/'+code
+      try{
+     await axios.get(url, config).then(response=>{
+     
+        if(response.data.type==='success'){
+          setContent({
+            upcoming:response.data.data,
+            past:response.data.data
+          })
+          AnimationStart()
+        }else{
+          setContent({
+            upcoming:[],
+            past:[]
+          })
+        }
+    
+      }).finally(()=>{
+        setRefreshing(false)
+       // setLoading(false)
+      }) 
+    }catch(e){
+      console.log('error:',e)
+    }
+    }
+
+const Header =()=>{
+
+  return <>
+  
+  
+<View style={{height:45, paddingHorizontal:10, justifyContent:'center'}}>
+<Text style={styles.infoText}>Past</Text>
+</View>
+
+    <View style={styles.catItems}>
+
+<FlatList 
+data={content.past}
+numColumns={1}
+showsVerticalScrollIndicator={false}
+snapToInterval={width-20}
+snapToAlignment='center'
+decelerationRate="fast"
+renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
+}
+/>
+
+</View>
+  </>
+}
+
+    const AnimationStart =()=>{
+      const config:any ={
+        toValue:1,
+        duration:1000,
+        useNativeDriver: true
+      }
+      Animated.timing(fadeValue, config).start()
+    
+    }
+
     
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchContent()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
@@ -122,60 +200,27 @@ const handleNext =()=>{
     <View/>
     </View>
 
-
-<ScrollView>
-<View style={{height:40, paddingHorizontal:10, justifyContent:'center'}}>
-<Text style={styles.infoText}>In Process</Text>
+    <View style={{height:45, paddingHorizontal:10, justifyContent:'center'}}>
+<Text style={styles.infoText}>In Progress</Text>
 </View>
 
-<ScrollView
-  horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%'}}
->
+
     <View style={styles.catItems}>
 
 <FlatList 
-data={DOCTORS}
+data={content.upcoming}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
+ListFooterComponent={<Header />}
 renderItem={({item})=> <CardCategory key={item.id} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />
 
 </View>
-</ScrollView>
-
-
-<View style={{height:45, paddingHorizontal:10, justifyContent:'center'}}>
-<Text style={styles.infoText}>Past</Text>
-</View>
-
-
-<ScrollView
-  horizontal={true}
-  contentContainerStyle={{width: '100%', height: '100%'}}
->
-    <View style={styles.catItems}>
-
-<FlatList 
-data={DOCTORS}
-numColumns={1}
-showsVerticalScrollIndicator={false}
-snapToInterval={width-20}
-snapToAlignment='center'
-decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
-refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
-}
-/>
-
-</View>
-</ScrollView>
-</ScrollView>
 
 
     </View>
@@ -220,7 +265,7 @@ box:{
     },
 
 catItems:{
-
+marginBottom:50
 
 },
 

@@ -1,21 +1,19 @@
 
 import React, { useCallback, useRef, useState, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, Animated, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, TouchableOpacity, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { LANGUAGELIST } from '../../components/data';
+import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import { PrimaryButton, PrimaryButtonChildren } from '../../components/include/button';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+
+import axios from 'axios';
+import { getData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -48,9 +46,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
  const AccountProfile =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+  const [content, setContent]= useState([] as any)
   const fadeValue = useRef(new Animated.Value(0)).current 
   const MODE = useZustandStore((store:any) => store.theme);
   const dynamicStyle = dynamicStyles(MODE);
@@ -64,9 +62,33 @@ interface item {
 
 
 
-const handleNext =()=>{
-  navigation.navigate('MyAppointment');
+
+
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let code = await getData('code')
+  let url = ServerUrl+'/api/user/display_one/'+code
+  try{
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+      setContent(response.data.data)
+      AnimationStart()
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
 }
+}
+
+
+
 
 
 
@@ -75,7 +97,7 @@ const [items, setItems] = useState([
   {title:"Appointments", label:'Doctor Appointments', icon:'assignment-ind', screen:'MyAppointment'}, 
   {title:"Lab Tests", label:'Test Booking', icon:'event-available', screen:'MyLabTest'},
   {title:"Wallet", label:'Quick Payments', icon:'account-balance-wallet', screen:'Wallet'},
-  {title:"My Orders", label:'List of Orders', icon:'article', screen:'Orders'},
+  {title:"My Orders", label:'List of Orders', icon:'article', screen:'MyOrder'},
 
 
   {title:"Pill Reminders", label:'Take Pill on time', icon:'alarm', screen:'Reminder'},
@@ -109,16 +131,15 @@ const AnimationStart =()=>{
 }
 
 
-
 useEffect(()=>{
-  //fetchStore()
+  FetchContent()
   AnimationStart()
 }, [])
 
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchContent()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:MODE==='Light'?colors.lightSkye:colors.lightDark}]}>
@@ -135,15 +156,15 @@ useEffect(()=>{
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center', backgroundColor:MODE==='Light'?colors.white:colors.dark, padding:10}}>
   
-<Image source={{ uri:ImagesUrl+"/profile_1.png"}} style={styles.profile} />
+<Image source={{ uri:content.image_url!=='' && content.image_url!==null ?ImagesUrl+"/user/"+content.image_url:ImagesUrl+"/no.png"}}  style={styles.profile} />
 
 <View style={{marginLeft:10}}>
 
 <View style={{width:(width/2)-20}}>
-  <Text style={dynamicStyle.title}>Dr. Joseph Williamson</Text>
+  <Text style={dynamicStyle.title}>{content.fullname}</Text>
   </View>
 
-  <Text style={[styles.infoText, { marginTop:15}]}>+1 987 654 3210</Text>
+  <Text style={[styles.infoText, { marginTop:15,letterSpacing:3}]}>{content.telephone}</Text>
 </View>
 </View>
 

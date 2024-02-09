@@ -21,7 +21,8 @@ const {
   DepartmentDoctorController,
   LabController,
   LabTestController,
-  MainCategoryController 
+  MainCategoryController,
+  ReminderController 
 } = require('../controllers/index');
 
 var ride = multer.diskStorage({
@@ -148,6 +149,10 @@ router.post('/api/vendor/product/update', General.AuthenticateToken, upload.sing
 
 router.get('/api/user/products/:code', General.AuthenticateToken, ProductController.getProductByCategory);
 
+
+router.get('/api/users/drugs/all', General.AuthenticateToken, ProductController.getAllProducts);
+
+
 router.get('/api/vendor/products/all/:code', General.AuthenticateToken, ProductController.getProducts);
 
 router.get('/api/vendor/product/details/:code', General.AuthenticateToken, ProductController.searchOneProduct);
@@ -197,7 +202,7 @@ router.post('/api/user/order/create', General.AuthenticateToken, OrderController
 router.get('/api/vendor/transaction/:code', General.AuthenticateToken, OrderController.getTransactions);
 
 router.get('/api/vendor/order/:vendor/:code', General.AuthenticateToken, OrderController.getOrder);
-
+router.get('/api/user/order/:code', General.AuthenticateToken, OrderController.getUserOrder);
 
 router.post('/api/vendor/order/prescription', General.AuthenticateToken, prescribe.single('image'), OrderController.UploadFile);
 
@@ -265,7 +270,8 @@ router.get('/api/review/all', ReviewController.getReview);
 router.post('/api/doctor/appointment/add', General.AuthenticateToken, attachment.single('image'), AppointmentController.addNewAppointment);
 router.get('/api/doctor/appointment/all', AppointmentController.getAppointment);
 
-
+router.get('/api/user/appointment/details/:code', AppointmentController.getOneUserAppointment);
+router.get('/api/user/appointment/:code', AppointmentController.getUserAppointment);
 
 
 //Hospital controller
@@ -296,6 +302,40 @@ router.post('/api/lab/test/add',  LabTestController.addNewLabTest);
 router.get('/api/lab/test/all',  LabTestController.getLabTest);
 router.get('/api/lab/test/view/:code', LabTestController.getOneLabTest);
 
+router.get('/api/user/lab_test/:code', LabTestController.getUserLabTest);
+
 router.post('/api/lab/test/booking', LabTestController.AddNewBooking);
+
+
+
+
+//Reminder controller
+router.post('/api/user/reminder/add',  ReminderController.AddNewReminder);
+router.get('/api/reminder/user/:code',  ReminderController.getUserReminder);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router;

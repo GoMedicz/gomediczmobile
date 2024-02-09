@@ -92,7 +92,7 @@ const handleNext =()=>{
       </View>
       
 
-      <Pressable onPress={handleNext} style={[styles.box]}>
+      <Pressable  style={[styles.box]}>
 
     <TextInput style={styles.textInput} placeholder='Write your message'/>
 

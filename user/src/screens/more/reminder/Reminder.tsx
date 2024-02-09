@@ -1,19 +1,21 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl } from '../../../components/includes';
+import { ImagesUrl, ServerUrl, configToken } from '../../../components/includes';
 import { globalStyles } from '../../../components/globalStyle';
 import ModalDialog from '../../../components/modal';
 import ShoppingCart from '../../../components/include/ShoppingCart';
 import { useZustandStore } from '../../../api/store';
 import { dynamicStyles } from '../../../components/dynamicStyles';
+import { getData } from '../../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -28,9 +30,7 @@ const height =
 type RootStackParamList = {
   Reminder: undefined;
   CreateReminder:undefined; 
-  Offers:{
-     code:string;
-   }
+  BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Reminder'>;
@@ -40,6 +40,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Reminder'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+  const [content, setContent]= useState([] as any)
 
   const MODE = useZustandStore((store:any) => store.theme);
   const dynamicStyle = dynamicStyles(MODE);
@@ -54,7 +55,7 @@ interface item {
 
 
 const handleBack =()=>{
-  navigation.goBack();
+  navigation.navigate('BottomTabs');
 }
 
 const handleNext =()=>{
@@ -75,7 +76,7 @@ const handleNext =()=>{
 
     
     <View style={[{display:'flex'}, {marginLeft:15}]}>
-      <Text style={styles.label}>Multi Vitamins</Text>
+      <Text style={styles.label}>{item.pill_name}</Text>
       <Text style={styles.infoText}>Mon, Tue, Wed</Text>
       <Text style={[styles.infoText, {fontSize:8, marginTop:5}]}>08:00 am, 02:00 pm</Text>
     </View> 
@@ -88,11 +89,38 @@ const handleNext =()=>{
 
 
   
+    useEffect(()=>{
+      FetchContent()
+    }, [route])
+
+
+    const  FetchContent = async()=>{
+      //setLoading(true)
+      let config = await configToken()
+      let code = await getData('code')
+      let url = ServerUrl+'/api/user/reminder/'+code
+      try{
+     await axios.get(url, config).then(response=>{
+     
+        if(response.data.type==='success'){
+          setContent(response.data.data)
+        }else{
+          setContent([])
+        }
+    
+      }).finally(()=>{
+        setRefreshing(false)
+       // setLoading(false)
+      }) 
+    }catch(e){
+      console.log('error:',e)
+    }
+    }
 
     
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchContent()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
@@ -108,7 +136,7 @@ const handleNext =()=>{
     <View style={styles.catItems}>
 
 <FlatList 
-data={CATEGORY}
+data={content}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}

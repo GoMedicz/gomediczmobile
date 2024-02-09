@@ -166,9 +166,43 @@ const getOneLabTest = (req, res, next) => {
       }
 
 
+
+      const getUserLabTest = async(req, res, next) => {
+      
+        let query = "SELECT t.id, t.title,   l.lab_name, l.email, l.telephone, tb.fees, tb.order_code, tb.status, b.address, b.date_book, b.time_book  from tbl_labs l, tbl_lab_tests t, tbl_test_bookings tb, tbl_test_booking_summaries b   WHERE b.order_code = tb.order_code and l.code = t.lab_code and tb.lab_code = l.code and tb.test_code = t.code and DATE(b.date_book) >= DATE(NOW()) and  b.user_code =? ";
+      
+        const upcoming = await  sequelize.query(query,
+          {
+            replacements: [req.params.code],
+            type: sequelize.QueryTypes.SELECT
+          }
+      )
+      
+      
+      
+        sequelize.query(
+          "SELECT t.id, t.title,   l.lab_name, l.email, l.telephone, tb.fees, tb.order_code, tb.status, b.address, b.date_book, b.time_book  from tbl_labs l, tbl_lab_tests t, tbl_test_bookings tb, tbl_test_booking_summaries b   WHERE b.order_code = tb.order_code and l.code = t.lab_code and tb.lab_code = l.code and tb.test_code = t.code and DATE(b.date_book) < DATE(NOW()) and  b.user_code =?  ",
+          {
+            replacements: [req.params.code],
+            type: sequelize.QueryTypes.SELECT
+          }
+      ).then(result => {
+        if(result.length!==0 && Array.isArray(result)){
+          return res.send({type:'success', past:result, upcoming :upcoming })
+        }else{
+          return res.send({type:'error', data:'[]', message:'There are no data to display'})
+        }
+              }).catch((error) => {
+               return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+              });
+            
+        };
+
+
 module.exports = {
   addNewLabTest,
   getLabTest,
   getOneLabTest,
-  AddNewBooking
+  AddNewBooking,
+  getUserLabTest
 };

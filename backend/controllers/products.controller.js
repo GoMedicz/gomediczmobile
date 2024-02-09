@@ -7,7 +7,7 @@ const sequelize = require('../api/connection');
 
 
 
-  const AddNewProduct = (req, res, next) => {
+const AddNewProduct = (req, res, next) => {
 
 var data = req.body 
 const errors = {};
@@ -97,7 +97,11 @@ const getProductByCategory = (req, res, next) => {
       type: sequelize.QueryTypes.SELECT
     }
 ).then(result => {
-          return res.send({type:'success', data:result})
+  if(result.length!==0 && Array.isArray(result)){
+    return res.send({type:'success', data:result })
+  }else{
+    return res.send({type:'error', data:'[]', message:'There are no data to display'})
+  }
         }).catch((error) => {
          return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
         });
@@ -143,6 +147,29 @@ const getProducts = (req, res, next) => {
       
   };
   
+
+
+
+  const getAllProducts = async(req, res, next) => {
+
+  
+
+    sequelize.query(
+      'SELECT s.store_name, p.id, p.code, p.product_name, p.product_id, p.image_url, p.require_prescription, p.price, p.qty, c.title as category, p.description FROM tbl_pharmacy_stores s,  tbl_pharmacy_products p  LEFT JOIN tbl_sub_categories c on c.code = p.subcategory_code where s.code = p.pharmacy_code  order by p.id DESC',
+      {
+        type: sequelize.QueryTypes.SELECT
+      }
+      ).then(result => {
+    if(result.length!==0 && Array.isArray(result)){
+      return res.send({type:'success', data:result })
+    }else{
+      return res.send({type:'error', data:'[]', message:'There are no data to display'})
+    }
+          }).catch((error) => {
+           return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+          });
+        
+    };
 
   const getOneProduct = (req, res, next) => {
 
@@ -245,5 +272,6 @@ module.exports = {
     getOneProduct,
     UpdateProduct,
     getProductByCategory,
-    searchOneProduct
+    searchOneProduct,
+    getAllProducts
 };

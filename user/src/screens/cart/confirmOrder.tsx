@@ -4,13 +4,15 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
+import { FormatNumber, getData } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -34,7 +36,13 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ConfirmOrder'>;
  const ConfirmOrder =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+  const [products, setProducts]= useState([] as any)
+  const [items, setItems]= useState({
+    subtotal:0,
+    promo:0,
+    charges:0,
+    total:0
+  })
   const [refreshing, setRefreshing] = useState(false)
 
 interface item {
@@ -43,7 +51,9 @@ interface item {
   id:number
 }
 
-
+const handleBack =()=>{
+  navigation.goBack();
+}
 
 const handlePayment =()=>{
   navigation.navigate('Payment');
@@ -64,18 +74,21 @@ const CardCategory =({item}:{item:any})=>{
 <View>
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-<Text style={styles.label}>{item.title}</Text> 
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />
+<Text style={styles.label}>{item.product_name}</Text> 
+
+{item.require_prescription===1?<Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.cardImage} />:[]}
+
+
 </View>
 
 
-<Text style={[styles.infoText, {marginBottom:10}]}>2 Packs</Text>
+<Text style={[styles.infoText, {marginBottom:10}]}>{item.qty}</Text>
 
 </View>
 </View>
 
 
-    <Text style={[styles.label, {fontWeight:'700'}]}>N44.00</Text>
+    <Text style={[styles.label, {fontWeight:'700'}]}>{CURRENCY+FormatNumber(item.total)}</Text>
  
 
 
@@ -83,15 +96,37 @@ const CardCategory =({item}:{item:any})=>{
   }
 
 
+const FetchContent =async()=>{
+  try{
+
+    let data:any  = await getData('drug');
+    let cart:any  = await getData('cartSummary');
+
+    if(data){
+      
+      let prod =  JSON.parse(data)
+      let summ =  JSON.parse(cart)
+    
+      setItems(summ)
+    setProducts(prod)
+    
+    }
+  
+  }catch(e){
+
+  }
+}
+
+
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchContent()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
     
     <View style={styles.header}>
-    <MaterialIcon name="arrow-back-ios" size={14} color={colors.dark}  /> 
+    <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={14} color={colors.dark}  /> 
     <Text style={styles.label}>Confirm Order</Text>
     <View />
     </View>
@@ -116,7 +151,7 @@ const CardCategory =({item}:{item:any})=>{
 
     <View style={{ marginVertical:5, maxHeight:(height/3)+25  }}>
 <FlatList 
-data={CATITEMS}
+data={products}
 numColumns={1}
 showsHorizontalScrollIndicator={false}
 snapToInterval={width-20}
@@ -150,22 +185,22 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 <View style={styles.row}>
   <Text style={styles.label}>Sub total</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.subtotal)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Promo Code Applied</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.promo)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Service Charge</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.charges)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Amount to Pay</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.total)}</Text>
 </View>
 
 <TouchableOpacity onPress={handlePayment} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, } ]}>

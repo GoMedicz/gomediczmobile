@@ -74,7 +74,8 @@ const AddToCart =async()=>{
     let drug = [{
       code:route.params.code,
       amount:content.price,
-      qty:content.qty
+      qty:content.qty,
+      pack:1
     }]
 
 

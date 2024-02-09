@@ -1,9 +1,6 @@
 import { View, StyleSheet, Dimensions, Modal, Platform, Pressable, StyleProp, ViewStyle } from 'react-native'
 
 import React from 'react'
-/* import Modal from "react-native-modal"; */
-
-
 
 const {width} = Dimensions.get('screen');
 const height =

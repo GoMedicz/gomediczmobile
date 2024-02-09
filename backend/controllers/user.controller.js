@@ -120,7 +120,7 @@ const loginUser = (req, res, next) => {
            
 
             var token = generateAccessToken(result.code);
-                       return res.send({type:'success', code:result.code,  jwt:token, message:'You have successfully login'})
+                       return res.send({type:'success', code:result.code, wallet:result.wallet,  jwt:token, message:'You have successfully login'})
               }  
 
         }else{

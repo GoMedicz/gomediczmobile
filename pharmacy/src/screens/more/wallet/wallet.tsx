@@ -7,7 +7,6 @@ import MaterialIcon  from 'react-native-vector-icons/MaterialIcons'
 import axios from 'axios';
 import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../../assets/colors';
-import { CATEGORY } from '../../../components/data';
 import { CURRENCY, ServerUrl, configToken} from '../../../components/includes';
 import { useZustandStore } from '../../../api/store';
 import { dynamicStyles } from '../../../components/dynamicStyles';
