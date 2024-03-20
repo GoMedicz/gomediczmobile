@@ -12,6 +12,8 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, LANGUAGELIST, OFFER } from '../../components/data';
+import CartTop from './cartTop';
+import NameCard from './nameCard';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -25,7 +27,9 @@ const height =
 
 type RootStackParamList = {
   Dashboard: undefined;
-  Cart:undefined;
+  Cart:{
+    offer:any
+  };
   Category:undefined; 
   StoreItems:{
     code:string;
@@ -36,6 +40,7 @@ type RootStackParamList = {
   CategoryDetails:{
     title:string;
     code:string;
+    search:string;
   }
   Offers:undefined;
     BottomTabs:{
@@ -46,7 +51,7 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
  const Dashboard =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
+  const [search, setSearch] = useState('')
   const [refreshing, setRefreshing] = useState(false)
   const [category, setCategory]= useState([] as any)
   const [content, setContent]= useState([] as any)
@@ -57,17 +62,28 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
   const handleNext =(item:any)=>{
     navigation.navigate('CategoryDetails', {
       title:item.title,
-      code:item.sub_code
+      code:item.sub_code,
+      search:''
     }); 
   }
 
+
+  const handleSearch =(item:any)=>{
+    navigation.navigate('CategoryDetails', {
+      title:item.title,
+      code:item.sub_code,
+      search:''
+    }); 
+  }
 
 const handleCategory =()=>{
   navigation.navigate('Category');
 }
 
 const handleCart =()=>{
-  navigation.navigate('Cart');
+  navigation.navigate('Cart',{
+    offer:''
+  });
 }
 
 const handleOffer =()=>{
@@ -209,28 +225,30 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
     <Text style={[styles.label, {fontSize:12, marginLeft:20}]}>Wallington</Text>
 </View>
 
-    <Pressable onPress={handleCart} style={styles.cart}>
-
-    <MaterialIcon name="shopping-cart" size={14} color={colors.dark}  /> 
-        <View style={styles.circle}>
-            <Text style={{color:colors.white, fontSize:8, fontWeight:'500'}}>1</Text>
-        </View>
-
-        </Pressable>
+<CartTop handleCart ={handleCart} />
     </View>
 
     <ScrollView>
 
-    <Text style={[styles.infoText,{marginHorizontal:20, marginTop:30}]}>Hello, Sam Smith,</Text>
+    <NameCard style={[styles.infoText,{marginHorizontal:20, marginTop:30}]} />
 
     <Text style={styles.h1}>Find your medicines</Text> 
 
 
     <View style={styles.textWrapper}>
     <MaterialIcon name="search" size={14} color={colors.icon}  /> 
+
   <TextInput placeholder='Search medicines' 
   placeholderTextColor={'#959595'}
-  style={styles.textInput} />
+  style={styles.textInput} 
+
+  autoCapitalize='none'
+  keyboardType='email-address' 
+   autoCorrect={false}
+   value={search}
+   onChangeText={text =>setSearch(text)}
+
+  />
 </View>
 
 
@@ -258,7 +276,8 @@ renderItem={({item})=> <CardCategory key={item.id} item={item} />}
 
 <View style={[styles.contentWrapper, {marginTop:4} ]}>
 <Text style={styles.infoText}>Offers</Text>
-<Text style={[styles.infoText,{color:colors.primary}]}>View all</Text>
+<Pressable onPress={handleOffer}>
+<Text style={[styles.infoText,{color:colors.primary}]}>View all</Text></Pressable>
 </View>
 
 

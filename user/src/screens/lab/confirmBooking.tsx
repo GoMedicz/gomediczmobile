@@ -8,7 +8,7 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATITEMS, DATES, LANGUAGELIST, TIMES } from '../../components/data';
-import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, config, configJSON, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import { FormatNumber, getData, getMonthYear, getNumWorkDays, getTime, storeData, timeAddMinutes } from '../../components/globalFunction';
@@ -29,6 +29,9 @@ type RootStackParamList = {
   ConfirmBooking: undefined;
   Payment:{
     order_code:string;
+    screen:string;
+    amount:number;
+    reference:string;
   }; 
     BottomTabs:{
      code:string;
@@ -64,21 +67,11 @@ const [modalType, setModalType] = useState('load')
     total:0,
   })
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
 
 const handleBack =()=>{
   navigation.goBack();
 }
 
-const handlePayment =(code:string)=>{
-  navigation.navigate('Payment',{
-    order_code:code
-  });
-}
 
 
 
@@ -120,44 +113,49 @@ if(!formIsValid){
 
 if(formIsValid) {
  
-   setLoading(true)
-
- 
-      let config = await configToken()
     let order_code = Math.random().toString(36).substring(2, 9);
 
 
       const user_code = await getData('code');
       const wallet = await getData('wallet');
 
-/* 
+ 
       const fd = {
+        items:cart.data,
         subtotal:cart.subtotal,
         total:cart.total,
         charge:cart.charge,
-        time:time.startTime,
-        date:date.date,
+        time_book:time.startTime,
+        date_book:date.date,
         user_code:user_code,
         order_code:order_code,
-        items:JSON.stringify(cart.data),
-        wallet:wallet
+        wallet:wallet,
+        address:'',
+        total_item:1,
+        status:'Pending'
 
-      } */
-      const fd = new FormData();
-      fd.append('subtotal',  cart.subtotal)
-      fd.append('total',  cart.total)
-      fd.append('charge',  cart.charge)
-      fd.append('time',  time.startTime)
-      fd.append('date',  date.date)
-      fd.append('user_code',  user_code)
-      fd.append('order_code',  order_code)
+      } 
 
-      fd.append('items',  JSON.stringify(cart.data))
-      fd.append('wallet',  wallet)
+      storeData('LabTest', JSON.stringify(fd, null, 2));
+storeData('LabItems', JSON.stringify(cart.data, null, 2));
 
+
+    navigation.navigate('Payment',{
+        reference:order_code,
+        order_code:order_code,
+        screen:'LabTest',
+        amount:cart.total
+      }); 
+
+
+/* 
+
+setLoading(true)
   let url = ServerUrl+'/api/lab/test/booking';
      axios.post(url, fd, config)
      .then(response =>{
+
+      console.log(response.data)
        if(response.data.type === 'success'){
         
         storeData('order_code', order_code);
@@ -165,7 +163,7 @@ if(formIsValid) {
 
         setModalType('Success')
         setErrors({...errors, errorMessage: 'Successfully Booked'})
-        handlePayment(order_code)
+        //handlePayment(order_code)
 
       } else{
         setModalType('Failed')
@@ -177,9 +175,9 @@ if(formIsValid) {
             setErrors({...errors, errorMessage: error.message})
 
              }).finally(()=>{
-              handleReset()
+             // handleReset()
             
-             }) 
+             })   */
             }
 }
 
@@ -188,7 +186,7 @@ if(formIsValid) {
 const  FetchContent = async()=>{
   
   try{
-    let data:any  = await getData('cart');
+    let data:any  = await getData('Test');
     let cat = JSON.parse(data)
 
     const subtotal = cat.reduce((acc:number, item:any)=>acc+parseFloat(item.fees), 0)
@@ -200,7 +198,6 @@ let charge = 100
       charge:charge,
       total:subtotal+charge
     })
-
 
     getTimeInterval('07:00:00', '18:30:00', 30)
     setDateList(getNumWorkDays(today, weekend))

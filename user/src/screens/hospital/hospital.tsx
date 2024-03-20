@@ -12,6 +12,7 @@ import colors from '../../assets/colors';
 import { DOCTORSCATEGORY } from '../../components/data';
 import { globalStyles } from '../../components/globalStyle';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import NameCard from '../home/nameCard';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -81,8 +82,8 @@ useEffect(()=>{
 const Header = ()=>{
   return(
 <View style={{backgroundColor:colors.white, padding:10}}>
-<Text style={[styles.infoText]}>Hello, Sam Smith</Text>
 
+<NameCard style={styles.infoText} />
     <Text style={styles.h1}>Find Hospital</Text> 
 
     <View style={styles.textWrapper}>

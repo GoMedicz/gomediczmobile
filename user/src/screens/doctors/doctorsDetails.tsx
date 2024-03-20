@@ -81,6 +81,7 @@ const fetchDoctor = async()=>{
   try{
 
  await axios.get(url, config).then(response=>{
+  console.log(response.data.data, route.params.code)
     if(response.data.type==='success'){
       try{
 
@@ -144,14 +145,14 @@ useEffect(()=>{
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
   
-<Image source={{ uri:content.image_url!==''?ImagesUrl+"/doctors/"+content.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
+<Image source={{ uri:content&&content.image_url!==''?ImagesUrl+"/doctors/"+content&&content.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 <View style={{marginLeft:5}}>
   <Text style={[styles.infoText]}>Experience</Text>
-  <Text style={styles.label}>{getAge(content.date_started)} years</Text>
+  <Text style={styles.label}>{getAge(content&&content.date_started)} years</Text>
 
   <Text style={[styles.infoText, { marginTop:15}]}>Consultancy Fees</Text>
-  <Text style={styles.label}>{CURRENCY+FormatNumber(content.fees)}</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(content&&content.fees)}</Text>
 </View>
 </View>
 
@@ -160,7 +161,7 @@ useEffect(()=>{
 
 <View style={[styles.row]}>
   <View style={{width:(width/2)-20}}>
-  <Text style={[styles.title, {flexWrap:'wrap'}]}>{content.fullname}</Text>
+  <Text style={[styles.title, {flexWrap:'wrap'}]}>{content&&content.fullname}</Text>
 
   </View>
 
@@ -189,7 +190,7 @@ useEffect(()=>{
 <View style={[styles.row,{paddingVertical:5}]}>
 <View style={{display:'flex',  justifyContent:'flex-end', alignItems:'flex-end'}}>
 
-<Text style={styles.infoText}>{content.job_title}</Text>
+<Text style={styles.infoText}>{content&&content.job_title}</Text>
 </View>
 <View>
   <View style={{display:'flex', flexDirection:'row'}}>
@@ -208,7 +209,7 @@ useEffect(()=>{
 <View style={styles.card}>
 <Text style={styles.infoText}>About</Text>
 
-<Text style={[styles.label, {marginVertical:4}]}>{content.about}  </Text>
+<Text style={[styles.label, {marginVertical:4}]}>{content&&content.about}  </Text>
 
 </View>
 

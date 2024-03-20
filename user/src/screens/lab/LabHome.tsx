@@ -12,6 +12,8 @@ import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
 import axios from 'axios';
+import NameCard from '../home/nameCard';
+import LabCart from './LabCart';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -24,6 +26,7 @@ const height =
 
 type RootStackParamList = {
   LabHome: undefined;
+  ConfirmBooking:undefined;
   Offers:undefined;
   LabList:undefined;
   SearchLab:undefined;
@@ -87,7 +90,7 @@ const handleTest =()=>{
 }
 
 const handleCart =()=>{
-  navigation.navigate('LabList');
+  navigation.navigate('ConfirmBooking');
 }
 
 const handleNext =(code:string)=>{
@@ -162,18 +165,11 @@ const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', 
     <Text style={[styles.label, {fontSize:12, marginLeft:20}]}>Wallington</Text>
 </View>
 
-    <Pressable onPress={handleCart} style={styles.cart}>
-
-    <MaterialIcon name="shopping-cart" size={14} color={colors.dark}  /> 
-        <View style={styles.circle}>
-            <Text style={{color:colors.white, fontSize:8, fontWeight:'500'}}>1</Text>
-        </View>
-
-        </Pressable>
+    <LabCart handleCart={handleCart} />
     </View>
 
     <ScrollView>
-    <Text style={[styles.infoText,{marginHorizontal:20, marginTop:20}]}>Hello, Sam Smith,</Text>
+   <NameCard style={[styles.infoText,{marginHorizontal:20, marginTop:20}]} />
 
     <Text style={styles.h1}>Find Lab Test</Text> 
 

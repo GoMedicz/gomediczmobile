@@ -11,6 +11,7 @@ import { globalStyles } from '../../components/globalStyle';
 
 import axios from 'axios';
 import { FormatNumber } from '../../components/globalFunction';
+import CartTop from '../home/cartTop';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -23,10 +24,14 @@ const height =
 
 type RootStackParamList = {
   CategoryDetails: {
+    search:string,
     title:string,
     code:string
   };
-  Cart:undefined; 
+  BottomTabs:undefined;
+  Cart:{
+    offer:any
+  }; 
   DrugDetails:{
      code:string;
    }
@@ -42,12 +47,14 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CategoryDetails'>;
   const [content, setContent]= useState([] as any)
 
 
-const handleBack =()=>{
-  navigation.goBack();
-}
+  const handleBack =()=>{
+    navigation.navigate('BottomTabs');
+  }
 
 const handleCart =()=>{
-  navigation.navigate('Cart');
+  navigation.navigate('Cart', {
+    offer:''
+  });
 }
 
 const handleNext =(code:string)=>{
@@ -72,6 +79,13 @@ const  FetchContent = async()=>{
   //setLoading(true)
   let config = await configToken()
   let url = ServerUrl+'/api/user/products/'+route.params.code
+
+  if(route.params.search && route.params.search!==''){
+    url  = ServerUrl+'/api/user/search_products/'+route.params.search
+  }
+
+  
+
   try{
  await axios.get(url, config).then(response=>{
     if(response.data.type==='success'){
@@ -142,14 +156,9 @@ const onRefresh = useCallback(()=>{
     <Text style={styles.label}>{route.params.title}</Text>
     
     
-    <Pressable onPress={handleCart} style={styles.cart}>
 
-<MaterialIcon name="shopping-cart" size={18} color={colors.dark}  /> 
-    <View style={styles.circle}>
-        <Text style={{color:colors.white, fontSize:8, fontWeight:'500'}}>1</Text>
-    </View>
+<CartTop handleCart ={handleCart} />
 
-    </Pressable>
     </View>
 
 

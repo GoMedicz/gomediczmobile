@@ -15,7 +15,7 @@ let formIsValid = true;
 let msg ='Some fields are required';
 
 
-if(!String(data.code).trim()){
+ if(!String(data.code).trim()){
   errors.code =msg;
   formIsValid = false;
 } 
@@ -73,47 +73,58 @@ if(!String(data.status)){
 if(!String(data.reference)){
   errors.reference =msg;
   formIsValid = false;
-}
+} 
 
-if(!formIsValid){
+ if(!formIsValid){
   return res.send({status:'error', message:'Some fields are required'})
   }else{
     
-    try {
+    try { 
+
+     
+
+
 
 
     let list = data.items;
 
+    const items = await  models.Orders.findAll({
+      where: {
+        code: data.order_code
+  }
+  })
 
+
+  if(items.length===0){
     let value = [];
     for (var i = 0; i < list.length; i++) {
       value.push(
         
         {
           code: Math.random().toString(36).substring(2, 9),
-          order_code:data.code,
+          order_code:data.order_code,
           vendor_code:data.vendor_code,
           user_code: data.user_code,
           product_code: list[i].code,
           amount: list[i].amount,
          qty: list[i].qty,
-         unit: list[i].unit,
+         unit: list[i].qty,
          date_order: today,
-         status: 'PENDING',
-         reference: data.reference
+         status: data.status,
+         reference: data.payment_ref
         })
     } 
 
     const t = await sequelize.transaction();
 
     const order = await models.Orders.create({
-      code: data.code,
+      code: data.order_code,
       user_code: data.user_code,
       vendor_code: data.vendor_code,
       wallet:data.wallet,
      date_order: todayDateTime,
       status: data.status,
-     reference: data.reference,
+     reference: data.payment_ref,
       ground_total: data.ground_total,
       rider_code: data.rider_code,
      subtotal: data.subtotal,
@@ -124,7 +135,7 @@ if(!formIsValid){
     );
 
     const payment = await models.Payment.create({
-      code: data.code,
+      code: data.order_code,
       wallet:data.wallet,
       user_code: data.user_code,
       amount: data.ground_total,
@@ -133,7 +144,7 @@ if(!formIsValid){
      payer: data.payer,
      total_item: data.total_item,
      date_paid: todayDateTime,
-     reference: data.reference
+     reference: data.payment_ref
     },
     { transaction: t })
 
@@ -141,15 +152,17 @@ if(!formIsValid){
     const Items = await models.OrderItems.bulkCreate(value,
     { transaction: t })
 
-    await t.commit();
+    await t.commit(); 
+
+  }
 
     return res.send({type:'success', message:'Order successfully placed', status:200})
 
 
-}catch (error) {
+ }catch (error) {
   return res.send({type:'error', message:JSON.stringify(error, undefined, 2), status:500})
 }
-  }
+  } 
   }
 
 

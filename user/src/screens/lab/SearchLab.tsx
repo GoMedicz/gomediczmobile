@@ -81,15 +81,15 @@ const handleBook =async()=>{
     const Test = filterContent.filter((item:any)=>item.status==='true')
     try{
 
-      let data:any  = await getData('cart');
+      let data:any  = await getData('Test');
      
 
       if(data){
         let item =  JSON.parse(data)
         let allItems =  item.concat(Test)
-        storeData('cart', JSON.stringify(allItems))
+        storeData('Test', JSON.stringify(allItems))
       }else{
-        storeData('cart', JSON.stringify(Test))
+        storeData('Test', JSON.stringify(Test))
       }
       navigation.navigate('ConfirmBooking');
 

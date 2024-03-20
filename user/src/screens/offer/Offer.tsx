@@ -1,14 +1,15 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import ShoppingCart from '../../components/include/ShoppingCart';
@@ -25,42 +26,58 @@ const height =
 
 type RootStackParamList = {
   Offers: undefined;
-  Doctors:undefined; 
-  DrugDetails:{
-     code:string;
-   }
+  BottomTabs:undefined;
+  Cart: {
+    offer:string;
+  }
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Offers'>;
  const Offers =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+  
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const [offer, setOffer]= useState([] as any)
+
 
 const handleBack =()=>{
-  navigation.goBack();
-}
-
-const handleCart =()=>{
-  navigation.navigate('Doctors');
-}
-
-const handleNext =()=>{
-  navigation.navigate('Doctors');
+  navigation.navigate('BottomTabs');
 }
 
 
 
+const handleNext =(code:string)=>{
+  navigation.navigate('Cart', {
+    offer:code
+  });
+}
+
+const  FetchOffer = async()=>{
+
+  let config = await configToken()
+  let url = ServerUrl+'/api/discount/active_offer'
+  try{
+ await axios.get(url, config).then(response=>{
+
+    if(response.data.type==='success'){  
+      setOffer(response.data.data)
+    }
+
+  })
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+
+useEffect(()=>{
+  FetchOffer()
+}, [route])
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <Pressable onPress={()=>handleNext(item.promo_code)} style={[styles.box]}>
 
 
 <View style={styles.content}>
@@ -69,13 +86,13 @@ const handleNext =()=>{
 
     
     <View style={[{display:'flex', width:(width/2)-20}]}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>Flag 50% Off on first medicine order</Text>
+      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>{item.title}</Text>
     </View> 
 </View>
 
  
   <View style={styles.btnOffer}>
-    <Text style={{color:colors.primary, fontSize:12, fontWeight:'600'}}>GET50</Text>
+    <Text style={{color:colors.primary, fontSize:12, fontWeight:'600'}}>{item.promo_code}</Text>
   </View>
 
 </View>
@@ -90,7 +107,7 @@ const handleNext =()=>{
     
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+  FetchOffer()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
@@ -107,7 +124,7 @@ const handleNext =()=>{
     <View style={styles.catItems}>
 
 <FlatList 
-data={CATEGORY}
+data={offer}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}

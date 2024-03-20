@@ -24,7 +24,7 @@ const height =
 
     const handleDetails =(item:any)=>{
         props.navigation.navigate('DoctorsDetails', {
-         code:item.doctor_code,
+         code:item.code,
          title:item.category
        });  
      }

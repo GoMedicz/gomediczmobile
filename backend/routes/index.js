@@ -22,7 +22,8 @@ const {
   LabController,
   LabTestController,
   MainCategoryController,
-  ReminderController 
+  ReminderController,
+  OfferController  
 } = require('../controllers/index');
 
 var ride = multer.diskStorage({
@@ -149,6 +150,7 @@ router.post('/api/vendor/product/update', General.AuthenticateToken, upload.sing
 
 router.get('/api/user/products/:code', General.AuthenticateToken, ProductController.getProductByCategory);
 
+router.get('/api/user/search_products/:title', General.AuthenticateToken, ProductController.searchProductByName);
 
 router.get('/api/users/drugs/all', General.AuthenticateToken, ProductController.getAllProducts);
 
@@ -317,7 +319,11 @@ router.get('/api/reminder/user/:code',  ReminderController.getUserReminder);
 
 
 
-
+//Offer controller
+router.get('/api/discount/offer', General.AuthenticateToken, OfferController.getOffer);
+router.get('/api/offer/:code', General.AuthenticateToken, OfferController.ConfirmPromo);
+router.post('/api/offer/create', General.AuthenticateToken, OfferController.AddNewOffer);
+router.get('/api/discount/active_offer', General.AuthenticateToken, OfferController.getActiveOffer);
 
 
 

@@ -12,6 +12,7 @@ import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import { FormatNumber, getData, storeData } from '../../components/globalFunction';
 
+import Loader from '../../components/loader';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -23,7 +24,10 @@ const height =
 
 
 type RootStackParamList = {
-  Cart: undefined;
+  Cart: {
+    offer:any
+  }
+  Offers:undefined;
   ConfirmOrder:undefined; 
     BottomTabs:undefined;
    };
@@ -31,28 +35,73 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Cart'>;
  const Cart =({ route, navigation }:Props)=> {
 
+  const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [products, setProducts]= useState([] as any)
   const [items, setItems]= useState({
+    offer:route.params.offer,
     subtotal:0,
-    promo:0,
-    charges:0,
-    total:0
+    discount:0,
+    service_charge:0,
+    ground_total:0,
+    percentage:0,
+    reference:'r'+Math.random().toString(36).substring(2, 9),
+    code:Math.random().toString(36).substring(2, 9)
   })
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
-
+  const [errors, setErrors] = useState({
+    product:'',
+    subtotal:'',
+    errorMessage:''
+  });
 
 const handleBack =()=>{
   navigation.navigate('BottomTabs');
 }
+const Previous =()=>{
+  setLoading(false)
+  
+}
 
 
+const  handleFetchOffer = async()=>{
+  setLoading(true)
+  if(items.offer!=='' && products.length!==0){
+  let config = await configToken()
+  let url = ServerUrl+'/api/offer/'+items.offer
+  try{
+ await axios.get(url, config).then(response=>{
+
+    if(response.data.type==='success'){  
+      let amount = (Number(response.data.data.percentage)/100) * Number(items.subtotal)
+
+       setItems({
+        ...items,
+        percentage:Number(response.data.data.percentage),
+        discount:amount,
+         ground_total:(Number(items.subtotal)+ Number(items.service_charge)) - amount
+   
+       }) 
+
+
+       setModalType('Success')
+       setErrors({...errors, errorMessage: response.data.data.percentage+'% discount added'})
+       
+    }
+
+  }).finally(()=>{
+    setLoading(false)
+  })
+}catch(e){
+  console.log('error:',e)
+}
+  }
+}
+
+const handleOffer =()=>{
+  navigation.navigate('Offers');
+}
 const GetCart =async(content:any)=>{
   try{
 
@@ -70,34 +119,37 @@ const GetCart =async(content:any)=>{
 
     if(data){
       let records = []
-      let items =  JSON.parse(data)
+      let product =  JSON.parse(data)
      
-      for (var i in items){
+      for (var i in product){
         records.push({
           id:'i'+Math.random().toString(36).substring(2, 9),
-          code:items[i].code,
-          amount:items[i].amount,
-          qty:items[i].qty,
-          pack:items[i].pack,
-          product_name:getProduct(items[i].code, 'product_name'),
-          image_url:getProduct(items[i].code, 'image_url'),
-          require_prescription:getProduct(items[i].code, 'require_prescription'),
-          store_name:getProduct(items[i].code, 'store_name'),
-          total:Number(items[i].pack) * Number(items[i].amount)
+          code:product[i].code,
+          amount:product[i].amount,
+          qty:product[i].qty,
+          pack:product[i].pack,
+          product_name:getProduct(product[i].code, 'product_name'),
+          image_url:getProduct(product[i].code, 'image_url'),
+          require_prescription:getProduct(product[i].code, 'require_prescription'),
+          store_name:getProduct(product[i].code, 'store_name'),
+          total:Number(product[i].pack) * Number(product[i].amount)
          
         })
 
       }
       const subtotal = records.reduce((acc:number, item:any)=>acc+parseFloat(item.total), 0)
 
+      let discount = (Number(items.percentage)/100) * subtotal
+
       setItems({
-        ...items,
+       ...items,
+       discount:discount, 
         subtotal:subtotal,
-        total:(subtotal+ items.charges) - items.promo 
+        ground_total:(Number(subtotal)+ Number(items.service_charge)) - discount  
   
       })
 setProducts(records)
-    
+
     }
   
   }catch(e){
@@ -106,6 +158,25 @@ setProducts(records)
 }
 
 
+const handlelongpress = (id:string)=>{
+  let newProduct =  products.filter((item:any)=>item.id!==id)
+  const subtotal = newProduct.reduce((acc:number, item:any)=>acc+parseFloat(item.total), 0)
+
+     
+      let discount = (Number(items.percentage)/100) * subtotal
+
+      setItems({
+       ...items,
+       discount:discount, 
+        subtotal:subtotal,
+        ground_total:(Number(subtotal)+ Number(items.service_charge)) - discount  
+  
+      })
+
+  setProducts(newProduct)
+
+  
+}
 
 const  FetchProducts = async()=>{
   //setLoading(true)
@@ -128,10 +199,25 @@ const  FetchProducts = async()=>{
 const handleConfirm =async()=>{
 
     try{
+
+      if(products.length===0){
+
+        setLoading(true)
+          setModalType('Failed')
+             setErrors({...errors, errorMessage: 'Please add item to cart'})
+
+      }else{
       storeData('cartSummary', JSON.stringify(items, null, 2));
        storeData('drug', JSON.stringify(products, null, 2));
-    
+
+       let order_code = await getData('order_code');
+
+       if(!order_code && order_code ===undefined){
+        storeData('order_code', Math.random().toString(36).substring(2, 9));
+       }
+
       navigation.navigate('ConfirmOrder');
+      }
      
     }catch(e){
   
@@ -149,7 +235,7 @@ const handleSub =(id:string)=>{
 
         return {...list, 
           pack:Number(list.pack)-1,
-          total:Number(list.amount) *  Number(list.pack)-1
+          total:Number(list.amount) *  (Number(list.pack)-1)
         
         }
     }
@@ -161,10 +247,14 @@ const handleSub =(id:string)=>{
 
     const subtotal = currentContent.reduce((acc:number, item:any)=>acc+parseFloat(item.total), 0)
 
+   
+    let discount = (Number(items.percentage)/100) * subtotal
+
     setItems({
-      ...items,
+     ...items,
+     discount:discount, 
       subtotal:subtotal,
-      total:(subtotal+ items.charges) - items.promo 
+      ground_total:(Number(subtotal)+ Number(items.service_charge)) - discount  
 
     })
       setProducts(currentContent)
@@ -179,7 +269,7 @@ const handleAdd =(id:string)=>{
 
         return {...list, 
           pack:Number(list.pack)+1,
-          total:Number(list.amount) *  Number(list.pack)+1
+          total:Number(list.amount) *  (Number(list.pack)+1)
         
         }
     }
@@ -191,10 +281,13 @@ const handleAdd =(id:string)=>{
 
     const subtotal = currentContent.reduce((acc:number, item:any)=>acc+parseFloat(item.total), 0)
 
+    let discount = (Number(items.percentage)/100) * subtotal
+
     setItems({
-      ...items,
+     ...items,
+     discount:discount, 
       subtotal:subtotal,
-      total:(subtotal+ items.charges) - items.promo 
+      ground_total:(Number(subtotal)+ Number(items.service_charge)) - discount  
 
     })
       setProducts(currentContent)
@@ -208,7 +301,7 @@ useEffect(()=>{
 
 
 const CardCategory =({item}:{item:any})=>{
-  return <Pressable style={[styles.card]}>
+  return <Pressable onLongPress={()=>handlelongpress(item.id)} style={[styles.card]}>
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
 <Image source={{ uri:item.image_url!=='' && item.image_url!==null ?ImagesUrl+"/vendors/products/"+item.image_url:ImagesUrl+"/no.png"}} style={styles.cardImage} />
@@ -242,7 +335,7 @@ const CardCategory =({item}:{item:any})=>{
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchProducts()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
@@ -253,10 +346,11 @@ const CardCategory =({item}:{item:any})=>{
     <View />
     </View>
 
-    <View style={{ marginVertical:5, marginBottom:50, flex:1}}>
+    <View style={{ marginVertical:5, height:height/2}}>
 <FlatList 
 data={products}
 numColumns={1}
+contentContainerStyle={{}}
 showsHorizontalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
@@ -271,19 +365,43 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 <View style={styles.container}>
 
 <View style={styles.textWrapper}>
-<TextInput placeholder='Add Promocode' placeholderTextColor={'#9E9E9E'} style={styles.textInput} />
+
+<TextInput 
+placeholder='Add Promocode'
+ placeholderTextColor={'#9E9E9E'} 
+ style={styles.textInput} 
+ 
+
+ autoCapitalize='none'
+ keyboardType='email-address' 
+  autoCorrect={false}
+  value={items.offer}
+  onChangeText={text =>setItems({...items, offer:text})}
+
+ 
+ />
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-<Text style={{fontSize:10, color:colors.primary, fontWeight:'600', marginRight:5}}> VIEW OFFERS</Text>
+  
+  <Pressable onPress={handleOffer}>
+  <Text style={{fontSize:10, color:colors.primary, fontWeight:'600', marginRight:5}}> VIEW OFFERS</Text>
+  </Pressable>
 
-<View style={styles.btnOk}>
+
+<Pressable onPress={handleFetchOffer} style={styles.btnOk}>
 <MaterialIcon name="done" size={18} color={colors.white}  /> 
-</View>
+</Pressable>
 
 </View>
 
 </View>
 
+<Loader isModalVisible={loading} 
+    type={modalType}
+
+    message={errors.errorMessage} 
+    action={Previous}
+     />
 
 <View style={styles.row}>
   <Text style={styles.label}>Sub total</Text>
@@ -292,17 +410,17 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 <View style={styles.row}>
   <Text style={styles.label}>Promo Code Applied</Text>
-  <Text style={styles.label}>{CURRENCY+FormatNumber(items.promo)}</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.discount)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Service Charge</Text>
-  <Text style={styles.label}>{CURRENCY+FormatNumber(items.charges)}</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.service_charge)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Amount Payable</Text>
-  <Text style={styles.label}>{CURRENCY+FormatNumber(items.total)}</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.ground_total)}</Text>
 </View>
 
 <TouchableOpacity  onPress={handleConfirm}activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, flexDirection:'row', justifyContent:'space-between', paddingHorizontal:20} ]}>

@@ -79,21 +79,19 @@ const getOneLabTest = (req, res, next) => {
     let msg ='Some fields are required';
     
     
-    /* if(!String(data.code).trim()){
-      errors.code =msg;
-      formIsValid = false;
-    }  */
     
     
-    if(!(data.order_code)){
+    if(!data.order_code){
     errors.order_code =msg;
     formIsValid = false;
     }
     
-    if(data.user_code){
+    if(!data.user_code){
     errors.user_code =msg;
     formIsValid = false;
     }
+
+
     
     if(!formIsValid){
       return res.send({status:'error', message:'Some fields are required'})
@@ -101,11 +99,11 @@ const getOneLabTest = (req, res, next) => {
         try {
     
     let code = Math.random().toString(36).substring(2, 9)
-        let list = JSON.parse(data.items);
+    let list = data.items;
     
     
         let value = [];
-        for (var i = 0; i < list.length; i++) {
+     for (var i = 0; i < list.length; i++) {
           value.push(
             
             {
@@ -114,7 +112,7 @@ const getOneLabTest = (req, res, next) => {
               user_code: data.user_code,
               lab_code:list[i].lab_code,
               test_code:list[i].code,
-              status:'Pending',
+              status:data.status,
               date_order:today,
                 fees: list[i].fees
             })
@@ -131,38 +129,39 @@ const getOneLabTest = (req, res, next) => {
         total: data.total,
         date_book: data.date_book,
         time_book: data.time_book,
-        status: 'Pending',
+        status: data.status,
         address:data.address
         },
         { transaction: t })
     
     
-       /*  const payment = await models.Payment.create({
-          code: data.code,
+        const payment = await models.Payment.create({
+          code: data.order_code,
           wallet:data.wallet,
           user_code: data.user_code,
           amount: data.total,
           discount: 0,
          method: data.method,
          payer: data.payer,
-         total_item: value.length,
+         total_item: data.total_item,
          date_paid: todayDateTime,
-         reference: data.order_code
+         reference: data.payment_ref
         },
-        { transaction: t }) */
+        { transaction: t }) 
 
         const Items = await models.TestBooking.bulkCreate(value,
         { transaction: t })
     
-        await t.commit();
+        await t.commit(); 
     
-        return res.send({type:'success', message:'Order successfully placed', status:200})
+        return res.send({type:'success', message:'Order successfully placed', status:200}) 
     
     
     }catch (error) {
       return res.send({type:'error', message:JSON.stringify(error, undefined, 2), status:500})
     }
       }
+
       }
 
 

@@ -12,6 +12,7 @@ import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
+import CartTop from '../home/cartTop';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -26,7 +27,9 @@ const height =
 type RootStackParamList = {
   DoctorHome: undefined;
   Offers:undefined;
-  Cart:undefined;
+  Cart:{
+    offer: any
+  };
   DoctorsList:{
     title:string;
   }; 
@@ -48,7 +51,9 @@ const handleOffer =()=>{
 
 
 const handleCart =()=>{
-  navigation.navigate('Cart');
+  navigation.navigate('Cart', {
+    offer:''
+  });
 }
 
 
@@ -203,14 +208,8 @@ renderItem={({item})=> <CardOffer key={item.id} item={item} />}
     <Text style={[styles.label, {fontSize:12, marginLeft:20}]}>Wallington</Text>
 </View>
 
-    <Pressable onPress={handleCart} style={styles.cart}>
-
-    <MaterialIcon name="shopping-cart" size={14} color={colors.dark}  /> 
-        <View style={styles.circle}>
-            <Text style={{color:colors.white, fontSize:8, fontWeight:'500'}}>1</Text>
-        </View>
-
-        </Pressable>
+   
+<CartTop handleCart ={handleCart} />
     </View>
 
 

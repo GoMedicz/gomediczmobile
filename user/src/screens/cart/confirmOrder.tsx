@@ -1,18 +1,16 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import axios from 'axios';
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATITEMS, LANGUAGELIST } from '../../components/data';
-import { CURRENCY, ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
 import { FormatNumber, getData } from '../../components/globalFunction';
+import Loader from '../../components/loader';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -26,7 +24,13 @@ const height =
 
 type RootStackParamList = {
   ConfirmOrder: undefined;
-  Payment:undefined; 
+  Payment:{
+    screen:string;
+    reference:string,
+    order_code:string,
+    amount:number
+
+  }; 
     BottomTabs:{
      code:string;
    }
@@ -35,35 +39,56 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'ConfirmOrder'>;
  const ConfirmOrder =({ route, navigation }:Props)=> {
 
+  const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
   const [products, setProducts]= useState([] as any)
-  const [items, setItems]= useState({
-    subtotal:0,
-    promo:0,
-    charges:0,
-    total:0
-  })
+  const [items, setItems]= useState({} as any)
+  const [profile, setProfile]= useState({} as any)
+  const [errors, setErrors] = useState({
+    product:'',
+    subtotal:'',
+    errorMessage:''
+  });
+
+  
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
 
 const handleBack =()=>{
   navigation.goBack();
 }
 
-const handlePayment =()=>{
-  navigation.navigate('Payment');
+
+
+const handleConfirm =async()=>{
+
+  try{
+    
+    if(!profile.email_address){
+      setLoading(true)
+        setModalType('Failed')
+           setErrors({...errors, errorMessage: 'Please update your email address under profile'})
+    }else{
+
+   
+    let order_code = await getData('order_code');
+
+    navigation.navigate('Payment', {
+      reference:items.reference,
+      order_code:String(order_code),
+      amount:items.ground_total,
+      screen:'Medicine'
+
+    });
+  }
+  }catch(e){
+
+  }
+
 }
 
-const handleNext =()=>{
-  navigation.navigate('BottomTabs', {
-    code:'cds',
-  }); 
-}
+
+
 
 
 const CardCategory =({item}:{item:any})=>{
@@ -117,11 +142,40 @@ const FetchContent =async()=>{
   }
 }
 
+const  FetchProfile = async()=>{
+  let config = await configToken()
+  let code = await getData('code')
+  let url = ServerUrl+'/api/user/display_one/'+code
+  try{
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+      setProfile(response.data.data)
+    }else{
+      setProfile([])
+    }
+
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+
+useEffect(()=>{
+  FetchContent()
+  FetchProfile()
+}, [route])
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
     FetchContent()
     }, [])
+
+    const Previous =()=>{
+      setLoading(false)
+      
+    }
+
 
   return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
     
@@ -131,6 +185,14 @@ const FetchContent =async()=>{
     <View />
     </View>
 
+
+
+    <Loader isModalVisible={loading} 
+    type={modalType}
+
+    message={errors.errorMessage} 
+    action={Previous}
+     />
 
 
     <Text style={[styles.label,{marginVertical:10, marginLeft:10}]}>Delivery at</Text>
@@ -190,20 +252,20 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 
 <View style={styles.row}>
   <Text style={styles.label}>Promo Code Applied</Text>
-  <Text style={styles.label}>{CURRENCY+FormatNumber(items.promo)}</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.discount)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Service Charge</Text>
-  <Text style={styles.label}>{CURRENCY+FormatNumber(items.charges)}</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.service_charge)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Amount to Pay</Text>
-  <Text style={styles.label}>{CURRENCY+FormatNumber(items.total)}</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(items.ground_total)}</Text>
 </View>
 
-<TouchableOpacity onPress={handlePayment} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, } ]}>
+<TouchableOpacity onPress={handleConfirm} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, } ]}>
   <Text style={globalStyles.buttonText}>Continue to Pay</Text> 
 </TouchableOpacity>
 

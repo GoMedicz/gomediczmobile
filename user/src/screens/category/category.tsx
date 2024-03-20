@@ -27,6 +27,7 @@ type RootStackParamList = {
   BottomTabs:undefined;
   CategoryDetails:{
      title:string,
+     search:string,
      code:string
    }
    };
@@ -49,7 +50,8 @@ const handleBack =()=>{
 const handleNext =(item:any)=>{
   navigation.navigate('CategoryDetails', {
     title:item.title,
-    code:item.sub_code
+    code:item.sub_code,
+    search:'',
   }); 
 }
 

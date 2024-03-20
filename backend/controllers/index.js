@@ -18,7 +18,7 @@ const LabController = require('./lab.controller');
 const LabTestController = require('./labTest.controller');
 const MainCategoryController = require('./main_category.controller');
 const ReminderController = require('./reminder.controller');
-
+const OfferController = require('./offer.controller');
 
 const Controllers = {
     categoryController,
@@ -39,7 +39,8 @@ const Controllers = {
     LabController,
     LabTestController,
     MainCategoryController,
-    ReminderController   
+    ReminderController,
+    OfferController   
   };
 
 
