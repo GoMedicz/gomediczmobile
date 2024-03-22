@@ -12,7 +12,7 @@ import ShoppingCart from '../../components/include/ShoppingCart';
 import { PrimaryButton } from '../../components/include/button';
 
 import axios from 'axios';
-import { FormatNumber, getData, storeData } from '../../components/globalFunction';
+import { FormatNumber, getData, removeData, storeData } from '../../components/globalFunction';
 import Loader from '../../components/loader';
 const {width} = Dimensions.get('screen');
 const height =
@@ -125,6 +125,26 @@ const  FetchContent = async()=>{
 }
 
 
+const handleBookMark =async()=>{
+ 
+ let medicine:any  = await getData('medicine');
+  
+   if(medicine){
+    let item =  JSON.parse(medicine)
+
+    let allItems =  item.concat([route.params.code])
+    let uniq = [...new Set(allItems)];
+    storeData('medicine', JSON.stringify(uniq, null, 2))
+    }else{
+      storeData('medicine', JSON.stringify([route.params.code], null, 2))
+    }  
+
+  setLoading(true)
+  setModalType('Success')
+  setErrors({...errors, errorMessage: 'Successfully Saved'}) 
+
+}
+
 const onRefresh = useCallback(()=>{
   setRefreshing(false)
   FetchContent()
@@ -143,7 +163,7 @@ const onRefresh = useCallback(()=>{
     
 
 <View style={{display:'flex', flexDirection:'row'}}>
-    <MaterialIcon name="bookmark-outline" size={18} color={colors.dark}  /> 
+    <MaterialIcon name="bookmark-outline" size={18} onPress={handleBookMark}  color={colors.dark}  /> 
     
     <ShoppingCart handleAction={handleCart} style={{marginLeft:30}} />
     </View>

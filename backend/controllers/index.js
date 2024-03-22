@@ -19,6 +19,8 @@ const LabTestController = require('./labTest.controller');
 const MainCategoryController = require('./main_category.controller');
 const ReminderController = require('./reminder.controller');
 const OfferController = require('./offer.controller');
+const CreditController = require('./credit.controller');
+const AddressController = require('./address.controller');
 
 const Controllers = {
     categoryController,
@@ -40,7 +42,9 @@ const Controllers = {
     LabTestController,
     MainCategoryController,
     ReminderController,
-    OfferController   
+    OfferController,
+    CreditController,
+    AddressController   
   };
 
 

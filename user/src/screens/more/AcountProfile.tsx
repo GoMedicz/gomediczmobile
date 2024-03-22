@@ -39,6 +39,7 @@ type RootStackParamList = {
   Reminder:undefined;
   Address:undefined;
   SavedItems:undefined;
+  Profile:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AccountProfile'>;
@@ -108,7 +109,7 @@ const [items, setItems] = useState([
   
 
 
-  {title:"Profile", label:'Setup Profile', icon:'store', screen:'StoreProfile'},
+  {title:"Profile", label:'Setup Profile', icon:'store', screen:'Profile'},
 
   {title:"Change Language", label:'Change Language', icon:'language', screen:'Language'},
   {title:"Change Theme", label:'Change Theme', icon:'palette', screen:'Theme'},
@@ -134,7 +135,7 @@ const AnimationStart =()=>{
 useEffect(()=>{
   FetchContent()
   AnimationStart()
-}, [])
+}, [route])
 
 
   const onRefresh = useCallback(()=>{

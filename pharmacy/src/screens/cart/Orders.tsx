@@ -123,7 +123,7 @@ const ItemCategory =({item}:{item:any})=>{
 
 {list.filter((ls:any)=>ls.order_code===item.code).map((list:any, id:number)=>getProduct(list.product_code)!==''?<Text key={id} style={[styles.h4,{
           color:MODE==='Light'?colors.dark:colors.white}]}>
-            {getProduct(list.product_code)}</Text>:'')}
+            {getProduct(list.product_code)}</Text>:null)}
   
     </View>
 

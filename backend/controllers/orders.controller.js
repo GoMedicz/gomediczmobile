@@ -123,7 +123,7 @@ if(!String(data.reference)){
       vendor_code: data.vendor_code,
       wallet:data.wallet,
      date_order: todayDateTime,
-      status: data.status,
+      status: 'PENDING',
      reference: data.payment_ref,
       ground_total: data.ground_total,
       rider_code: data.rider_code,
@@ -139,6 +139,9 @@ if(!String(data.reference)){
       wallet:data.wallet,
       user_code: data.user_code,
       amount: data.ground_total,
+
+      order_code: data.order_code,
+      status: data.status,
       discount: data.discount,
      method: data.method,
      payer: data.payer,
@@ -363,13 +366,13 @@ const getTransactions = async(req, res, next) => {
 
   
 
-
+      
 
       const getUserOrder = async(req, res, next) => {
       
    
         sequelize.query(
-          "SELECT i.id, i.code, i.qty, i.amount, i.status, p.product_name, p.require_prescription, s.store_name. s.image_url, s.code as store_code, o.ground_total, o.date_order, o.status, o.createdAt from tbl_order_items i, tbl_pharmacy_products p, tbl_pharmacy_stores s, tbl_orders o WHERE p.code = i.product_code and s.code = i.vendor_code and o.code =i.order_code  and o.user_code =?  ",
+          "SELECT i.id, i.code, i.qty, i.amount, i.status, p.product_name, p.require_prescription, s.store_name, s.image_url, s.code as store_code, o.ground_total, o.date_order, o.status, o.createdAt from tbl_order_items i, tbl_pharmacy_products p, tbl_pharmacy_stores s, tbl_orders o WHERE p.code = i.product_code and s.code = i.vendor_code and o.code =i.order_code  and o.user_code =?  ",
           {
             replacements: [req.params.code],
             type: sequelize.QueryTypes.SELECT
@@ -388,6 +391,70 @@ const getTransactions = async(req, res, next) => {
 
 
 
+
+      const getAllUserOrder = async(req, res, next) => {
+      
+        
+  const items = await  models.OrderItems.findAll({
+    where: {
+      user_code: req.params.code
+}
+})
+
+
+  sequelize.query(
+    "SELECT  o.id, o.code, u.fullname, u.image_url, o.date_order, o.status, o.ground_total, p.method, o.reference  from tbl_users u, tbl_orders o, tbl_payments p where p.code = o.code and u.code = o.user_code and o.user_code =? order by o.id DESC ",
+    {
+      replacements: [req.params.code],
+      type: sequelize.QueryTypes.SELECT
+    }
+).then(result => {
+  if(result.length!==0 && Array.isArray(result)){
+    return res.send({type:'success', data:result, items:items})
+  }else{
+    return res.send({type:'error', message:'There are no data to display'})
+  }
+        }).catch((error) => {
+         return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+        });
+            
+        };
+
+
+
+
+        const getUserTransaction = async(req, res, next) => {
+          const orders = await  models.Orders.findAll({
+            where: {
+            code: req.params.code
+        }
+        })
+      
+
+        const payment = await  models.Payment.findAll({
+          where: {
+          order_code: req.params.code
+      }
+      })
+          sequelize.query(
+           "SELECT i.id, i.code, i.qty, i.amount, i.status, p.product_name, p.require_prescription, p.image_url from tbl_order_items i, tbl_pharmacy_products p WHERE p.code = i.product_code and  i.order_code =?  ",
+            {
+              replacements: [req.params.code],
+              type: sequelize.QueryTypes.SELECT
+            }
+        ).then(result => {
+          if(result.length!==0 && Array.isArray(result)){
+            return res.send({type:'success', data:result, orders:orders, payment:payment })
+          }else{
+            return res.send({type:'error', message:'There are no data to display'})
+          }
+                }).catch((error) => {
+                 return res.send({type:'error', message:'Internal server error', messageDetails:JSON.stringify(error, undefined, 2)})
+                });
+              
+          };
+
+
 module.exports = {
   AddNewOrder,
   getTransactions,
@@ -395,5 +462,7 @@ module.exports = {
   UploadFile,
   UpdateField,
   getStatistics,
-  getUserOrder
+  getUserOrder,
+  getAllUserOrder,
+  getUserTransaction
 };

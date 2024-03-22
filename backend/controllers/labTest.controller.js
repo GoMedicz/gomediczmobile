@@ -140,6 +140,9 @@ const getOneLabTest = (req, res, next) => {
           wallet:data.wallet,
           user_code: data.user_code,
           amount: data.total,
+
+          order_code: data.order_code,
+          status: data.status,
           discount: 0,
          method: data.method,
          payer: data.payer,
@@ -168,7 +171,7 @@ const getOneLabTest = (req, res, next) => {
 
       const getUserLabTest = async(req, res, next) => {
       
-        let query = "SELECT t.id, t.title,   l.lab_name, l.email, l.telephone, tb.fees, tb.order_code, tb.status, b.address, b.date_book, b.time_book  from tbl_labs l, tbl_lab_tests t, tbl_test_bookings tb, tbl_test_booking_summaries b   WHERE b.order_code = tb.order_code and l.code = t.lab_code and tb.lab_code = l.code and tb.test_code = t.code and DATE(b.date_book) >= DATE(NOW()) and  b.user_code =? ";
+        let query = "SELECT rand() as item_key, t.id, tb.code, t.title, l.image_url,  l.lab_name, l.email, l.telephone, tb.fees, tb.order_code, tb.status, b.address, b.date_book, b.time_book  from tbl_labs l, tbl_lab_tests t, tbl_test_bookings tb, tbl_test_booking_summaries b   WHERE b.order_code = tb.order_code and l.code = t.lab_code and tb.lab_code = l.code and tb.test_code = t.code and DATE(b.date_book) >= DATE(NOW()) and  b.user_code =? ";
       
         const upcoming = await  sequelize.query(query,
           {
@@ -180,13 +183,13 @@ const getOneLabTest = (req, res, next) => {
       
       
         sequelize.query(
-          "SELECT t.id, t.title,   l.lab_name, l.email, l.telephone, tb.fees, tb.order_code, tb.status, b.address, b.date_book, b.time_book  from tbl_labs l, tbl_lab_tests t, tbl_test_bookings tb, tbl_test_booking_summaries b   WHERE b.order_code = tb.order_code and l.code = t.lab_code and tb.lab_code = l.code and tb.test_code = t.code and DATE(b.date_book) < DATE(NOW()) and  b.user_code =?  ",
+          "SELECT  rand() as item_key, t.id, t.title, tb.code, l.image_url,  l.lab_name, l.email, l.telephone, tb.fees, tb.order_code, tb.status, b.address, b.date_book, b.time_book  from tbl_labs l, tbl_lab_tests t, tbl_test_bookings tb, tbl_test_booking_summaries b   WHERE b.order_code = tb.order_code and l.code = t.lab_code and tb.lab_code = l.code and tb.test_code = t.code and DATE(b.date_book) < DATE(NOW()) and  b.user_code =?  ",
           {
             replacements: [req.params.code],
             type: sequelize.QueryTypes.SELECT
           }
       ).then(result => {
-        if(result.length!==0 && Array.isArray(result)){
+        if(result.length!==0 || Array.isArray(upcoming)){
           return res.send({type:'success', past:result, upcoming :upcoming })
         }else{
           return res.send({type:'error', data:'[]', message:'There are no data to display'})

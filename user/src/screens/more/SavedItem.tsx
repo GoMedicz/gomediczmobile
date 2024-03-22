@@ -1,18 +1,21 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST, SELLER } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import ModalDialog from '../../components/modal';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { FormatNumber, getData, removeData } from '../../components/globalFunction';
+import Doctor from '../doctors/doctor';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -26,7 +29,7 @@ const height =
 
 type RootStackParamList = {
   SavedItems: undefined;
-  Cart:undefined; 
+  BottomTabs:undefined; 
   DrugDetails:{
      code:string;
    }
@@ -36,10 +39,12 @@ type Props = NativeStackScreenProps<RootStackParamList, 'SavedItems'>;
  const SavedItems =({ route, navigation }:Props)=> {
 
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
-
-
+  const [doctor, setDoctor] = useState([] as any)
+  const [hospital, setHospital] = useState([] as any)
+  const [medicine, setMedicine] = useState([] as any)
+  const [products, setProducts] = useState([] as any)
+  const [content, setContent] = useState('Medicine')
   const MODE = useZustandStore((store:any) => store.theme);
   const dynamicStyle = dynamicStyles(MODE);
 
@@ -52,8 +57,39 @@ interface item {
 
 
 
+
+const FetchContent =async()=>{
+  try{
+
+    let medicine:any  = await getData('medicine');
+    let doctor:any  = await getData('doctor');
+    let hospital:any  = await getData('hospital');
+let med =[]
+let doc = []
+let hos = []
+
+    if(medicine){
+       med =  JSON.parse(medicine)
+
+
+
+    }
+    if(doctor){
+      doc =  JSON.parse(doctor)
+   }
+    
+   if(hospital){
+    hos =  JSON.parse(hospital)
+ }
+  
+  }catch(e){
+
+  }
+}
+
+
 const handleBack =()=>{
-  navigation.goBack();
+  navigation.navigate('BottomTabs');
 }
 
 const handleNext =()=>{
@@ -161,14 +197,13 @@ const DoctorsCategory =({item}:{item:any})=>{
 <Image source={{ uri:ImagesUrl+"/pharmacy/px.png" }} style={styles.px} />
 </View>
 
-<Image source={{ uri:ImagesUrl+"/category/"+item.image }} style={styles.catImage} />
+<Image source={{ uri:item.image_url!=='' && item.image_url!==null ?ImagesUrl+"/vendors/products/"+item.image_url:ImagesUrl+"/no.png"}} style={styles.catImage} />
 
 <View style={{marginTop:15}}>
-      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>Allerygy Relief</Text>
+      <Text style={{color:colors.dark, fontSize:12, fontWeight:'600'}}>{item.product_name}</Text>
 
-      <Text style={{color:colors.dark, fontSize:10,  fontWeight:'600'}}>Tablet</Text>
-
-      <Text style={{color:colors.dark, fontSize:12,  fontWeight:'700', marginTop:10}}>$3.50</Text>
+      <Text style={{color:colors.dark, fontSize:10,  fontWeight:'600'}}>{item.category}</Text>
+      <Text style={{color:colors.dark, fontSize:12,  fontWeight:'700', marginTop:10}}>{CURRENCY+ FormatNumber(item.price)}</Text>
       </View>
 
   <View style={styles.addItem}>
@@ -179,12 +214,141 @@ const DoctorsCategory =({item}:{item:any})=>{
     }
 
 
-  
 
+    const GetDoctor =async(contents:any)=>{
+      try{
+        
+
+        const getDoctor =(code:string, field:string)=>{
+    
+          let rs =  contents&&contents.filter((item:any)=>item.code===code)
+     
+          return rs.length!==0?rs[0][field]:''
+        }
+    
+    
+    
+        let doctor:any  = await getData('doctor');
+       
+        if(doctor){
+          let records = []
+          let product =  JSON.parse(doctor)       
+         
+          
+
+          for (var i in product){
+            records.push({
+              id:'i'+Math.random().toString(36).substring(2, 9),
+
+              fullname:getDoctor(product[i], 'fullname'),
+              gender:getDoctor(product[i], 'gender'),
+              image_url:getDoctor(product[i], 'image_url'),
+              telephone:getDoctor(product[i], 'telephone'),
+              date_started:getDoctor(product[i], 'date_started'),
+              fees:getDoctor(product[i], 'fees'),
+              service:getDoctor(product[i], 'service'),
+              office:getDoctor(product[i], 'office'),
+             
+            })
+    
+          }
+    setDoctor(records)
+    
+        }
+      
+      }catch(e){
+    
+      }
+    }
+
+
+    const GetCart =async(contents:any)=>{
+      try{
+        
+
+        const getProduct =(code:string, field:string)=>{
+    
+          let rs =  contents&&contents.filter((item:any)=>item.code===code)
+     
+          return rs.length!==0?rs[0][field]:''
+        }
+    
+    
+    
+        let medicine:any  = await getData('medicine');
+       
+        if(medicine){
+          let records = []
+          let product =  JSON.parse(medicine)       
+         
+          
+
+          for (var i in product){
+            records.push({
+              id:'i'+Math.random().toString(36).substring(2, 9),
+              product_name:getProduct(product[i], 'product_name'),
+              image_url:getProduct(product[i], 'image_url'),
+              require_prescription:getProduct(product[i], 'require_prescription'),
+              price:getProduct(product[i], 'price'),
+              category:getProduct(product[i], 'category'),
+             
+            })
+    
+          }
+    setMedicine(records)
+    
+        }
+      
+      }catch(e){
+    
+      }
+    }
+
+    
+    const  FetchDoctors = async()=>{
+  
+      let config = await configToken()
+      let url = ServerUrl+'/api/doctors/all'
+      try{
+     await axios.get(url, config).then(response=>{
+    
+        if(response.data.type==='success'){  
+          GetDoctor(response.data.data)
+        }
+    
+      })
+    }catch(e){
+      console.log('error:',e)
+    }
+    }
+
+
+    const  FetchProducts = async()=>{
+  
+      let config = await configToken()
+      let url = ServerUrl+'/api/users/drugs/all'
+      try{
+     await axios.get(url, config).then(response=>{
+    
+        if(response.data.type==='success'){  
+          GetCart(response.data.data)
+        }
+    
+      })
+    }catch(e){
+      console.log('error:',e)
+    }
+    }
+  
+    useEffect(()=>{
+      FetchProducts()
+      FetchDoctors()
+    }, [route])
     
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+   FetchContent()
+   FetchDoctors()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:colors.lightSkye}]}>
@@ -197,59 +361,43 @@ const DoctorsCategory =({item}:{item:any})=>{
     </View>
 
     <View style={[globalStyles.rowCenterBetween, {paddingHorizontal:30, paddingVertical:15, backgroundColor:colors.white}]}>
-      <Text style={[styles.label, {color:colors.navyBlue, fontWeight:'700'}]}>Medicine</Text>
-      <Text style={[styles.label, {color:colors.navyBlue}]}>Doctors</Text>
-      <Text style={[styles.label, {color:colors.navyBlue}]}>Hospitals</Text>
-    </View>
+    
+    <Pressable onPress={()=>setContent('Medicine')}>
+      <Text style={[styles.label, {color: content==='Medicine'?colors.primary:colors.navyBlue, fontWeight:'700'}]}>Medicine</Text>
+  </Pressable>
 
+      <Pressable onPress={()=>setContent('Doctor')}>
+      <Text style={[styles.label, {color:content==='Doctor'?colors.primary:colors.navyBlue,}]}>Doctors</Text>
+      </Pressable>
+
+      <Pressable onPress={()=>setContent('Hospital')}> 
+      <Text style={[styles.label, {color:content==='Hospital'?colors.primary:colors.navyBlue,}]}>Hospitals</Text>
+      </Pressable>
+    </View>
 
 
     <View style={styles.catItems}>
 
 <FlatList 
-data={CATEGORY}
+data={content==='Medicine'?
+medicine:
+content==='Doctor'?
+doctor:hospital}
 numColumns={2}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+renderItem={({item})=> content==='Medicine'?
+<CardCategory key={item.id} item={item} />:content==='Doctor'?
+<Doctor key={item.id} item={item} />:
+<Clinic key={item.id} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />
 
 </View>
 
-<View style={styles.catItems}>
-
-<FlatList 
-data={DOCTORS}
-numColumns={1}
-showsVerticalScrollIndicator={false}
-snapToInterval={width-20}
-snapToAlignment='center'
-decelerationRate="fast"
-renderItem={({item})=> <DoctorsCategory key={item.id} item={item} />}
-refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
-}
-/>
-
-</View>
-
-<View style={styles.catItems}>
-
-<FlatList 
-data={SELLER}
-
-showsVerticalScrollIndicator={false}
-snapToInterval={width}
-contentContainerStyle={{ padding:5, backgroundColor:colors.lightSkye}}
-showsHorizontalScrollIndicator={false}
-renderItem={({item})=> <Clinic key={item.id} item={item} />}
-
-
-/>
-</View>
 
     </View>
   )

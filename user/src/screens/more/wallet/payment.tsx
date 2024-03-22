@@ -1,16 +1,21 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import axios from 'axios';
+import { Paystack } from "react-native-paystack-webview";
+import {PayWithFlutterwave} from 'flutterwave-react-native';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../../assets/colors';
 import { CATITEMS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl } from '../../../components/includes';
+import { ImagesUrl, ServerUrl, configJSON, configToken, fluterwave, paystack } from '../../../components/includes';
 import { globalStyles } from '../../../components/globalStyle';
 import ModalDialog from '../../../components/modal';
+import { getData } from '../../../components/globalFunction';
+import Loader from '../../../components/loader';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -24,7 +29,7 @@ const height =
 
 type RootStackParamList = {
   ChosePayment: undefined;
-    Language:undefined; 
+  Wallet:undefined; 
     MyOrder:{
      code:string;
    }
@@ -34,42 +39,118 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ChosePayment'>;
 
  const ChosePayment=({ route, navigation }:Props)=> {
 
+  const [isPaystack, setIsPaystack] = useState(false)
+  
+  const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
+  const [amount, setAmount] = useState('')
+  const [errors, setErrors] = useState({
+    errorMessage:''
+  });
+  interface RedirectParams {
+    status: 'successful' | 'cancelled',
+    transaction_id?: string;
+    tx_ref: string;
+  }
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
-
-
+const [profile, setProfile]= useState({
+  telephone:'',
+  email_address:'',
+  fullname:''
+})
 
 const handleBack =()=>{
   navigation.goBack();
 }
 
-const handleNext =()=>{
-  navigation.navigate('MyOrder', {
-    code:'cds',
-  }); 
+const  FetchProfile = async()=>{
+  let config = await configToken()
+  let code = await getData('code')
+  let url = ServerUrl+'/api/user/display_one/'+code
+  try{
+ await axios.get(url, config).then(response=>{
+    if(response.data.type==='success'){
+      setProfile(response.data.data)
+    }else{
+      setProfile({} as any)
+    }
+
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
+
+const handleOnRedirect=async(data:RedirectParams)=>{
+  //save transactions
+  if(data.status==='successful'){
+  } 
+
+}
+
+const handleSubmit =async(status:string, mode:string, ref:string)=>{
+
+     let config = await configJSON()
+
+     const user_code = await getData('code');
+     const wallet = await getData('wallet');
+
+     let fd = {
+      code:Math.random().toString(36).substring(2, 9),
+         wallet:wallet,
+         user_code: user_code,
+         amount:amount,
+         status: status,
+        method: mode,
+        reference:ref
+     }
+
+    
+ let url = ServerUrl+'/api/user/wallet/add';
+
+     axios.post(url, fd, config)
+    .then(response =>{
+      if(response.data.type ==='success'){
+       
+       navigation.navigate('Wallet'); 
+     } else{
+
+       setModalType('Failed')
+           setErrors({...errors, errorMessage: response.data.message})
+                }   
+            })
+            .catch((error)=>{
+             setModalType('Failed')
+          setErrors({...errors, errorMessage: error.message})
+
+            }) 
 }
 
 
-const CardCategory =({item}:{item:any})=>{
-  return <Pressable style={[styles.card]}>
+useEffect(()=>{
+  FetchProfile()
+}, [route])
 
-<View style={styles.circle}>
+const handlePaystack =()=>{
+  if(Number(amount) && Number(amount)>=500 ){
 
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />
-</View>
-
-<Text style={styles.label}>{item.title}</Text> 
-
-    </Pressable>
+  setIsPaystack(true)
+  }else{
+    setErrors({...errors, errorMessage: 'Please update your email address under profile'})
   }
+}
 
+
+const handleChange =(text:string)=>{
+  setAmount(text.replace(/[^0-9]/g, "").substring(0, 11))
+  setErrors({...errors, errorMessage:''})
+}
+
+
+const Previous =()=>{
+  setLoading(false)
+}
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
@@ -87,20 +168,32 @@ const CardCategory =({item}:{item:any})=>{
 
 <ScrollView>
 
+<Loader isModalVisible={loading} 
+    type={modalType}
 
+    message={errors.errorMessage} 
+    action={Previous}
+     />
 
 
 
 <View style={styles.address}>
 
 
-<View>
+<View style={ errors.errorMessage?globalStyles.error:[]}>
   <Text style={[styles.infoText, {fontSize:12, fontWeight:'700'}]}>Enter Amount to add</Text>
 
 
   <TextInput 
   placeholderTextColor={colors.grey3}
-  placeholder='$500' style={styles.textInput} />
+  placeholder='minimum of 500' style={styles.textInput}
+  
+  autoCapitalize='none'
+  keyboardType='numeric' 
+   autoCorrect={false}
+   value={amount}
+   onChangeText={text =>handleChange(text)}
+  />
   </View>
 
 </View>
@@ -109,53 +202,63 @@ const CardCategory =({item}:{item:any})=>{
 
 <Text style={[styles.label,{paddingVertical:10, marginLeft:10}]}>Add Money via</Text>
 
-
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={[styles.card]}>
+<TouchableOpacity  onPress={handlePaystack} activeOpacity={0.9} style={styles.card}>
 <View style={styles.circle}>
 
-<MaterialIcon name="credit-card" size={14} color={'#8DC14B'}  /> 
+<Image source={{ uri:ImagesUrl+"/icons/paystack.png"}} style={styles.cardImage} />
 </View>
 
-<Text style={styles.labelPay}>Wallet</Text> 
+<Text style={styles.labelPay}>Pay via Paystack</Text> 
 </TouchableOpacity>
 
+ <PayWithFlutterwave
+  
+  onRedirect={handleOnRedirect}
+  options={{
+    tx_ref: new Date().toString(),
+    authorization:fluterwave,
+    customer: {
+      email: profile.email_address,
+      phonenumber:profile.telephone
+    },
+    amount: Number(amount),
+    currency: 'NGN',
+    payment_options: 'card'
+  }}
+  customButton={(props:any) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={props.onPress}
+      disabled={props.disabled}>
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={[styles.card]}>
+
 <View style={styles.circle}>
 
-<MaterialIcon name="payments" size={14} color={'#8DC14B'}  /> 
+<Image source={{ uri:ImagesUrl+"/icons/fluterwave.png"}} style={styles.cardImage} />
 </View>
 
-<Text style={styles.labelPay}>Cash On Delivery</Text> 
-</TouchableOpacity>
+<Text style={styles.labelPay}>Pay via Fluterwave</Text> 
+        
+    </TouchableOpacity>
+  )}
+/> 
 
-
-<TouchableOpacity  onPress={handleNext} activeOpacity={0.9}style={[styles.card]}>
-<View style={styles.circle}>
-
-<Image source={{ uri:ImagesUrl+"/icons/paypal.png"}} style={styles.cardImage} />
-</View>
-
-<Text style={styles.labelPay}>PayPal</Text> 
-</TouchableOpacity>
-
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={[styles.card]}>
-<View style={styles.circle}>
-
-<Image source={{ uri:ImagesUrl+"/icons/payu.png"}} style={styles.cardImage} />
-</View>
-
-<Text style={styles.labelPay}>PayU Money</Text> 
-</TouchableOpacity>
-
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={[styles.card]}>
-<View style={styles.circle}>
-
-<Image source={{ uri:ImagesUrl+"/icons/stripe.jpeg"}} style={[styles.cardImage, {borderRadius:20}]} />
-</View>
-
-<Text style={styles.labelPay}>Stripe</Text> 
-</TouchableOpacity>
+{isPaystack&&
+<Paystack
+  paystackKey={paystack}
+  amount={Number(amount)}
+  billingEmail={profile.email_address}
+  activityIndicatorColor="green"
+  onCancel={(e) =>{
+    // handle response here
+  }}
+  onSuccess={(res) => {
+    // handle response here
+    let ref =  res.data.transactionRef.reference
+    handleSubmit("Paid", 'Paystack', ref)
+  }}
+  autoStart={isPaystack}
+/>}
 
 </ScrollView>
     </View>

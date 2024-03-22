@@ -58,14 +58,15 @@ useEffect(()=>{
 }, [route])
 
 
+
 const  FetchContent = async()=>{
   //setLoading(true)
   let config = await configToken()
-  let code = await getData('code')
-  let url = ServerUrl+'/api/user/lab_test/'+code
+  const user_code = await getData('code');
+  let url = ServerUrl+'/api/user/lab_test/'+user_code
   try{
  await axios.get(url, config).then(response=>{
- 
+ console.log(response.data)
     if(response.data.type==='success'){
       setContent({
         upcoming:response.data.upcoming,
@@ -107,7 +108,9 @@ showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+
+keyExtractor={item => item.item_key}
+renderItem={({item})=> <CardCategory key={item.id+item.code} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />
@@ -144,7 +147,7 @@ const handleNext =(item:any)=>{
 
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={()=>handleNext(item)} style={[styles.box]}>
+    return <Pressable onPress={()=>handleNext(item)} style={[styles.box]} >
 
 
 <Animated.View style={{opacity:fadeValue}}>
@@ -214,7 +217,8 @@ snapToInterval={width-20}
 snapToAlignment='center'
 decelerationRate="fast"
 ListFooterComponent={<Header />}
-renderItem={({item})=> <CardCategory key={item.id} item={item} />}
+keyExtractor={item => item.item_key}
+renderItem={({item})=> <CardCategory key={item.code} item={item} />}
 refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}  />
 }
 />

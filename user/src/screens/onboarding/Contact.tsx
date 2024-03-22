@@ -29,9 +29,7 @@ const height =
 type RootStackParamList = {
   Contact: undefined;
     Welcome:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Contact'>;
@@ -55,9 +53,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Contact'>;
     errorMessage:''
   })
 
-const handleBack =()=>{
-  navigation.goBack();
-}
+  const handleBack =()=>{
+    navigation.navigate('BottomTabs');
+  }
 
 const AnimationStart =()=>{
   const config:any ={

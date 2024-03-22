@@ -282,7 +282,7 @@ onChangeText={text=>handleChange('otp', text)}
 
 
 <TouchableOpacity onPress={handleSubmit} activeOpacity={0.9} style={globalStyles.button}>
-  <Text style={globalStyles.buttonText}>Submit</Text>
+  <Text style={globalStyles.buttonText}>Submit ({user.newOtp})</Text>
 </TouchableOpacity>
 
 

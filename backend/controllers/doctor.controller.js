@@ -122,7 +122,7 @@ const VerifyVendor= (req, res, next) => {
 
     const getDoctorProfile= (req, res, next) => {
 
-      let query = "SELECT  d.code, d.fullname, ifnull(d.gender, '') as gender, ifnull(d.image_url, '') as image_url, d.telephone, ifnull(d.date_started,'') as date_started, ifnull(d.job_title, '') as job_title, ifnull(d.category, '') as category, ifnull(d.about, '') as about, ifnull(d.fees, 0) as fees, ifnull(d.office, '') as office, service, specification, speciality from tbl_doctors d where d.code =? ";
+      let query = "SELECT  d.code, d.fullname, ifnull(d.gender, '') as gender, ifnull(d.image_url, '') as image_url, d.telephone, ifnull(d.date_started,'') as date_started, ifnull(d.job_title, '') as job_title, ifnull(d.category, '') as category, ifnull(d.about, '') as about, ifnull(d.fees, 0) as fees, ifnull(d.office, '') as office, d.service, d.specification, d.speciality from tbl_doctors d where d.code =? ";
 
        sequelize.query(query,
          {
@@ -142,6 +142,28 @@ const VerifyVendor= (req, res, next) => {
           
       };
 
+
+
+    const getDoctors= (req, res, next) => {
+
+      let query = "SELECT  d.code, d.fullname, ifnull(d.gender, '') as gender, ifnull(d.image_url, '') as image_url, d.telephone, ifnull(d.date_started,'') as date_started, ifnull(d.job_title, '') as job_title, ifnull(d.category, '') as category, ifnull(d.about, '') as about, ifnull(d.fees, 0) as fees, ifnull(d.office, '') as office, d.service, d.specification, d.speciality from tbl_doctors d  ";
+
+       sequelize.query(query,
+         {
+           type: sequelize.QueryTypes.SELECT
+         }).then(result => {
+  
+      if(result){
+        return res.send({type:'success', data:result, status:200})
+      }else{
+        return res.send({type:'error', data:[], status:404})
+      }
+           
+         }).catch((error) => {
+          return res.send({type:'error', message:JSON.stringify(error, undefined, 2), status:404})
+         });
+          
+      };
 
       const searchDoctor = async(req, res, next) => {
        let query = "SELECT  d.code, d.fullname, ifnull(d.gender, '') as gender, ifnull(d.image_url, '') as image_url, d.telephone, ifnull(d.date_started,'') as date_started, ifnull(d.job_title, '') as job_title, ifnull(d.category, '') as category, ifnull(d.fees, 0) as fees, ifnull(d.office, '') as office from tbl_doctors d where d.id <> '' ";
@@ -285,5 +307,6 @@ loginDoctor,
 UpdateDoctor,
 getDoctorProfile,
 VerifyVendor,
-searchDoctor
+searchDoctor,
+getDoctors
 };

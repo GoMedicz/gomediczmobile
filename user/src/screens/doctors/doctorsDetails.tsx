@@ -10,7 +10,7 @@ import colors from '../../assets/colors';
 import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
 import { PrimaryButtonChildren } from '../../components/include/button';
-import { FormatNumber, getAge } from '../../components/globalFunction';
+import { FormatNumber, getAge, getData, removeData, storeData } from '../../components/globalFunction';
 import Loader from '../../components/loader';
 
 const {width} = Dimensions.get('screen');
@@ -54,6 +54,12 @@ const [modalType, setModalType] = useState('load')
     total_service:2
   })
 
+  const [errors, setErrors] = useState({
+    errorMessage:'',
+    successMessage:''
+  });
+
+
 const handleBack =()=>{
   navigation.goBack();
 }
@@ -81,7 +87,6 @@ const fetchDoctor = async()=>{
   try{
 
  await axios.get(url, config).then(response=>{
-  console.log(response.data.data, route.params.code)
     if(response.data.type==='success'){
       try{
 
@@ -118,6 +123,26 @@ const fetchDoctor = async()=>{
 }
 }
 
+const handleBookMark =async()=>{
+
+ 
+  let doctor:any  = await getData('doctor');
+   
+  if(doctor){
+     let item =  JSON.parse(doctor)
+ 
+     let allItems =  item.concat([route.params.code])
+     let uniq = [...new Set(allItems)];
+     storeData('doctor', JSON.stringify(uniq, null, 2))
+     }else{
+       storeData('doctor', JSON.stringify([route.params.code], null, 2))
+     }  
+ 
+   setLoading(true)
+   setModalType('Success')
+   setErrors({...errors, errorMessage: 'Successfully Saved'})  
+   
+ }
 
 useEffect(()=>{
   fetchDoctor()
@@ -133,7 +158,7 @@ useEffect(()=>{
     
     <View style={globalStyles.header}>
     <MaterialIcon onPress={handleBack} name="arrow-back-ios" size={18} color={colors.dark}  /> 
-    <MaterialIcon name="bookmark-outline" size={18} color={colors.dark}  /> 
+    <MaterialIcon name="bookmark-outline" size={18} onPress={handleBookMark} color={colors.dark}  /> 
 
     </View>
 <ScrollView >
@@ -288,7 +313,7 @@ useEffect(()=>{
 <Loader 
     isModalVisible={loading} 
     type={modalType}
-    message={''} 
+    message={errors.errorMessage} 
     action={()=>setLoading(false)}
      />
 

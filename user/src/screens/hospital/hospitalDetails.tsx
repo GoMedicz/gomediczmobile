@@ -11,8 +11,10 @@ import colors from '../../assets/colors';
 import { DOCTORS } from '../../components/data';
 import { globalStyles } from '../../components/globalStyle';
 import { PrimaryButtonChildren } from '../../components/include/button';
-import { FormatNumber, getAge } from '../../components/globalFunction';
+import { FormatNumber, getAge, getData, storeData } from '../../components/globalFunction';
 import Doctor from '../doctors/doctor';
+
+import Loader from '../../components/loader';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -39,16 +41,17 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'HospitalDetails'>;
  const HospitalDetails =({ route, navigation }:Props)=> {
 
+  const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
   const [doctors, setDoctors]= useState([] as any)
   const [content, setContent]= useState([] as any)
   const [refreshing, setRefreshing] = useState(false)
 
-interface item {
-  title:string,
-  isDefault:string,
-  id:number
-}
+  const [errors, setErrors] = useState({
+    errorMessage:'',
+    successMessage:''
+  });
+
 const [hospital, setHospital]= useState({
   facility:[] as any,
   total_facility:4,
@@ -56,6 +59,26 @@ const [hospital, setHospital]= useState({
   department:[] as any
 })
 
+const handleBookMark =async()=>{
+
+ 
+  let hospital:any  = await getData('hospital');
+   
+  if(hospital){
+     let item =  JSON.parse(hospital)
+ 
+     let allItems =  item.concat([route.params.code])
+     let uniq = [...new Set(allItems)];
+     storeData('hospital', JSON.stringify(uniq, null, 2))
+     }else{
+       storeData('hospital', JSON.stringify([route.params.code], null, 2))
+     }  
+ 
+   setLoading(true)
+   setModalType('Success')
+   setErrors({...errors, errorMessage: 'Successfully Saved'})  
+   
+ }
 
 
 const  FetchContent = async()=>{
@@ -154,8 +177,11 @@ const handleNext =()=>{
     style={styles.header}
     
     >
-      <View style={{marginTop:40 }}>
+      <View style={{top:20, width:width-40, display:'flex', justifyContent:'space-between', flexDirection:'row',  }}>
     <MaterialIcon name="arrow-back-ios" size={18} color={colors.white} onPress={handleNext} /> 
+
+    <MaterialIcon name="bookmark-outline" size={18} onPress={handleBookMark} color={colors.white}  /> 
+
     </View>
 
     </ImageBackground>
@@ -203,6 +229,14 @@ const handleNext =()=>{
    
 
 
+<Loader 
+    isModalVisible={loading} 
+    type={modalType}
+    message={errors.errorMessage} 
+    action={()=>setLoading(false)}
+     />
+
+
 
 <View style={[styles.card,{marginTop:0, paddingTop:20}]}>
 <Text style={styles.infoText}>Address</Text>
@@ -215,10 +249,6 @@ const handleNext =()=>{
 
 <MaterialIcon name="navigation" size={18} color={colors.primary}  />
 </View>
-
-
-
-
 
 </View>
 
@@ -291,7 +321,8 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     paddingHorizontal:20,
     backgroundColor:colors.white,
-    height:180
+    height:180,
+    
   },
   h3:{
     fontWeight:'600',

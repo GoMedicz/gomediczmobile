@@ -1,19 +1,18 @@
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
-import { CATITEMS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl } from '../../components/includes';
+import { LANGUAGELIST } from '../../components/data';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
+import { FormatNumber } from '../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -26,7 +25,9 @@ const height =
 
 
 type RootStackParamList = {
-  OrderDetails: undefined;
+  OrderDetails: {
+    code:string;
+  };
   Reminder:undefined; 
     BottomTabs:{
      code:string;
@@ -41,10 +42,14 @@ type Props = NativeStackScreenProps<RootStackParamList, 'OrderDetails'>;
   const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
+  const [payment, setPayment] = useState({
+    method:'Online'
+  })
+  const [content, setContent]= useState([] as any)
+  const [order, setOrder] = useState([] as any)
 
   const MODE = useZustandStore((store:any) => store.theme);
   const dynamicStyle = dynamicStyles(MODE);
-
 
 interface item {
   title:string,
@@ -52,6 +57,33 @@ interface item {
   id:number
 }
 
+
+
+const  FetchContent = async()=>{
+  //setLoading(true)
+  let config = await configToken()
+  let url = ServerUrl+'/api/transaction/user/'+route.params.code
+  try{
+ await axios.get(url, config).then(response=>{
+ 
+    if(response.data.type==='success'){
+
+      setPayment(response.data.payment[0])
+      setContent(response.data.data)
+     setOrder(response.data.orders[0])
+   
+    }else{
+      setContent([])
+    }
+
+  }).finally(()=>{
+    setRefreshing(false)
+   // setLoading(false)
+  }) 
+}catch(e){
+  console.log('error:',e)
+}
+}
 
 
 const handleBack =()=>{
@@ -63,6 +95,11 @@ const handleNext =()=>{
 }
 
 
+useEffect(()=>{
+  FetchContent()
+}, [route])
+
+
 const CardCategory =({item}:{item:any})=>{
   return <Pressable onPress={handleNext} style={[styles.card]}>
 
@@ -71,18 +108,19 @@ const CardCategory =({item}:{item:any})=>{
 <View>
 
 <View style={{display:'flex', flexDirection:'row', alignItems:'center'}}>
-<Text style={styles.label}>{item.title}</Text> 
-<Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />
+<Text style={styles.label}>{item.product_name}</Text> 
+{item.require_prescription==='1'?
+<Image source={{ uri:ImagesUrl+"/pharmacy/px.png"}} style={styles.cardImage} />:[]}
 </View>
 
 
-<Text style={[styles.infoText, {marginBottom:10}]}>2 Packs</Text>
+<Text style={[styles.infoText, {marginBottom:10}]}>{item.qty}</Text>
 
 </View>
 </View>
 
 
-    <Text style={[styles.label, {fontWeight:'700'}]}>N44.00</Text>
+    <Text style={[styles.label, {fontWeight:'700'}]}>{CURRENCY+FormatNumber(item.amount)}</Text>
  
 
 
@@ -92,14 +130,14 @@ const CardCategory =({item}:{item:any})=>{
 
   const onRefresh = useCallback(()=>{
     setRefreshing(false)
-   // FetchContent()
+    FetchContent()
     }, [])
 
   return (<View style={[ {flex:1, backgroundColor:'#F4F8FB'}]}>
     
     <View style={dynamicStyle.header}>
     <MaterialIcon name="arrow-back-ios" onPress={handleBack} size={18} color={colors.dark}  /> 
-    <Text style={dynamicStyle.label}>Order Num 221451</Text>
+    <Text style={dynamicStyle.label}>Order Num {route.params.code}</Text>
    
     <MaterialIcon name="more-vert" onPress={handleBack} size={18} color={colors.dark}  />
     </View>
@@ -114,16 +152,15 @@ const CardCategory =({item}:{item:any})=>{
 
 <View  style={{marginLeft:10}}>
 <Text style={styles.label}>Well Life Store 1</Text>
-<Text style={styles.infoText}>11 June, 11:20 am </Text>
+<Text style={styles.infoText}>{order.date_order} </Text>
 </View>
 </View>
-
 
 <View>
 
-<Text style={[styles.label, {fontSize:12, color:colors.navyBlue}]}>CONFIRMED</Text>
+<Text style={[styles.label, {fontSize:12, color:colors.navyBlue}]}>{order.status}</Text>
 
-<Text style={styles.infoText}>$18.00 | PayPal </Text>
+<Text style={styles.infoText}>{CURRENCY+FormatNumber(order.ground_total)} | Online </Text>
 
 </View>
 </View>
@@ -216,7 +253,7 @@ const CardCategory =({item}:{item:any})=>{
       contentContainerStyle={{height:'100%', width:'100%'}}
       >
 <FlatList 
-data={CATITEMS}
+data={content}
 numColumns={1}
 showsHorizontalScrollIndicator={false}
 snapToInterval={width-20}
@@ -245,27 +282,30 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
 </ScrollView>
 
 
+
+
+
 <View style={styles.container}>
 
 
 <View style={styles.row}>
   <Text style={styles.label}>Sub total</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(order.subtotal)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Promo Code Applied</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(0)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Service Charge</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(order.service_charge)}</Text>
 </View>
 
 <View style={styles.row}>
   <Text style={styles.label}>Amount Paid</Text>
-  <Text style={styles.label}>N18.00</Text>
+  <Text style={styles.label}>{CURRENCY+FormatNumber(order.ground_total)}</Text>
 </View>
 
 </View>

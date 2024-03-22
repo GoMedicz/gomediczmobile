@@ -25,9 +25,8 @@ const height =
 type RootStackParamList = {
   Theme: undefined;
     Welcome:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+  
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Theme'>;
@@ -75,8 +74,8 @@ const Checkbox =({item}:{item:item})=>{
 }
 
 const handleBack =()=>{
-    navigation.goBack();
-  }
+  navigation.navigate('BottomTabs');
+}
 
   
 const handleNext =()=>{

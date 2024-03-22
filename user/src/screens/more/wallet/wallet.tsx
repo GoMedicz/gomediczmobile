@@ -68,7 +68,7 @@ const handleSend =()=>{
 
 
 <Animated.View style={{opacity:fadeValue}}>
-      <Text style={dynamicStyle.label}>{item.payer}</Text>
+      <Text style={dynamicStyle.label}>{item.reference}</Text>
       <Text style={[globalStyles.infoText, {marginTop:5}]}>{item.total_item} Items | {getBritishDate(item.createdAt)+', '+getTime(item.createdAt.slice(11,item.createdAt.length))}</Text>
       
 </Animated.View>
@@ -81,10 +81,10 @@ const handleSend =()=>{
    
   
 
-      <Animated.View style={{opacity:fadeValue}}>
+    {/*   <Animated.View style={{opacity:fadeValue}}>
       <Text style={[globalStyles.infoText, {color:colors.dark}]}>{CURRENCY+FormatNumber(item.discount)}</Text>
       <Text style={[globalStyles.infoText, {marginTop:5}]}>Discount</Text>
-      </Animated.View>
+      </Animated.View> */}
    
 
       </Pressable>
@@ -114,10 +114,12 @@ const handleSend =()=>{
     )
   }
 
+
   const fetchBalance = async()=>{
+    //does not exist
     let config = await configToken()
     const wallet = await getData('wallet');
-    let url = ServerUrl+'/api/user/account/'+wallet
+    let url = ServerUrl+'/api/wallet/display/'+wallet
     try{
 
    await axios.get(url, config).then(response=>{
@@ -137,10 +139,8 @@ const handleSend =()=>{
   const fetchContent = async()=>{
     let config = await configToken()
     const wallet = await getData('wallet');
-    const code = await getData('code');
 
-    console.log(wallet, code)
-    let url = ServerUrl+'/api/payment/transactions/'+wallet
+    let url = ServerUrl+'/api/transaction/display/'+wallet
     try{
 
    await axios.get(url, config).then(response=>{
@@ -164,7 +164,7 @@ const handleSend =()=>{
   useEffect(()=>{
     fetchBalance()
     fetchContent()
-  },[])
+  },[route])
 
 
   const onRefresh = useCallback(()=>{

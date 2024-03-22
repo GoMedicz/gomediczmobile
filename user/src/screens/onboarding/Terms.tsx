@@ -23,9 +23,8 @@ const height =
 type RootStackParamList = {
   Terms: undefined;
     Welcome:undefined; 
-    BottomTabs:{
-     code:string;
-   }
+   
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Terms'>;
@@ -37,10 +36,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Terms'>;
 
 
 
-
-const handleBack =()=>{
-  navigation.goBack();
-}
+  const handleBack =()=>{
+    navigation.navigate('BottomTabs');
+  }
+  
   
 
 return (<SafeAreaView style={{flex:1, backgroundColor:MODE==='Light'?colors.white:colors.dark}}>

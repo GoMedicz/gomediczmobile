@@ -44,7 +44,8 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Payment'>;
   const [modalType, setModalType] = useState('load')
   const [profile, setProfile]= useState({
     telephone:'',
-    email_address:''
+    email_address:'',
+    fullname:''
   })
 
   interface RedirectParams {
@@ -84,10 +85,11 @@ const  FetchProfile = async()=>{
 
 const handleSubmit =async(status:string, mode:string, ref:string)=>{
 
- 
-   setLoading(true)
    let data:any  = await getData('drug');
-   let products =  JSON.parse(data)
+   let products = [];
+   if(data && data !==undefined){
+    products =  JSON.parse(data)
+   }
   
 
       let config = await configJSON()
@@ -105,7 +107,7 @@ const handleSubmit =async(status:string, mode:string, ref:string)=>{
           rider_code:'rider_code',
           status: status,
          method: mode,
-         payer: "username",
+         payer: profile.fullname,
          payment_ref:ref,
          total_item: products.length
       }
@@ -121,6 +123,7 @@ const handleSubmit =async(status:string, mode:string, ref:string)=>{
   ...items,
     status: status,
    method: mode,
+   payer: profile.fullname,
    payment_ref:ref,
 }
 
@@ -128,30 +131,21 @@ const handleSubmit =async(status:string, mode:string, ref:string)=>{
 
 let formdata = route.params.screen==='LabTest'?fdtest:fd 
 
-
-     axios.post(url, formdata, config)
+      axios.post(url, formdata, config)
      .then(response =>{
-      
-       if(response.data.type === 'success'){
-
-       // setModalType('Successful')
-      //  setErrors({...errors, errorMessage: 'Order Successfully placed'})
-
-      navigation.navigate('OrderPlaced'); 
-        
+       if(response.data.type ==='success'){
+        navigation.navigate('OrderPlaced'); 
       } else{
 
         setModalType('Failed')
             setErrors({...errors, errorMessage: response.data.message})
-
                  }   
              })
              .catch((error)=>{
               setModalType('Failed')
            setErrors({...errors, errorMessage: error.message})
 
-             })
-           
+             }) 
 }
 
 
@@ -168,11 +162,18 @@ const FetchContent =async()=>{
   try{
 
     let cart:any  = await getData('cartSummary');
-    let summ =  JSON.parse(cart)
-
-
+    let summ =  [];
+    let labTestData = [];
+    if(cart && cart !==''){
+     summ =  JSON.parse(cart)
+    }
+   
     let labTest:any  = await getData('LabTest');
-    let labTestData =  JSON.parse(labTest)
+    if(labTest && labTest !==''){
+      labTestData =  JSON.parse(labTest)
+     }
+
+    
 
     if(route.params.screen==='LabTest'){
         setItems(labTestData)
@@ -190,7 +191,6 @@ const FetchContent =async()=>{
 const handleOnRedirect=async(data:RedirectParams)=>{
   //save transactions
   if(data.status==='successful'){
-
   } 
 
 }
@@ -220,7 +220,6 @@ const Previous =()=>{
 
     <Loader isModalVisible={loading} 
     type={modalType}
-
     message={errors.errorMessage} 
     action={Previous}
      />
@@ -229,7 +228,6 @@ const Previous =()=>{
 <ScrollView>
 
 <View style={styles.address}>
-
 <View style={{marginLeft:10}}>
   <Text style={[styles.infoText, {fontSize:12, fontWeight:'700'}]}>AMOUNT TO PAY</Text>
   <Text style={{fontSize:30, marginTop:10, fontWeight:'bold', fontFamily:'arial'}}> {CURRENCY+FormatNumber(route.params.amount)}</Text>
@@ -238,8 +236,6 @@ const Previous =()=>{
 
 
 <Text style={[styles.label,{marginVertical:20, marginLeft:10}]}>Payment modes</Text>
-
-
 <TouchableOpacity onPress={handleWallet} activeOpacity={0.9} style={styles.card}>
 <View style={styles.circle}>
 
@@ -274,7 +270,7 @@ const Previous =()=>{
   onRedirect={handleOnRedirect}
   options={{
     tx_ref: new Date().toString(),
-    authorization: fluterwave,
+    authorization:fluterwave,
     customer: {
       email: profile.email_address,
       phonenumber:profile.telephone
@@ -296,8 +292,6 @@ const Previous =()=>{
 </View>
 
 <Text style={styles.labelPay}>Pay via Fluterwave</Text> 
-
-
         
     </TouchableOpacity>
   )}
@@ -309,7 +303,7 @@ const Previous =()=>{
   amount={route.params.amount}
   billingEmail={profile.email_address}
   activityIndicatorColor="green"
-  onCancel={(e) => {
+  onCancel={(e) =>{
     // handle response here
   }}
   onSuccess={(res) => {
@@ -318,7 +312,7 @@ const Previous =()=>{
     handleSubmit("Paid", 'Paystack', ref)
   }}
   autoStart={isPaystack}
-/> }
+/>}
 
 
 </ScrollView>

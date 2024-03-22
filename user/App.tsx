@@ -58,6 +58,7 @@ import Contact from './src/screens/onboarding/Contact';
 import Terms from './src/screens/onboarding/Terms';
 import Faqs from './src/screens/onboarding/Faqs';
 import Password from './src/screens/onboarding/Password';
+import Profile from './src/screens/onboarding/Profile';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -145,6 +146,8 @@ const StackNavigator=()=>{
 <Stack.Screen  name='Address'>{(props:any) =><Address {...props}  />}</Stack.Screen>
 <Stack.Screen  name='AddAddress'>{(props:any) =><AddAddress {...props}  />}</Stack.Screen>
 <Stack.Screen  name='SavedItems'>{(props:any) =><SavedItems {...props}  />}</Stack.Screen>
+
+<Stack.Screen  name='Profile'>{(props:any) =><Profile {...props}  />}</Stack.Screen>
 
 </Stack.Navigator>
 

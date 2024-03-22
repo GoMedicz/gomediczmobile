@@ -9,7 +9,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../../assets/colors';
-import { ServerUrl, configToken } from '../../../components/includes';
+import { ServerUrl, configJSON, configToken } from '../../../components/includes';
 import { globalStyles } from '../../../components/globalStyle';
 import { PrimaryButton } from '../../../components/include/button';
 import ChooseDays from './ChooseDays';
@@ -28,7 +28,7 @@ const height =
       
 type RootStackParamList = {
   CreateReminder: undefined;
-  Cart:undefined; 
+  Reminder:undefined; 
   Address:{
      code:string;
    }
@@ -103,14 +103,9 @@ setDays(currentContent)
 }
 
 const handleBack =()=>{
-  navigation.goBack();
+  navigation.navigate('Reminder');
 }
 
-const handleNext =()=>{
-  navigation.navigate('Address', {
-    code:'cds',
-  }); 
-}
 
 
 const handleChange =(name:string, text:string)=>{
@@ -184,7 +179,7 @@ const removeRow=()=>{
   
   setLoading(true)
   
-  let config = await configToken()
+  let config = await configJSON()
   const code = await getData('code');
 
 
@@ -200,18 +195,14 @@ const removeRow=()=>{
         })
       }
       }
-      const fd = new FormData();
-      fd.append('pillName',  reminder.pillName)
-      fd.append('user_code',  code)
-      fd.append('days',  JSON.stringify(days, null, 2))
-      fd.append('times',  JSON.stringify(times, null, 2))
-      fd.append('itemse',  JSON.stringify(records, null, 2))
-
-   /*    const fd  ={
-        items:JSON.stringify(records),
-       pillName:reminder.pillName,
-       user_code:code
-      } */
+      const fd = {
+        pillName:reminder.pillName,
+        user_code:code,
+        days:JSON.stringify(days, null, 2),
+        times:JSON.stringify(times, null, 2),
+        items:records
+      };
+      
 
       let url = ServerUrl+'/api/user/reminder/add';
      axios.post(url, fd, config)
@@ -220,7 +211,7 @@ const removeRow=()=>{
   
         setModalType('Success')
         setErrors({...errors,  errorMessage: response.data.message})
-          // navigation.navigate('BottomTabs');  
+       navigation.navigate('Reminder');  
                  } else{
                   
                    setModalType('Failed')

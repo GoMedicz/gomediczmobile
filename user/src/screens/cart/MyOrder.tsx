@@ -1,22 +1,18 @@
 
 import React, { useCallback, useState, useRef, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, Animated } from 'react-native'
+import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-import Icon  from 'react-native-vector-icons/Feather' 
 
 import axios from 'axios';
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, DOCTORS, LANGUAGELIST } from '../../components/data';
-import { ImagesUrl, ServerUrl, configToken } from '../../components/includes';
-import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
-import ShoppingCart from '../../components/include/ShoppingCart';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
-import { getData } from '../../components/globalFunction';
+import { LANGUAGELIST } from '../../components/data';
 
+import { dynamicStyles } from '../../components/dynamicStyles';
+import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
+import { FormatNumber, getBritishDate, getData, getTime } from '../../components/globalFunction';
+import { useZustandStore } from '../../api/store';
 const {width} = Dimensions.get('screen');
 const height =
   Platform.OS === "ios"
@@ -38,54 +34,84 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'MyOrder'>;
  const MyOrder =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+
+  const [products, setProducts] = useState([] as any)
+  const [old, setOld] = useState([] as any)
+  const [list, setList] = useState([] as any)
   const [refreshing, setRefreshing] = useState(false)
   const fadeValue = useRef(new Animated.Value(0)).current 
-  const [content, setContent]= useState({
-    upcoming:[] as any,
-    past:[] as any,
-  })
+  const [content, setContent]= useState([] as any)
 interface item {
   title:string,
   isDefault:string,
   id:number
 }
 
+const MODE = useZustandStore(s => s.theme);
+const dynamicStyle = dynamicStyles(MODE)
 
 
 const handleBack =()=>{
   navigation.navigate('BottomTabs');
 }
 
-const handleNext =()=>{
+const handleNext =(code:string)=>{
   navigation.navigate('OrderDetails', {
-    code:'cds',
+    code:code,
   });  
 }
 
+const getProduct=(code:string)=>{
+
+  let ans = products&&products.filter((item:any)=>item.code===code)
+  
+  let rs = ans.length!==0?ans[0].product_name:''
+  
+  return rs
+  }
 
 
+  const fetchProducts = async()=>{
+    let config = await configToken()
+  
+    let url = ServerUrl+'/api/users/drugs/all'
+    try{
+  
+   await axios.get(url, config).then(response=>{
+  
+      if(response.data.type==='success'){
+        setProducts(response.data.data)
+  
+      }else{
+        setProducts([])
+      }
+    })
+  }catch(e){
+    console.log('error:',e)
+  }
+  }
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <Pressable onPress={()=>handleNext(item.code)} style={[styles.box]}>
 
 
 <View style={[styles.content, {paddingVertical:10}]}>
 <View style={styles.content}>
-<Image source={{ uri:ImagesUrl+"/doctors/"+item.image }} style={styles.profile} />
+<Image source={{ uri:item.image_url?ImagesUrl+"/user/"+item.image_url:ImagesUrl+"/no.png"}} style={styles.profile} />
 
 
 <View  style={{marginLeft:10}}>
-<Text style={styles.label}>Well Life Store 1</Text>
-<Text style={styles.infoText}>11 June, 11:20 am </Text>
+<Text style={styles.label}>{item.fullname}</Text>
+<Text style={styles.infoText}>{getBritishDate(item.date_order)+', '+getTime(item.date_order.slice(11,item.date_order.length))}</Text>
+
 
 
 
 <View style={{marginTop:15}}>
-  <Text style={[styles.label,{marginTop:5}]}>Salosir 100mg Tablet</Text>
-  <Text style={[styles.label,{marginTop:5}]}>Salosir 100mg Tablet</Text>
-  <Text style={[styles.label,{marginTop:5}]}>Salosir 100mg Tablet</Text>
+ 
+{list.filter((ls:any)=>ls.order_code===item.code).map((list:any, id:number)=>getProduct(list.product_code)!==''?<Text key={id} style={[styles.infoText,{
+          color:MODE==='Light'?colors.dark:colors.white}]}>
+            {getProduct(list.product_code)} ({list.qty})</Text>:null)}
 </View>
 
 
@@ -98,9 +124,9 @@ const handleNext =()=>{
 
 <View>
 
-<Text style={[styles.label, {fontSize:12, color:colors.navyBlue}]}>CONFIRMED</Text>
+<Text style={[styles.label, {fontSize:12, color:colors.navyBlue}]}>{item.status}</Text>
 
-<Text style={styles.infoText}>$18.00 | PayPal </Text>
+<Text style={styles.infoText}>{CURRENCY+FormatNumber(item.ground_total)} | {item.method} </Text>
 
 </View>
 </View>
@@ -113,30 +139,28 @@ const handleNext =()=>{
 
   
 
-    useEffect(()=>{
-      FetchContent()
-    }, [route])
-
 
     const  FetchContent = async()=>{
       //setLoading(true)
       let config = await configToken()
       let code = await getData('code')
-      let url = ServerUrl+'/api/user/order/'+code
+      let url = ServerUrl+'/api/transaction/getorder/'+code
       try{
      await axios.get(url, config).then(response=>{
      
         if(response.data.type==='success'){
-          setContent({
-            upcoming:response.data.data,
-            past:response.data.data
-          })
+          setList(response.data.items)
+ 
+  let recent = response.data.data.slice(0,20)
+  let past = response.data.data.slice(20,response.data.data.length)
+
+      setContent(recent)
+      setOld(past)
+       
+
           AnimationStart()
         }else{
-          setContent({
-            upcoming:[],
-            past:[]
-          })
+          setContent([])
         }
     
       }).finally(()=>{
@@ -147,6 +171,14 @@ const handleNext =()=>{
       console.log('error:',e)
     }
     }
+
+
+
+
+    useEffect(()=>{
+      FetchContent()
+      fetchProducts()
+    }, [route])
 
 const Header =()=>{
 
@@ -160,7 +192,7 @@ const Header =()=>{
     <View style={styles.catItems}>
 
 <FlatList 
-data={content.past}
+data={old}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}
@@ -208,7 +240,7 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
     <View style={styles.catItems}>
 
 <FlatList 
-data={content.upcoming}
+data={content}
 numColumns={1}
 showsVerticalScrollIndicator={false}
 snapToInterval={width-20}

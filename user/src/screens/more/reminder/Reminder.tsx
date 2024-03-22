@@ -9,13 +9,13 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handl
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl, ServerUrl, configToken } from '../../../components/includes';
+import { ImagesUrl, ServerUrl, configToken, } from '../../../components/includes';
 import { globalStyles } from '../../../components/globalStyle';
 import ModalDialog from '../../../components/modal';
 import ShoppingCart from '../../../components/include/ShoppingCart';
 import { useZustandStore } from '../../../api/store';
 import { dynamicStyles } from '../../../components/dynamicStyles';
-import { getData } from '../../../components/globalFunction';
+import { getData, getTime } from '../../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -63,10 +63,31 @@ const handleNext =()=>{
 }
 
 
+const getDays=(days:any)=>{
+try{
 
+  let day = JSON.parse(days)
+  let ans = day.filter((item:any)=>item.status===true).map((item:any)=>item.day)
+
+  return String(ans)
+}catch(e){
+}
+}
+
+
+const getTimes=(time:any)=>{
+  try{
+  
+    let day = JSON.parse(time)
+    let ans = day.map((item:any)=>getTime(item.time))
+  
+    return String(ans)
+  }catch(e){
+  }
+  }
 
   const CardCategory =({item}:{item:any})=>{
-    return <Pressable onPress={handleNext} style={[styles.box]}>
+    return <Pressable  style={[styles.box]}>
 
 
 <View style={styles.circle}>
@@ -77,8 +98,8 @@ const handleNext =()=>{
     
     <View style={[{display:'flex'}, {marginLeft:15}]}>
       <Text style={styles.label}>{item.pill_name}</Text>
-      <Text style={styles.infoText}>Mon, Tue, Wed</Text>
-      <Text style={[styles.infoText, {fontSize:8, marginTop:5}]}>08:00 am, 02:00 pm</Text>
+      <Text style={styles.infoText}>{getDays(item.days)}</Text>
+      <Text style={[styles.infoText, {fontSize:8, marginTop:5}]}>{getTimes(item.times)}</Text>
     </View> 
 
 
@@ -98,7 +119,7 @@ const handleNext =()=>{
       //setLoading(true)
       let config = await configToken()
       let code = await getData('code')
-      let url = ServerUrl+'/api/user/reminder/'+code
+      let url = ServerUrl+'/api/reminder/user/'+code
       try{
      await axios.get(url, config).then(response=>{
      

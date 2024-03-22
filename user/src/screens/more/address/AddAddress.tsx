@@ -3,16 +3,18 @@ import React, { useCallback, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput, ImageBackground } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
-
+import axios from 'axios';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../../assets/colors';
 import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl } from '../../../components/includes';
+import { ImagesUrl, ServerUrl, configJSON } from '../../../components/includes';
 import { globalStyles } from '../../../components/globalStyle';
 import ModalDialog from '../../../components/modal';
 import ShoppingCart from '../../../components/include/ShoppingCart';
 import { PrimaryButton } from '../../../components/include/button';
+import Loader from '../../../components/loader';
+import { getData } from '../../../components/globalFunction';
 
 const {width} = Dimensions.get('screen');
 const height =
@@ -26,7 +28,7 @@ const height =
 
 type RootStackParamList = {
   AddAddress: undefined;
-  SavedItems:undefined; 
+  Address:undefined; 
   SearchLab:{
      code:string;
    }
@@ -35,8 +37,13 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'AddAddress'>;
  const AddAddress =({ route, navigation }:Props)=> {
 
+
+const [modalType, setModalType] = useState('load')
   const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
+  const [content, setContent] = useState({
+    type:'Home',
+    address:''
+  })
   const [refreshing, setRefreshing] = useState(false)
 
 interface item {
@@ -45,27 +52,72 @@ interface item {
   id:number
 }
 
-
+const [errors, setErrors] = useState({
+  address:'',
+  errorMessage:''
+})
 
 const handleBack =()=>{
   navigation.goBack();
 }
 
-const handleNext =()=>{
-  navigation.navigate('SavedItems');
+
+
+const handleSubmit =async()=>{
+  let error = {
+    ...errors,  
+  }
+
+  var errormessage = [];
+let msg = 'This field is required';
+
+if(!content.address){
+  error.address = msg;
+   errormessage.push(msg);
+}
+        setErrors(error)
+        if (errormessage.length===0){
+
+setLoading(true)
+
+let config = await configJSON()
+const code = await getData('code');
+
+    const fd = {
+      code:Math.random().toString(36).substring(2, 9),
+      address:content.address,
+      user_code:code,
+      type:content.type
+    }
+    
+
+    let url = ServerUrl+'/api/user/address/add'
+   axios.post(url, fd, config)
+   .then(response =>{
+     if(response.data.type === 'success'){
+
+      setModalType('Success')
+      setErrors({...errors,  errorMessage: response.data.message})
+     navigation.navigate('Address');  
+               } else{
+                
+                 setModalType('Failed')
+                 setErrors({...errors,  errorMessage: response.data.message})
+               }   
+           })
+           .catch((error)=>{
+            setModalType('Failed')
+            setErrors({...errors,  errorMessage:error.message})
+           
+           })
+          }
 }
 
 
+const handleClose =()=>{
+  setLoading(false)
+}
 
-
-
-  
-
-    
-  const onRefresh = useCallback(()=>{
-    setRefreshing(false)
-   // FetchContent()
-    }, [])
 
   return (<SafeAreaView style={[ {flex:1, backgroundColor:colors.white}]}>
     
@@ -104,22 +156,22 @@ const handleNext =()=>{
 
 
     <View style={styles.addWrapper}>
-      <View style={styles.addType}>
+    <Pressable onPress={()=>setContent({...content, type:'Home'})} style={[styles.addType, content.type==='Home'? styles.active:[]]}>
       <MaterialIcon name="home" size={20} color={colors.icon}  /> 
         <Text style={[styles.label, {marginLeft:5, fontSize:10}]}>Home</Text>
-      </View>
+      </Pressable>
 
 
-      <View style={styles.addType}>
+      <Pressable onPress={()=>setContent({...content, type:'Office'})} style={[styles.addType, content.type==='Office'? styles.active:[]]}>
       <MaterialIcon name="home" size={20} color={colors.icon}  /> 
         <Text style={[styles.label, {marginLeft:5, fontSize:10}]}>Office</Text>
-      </View>
+      </Pressable>
 
 
-      <View style={styles.addType}>
+      <Pressable onPress={()=>setContent({...content, type:'Other'})} style={[styles.addType, content.type==='Other'? styles.active:[]]}>
       <MaterialIcon name="home" size={20} color={colors.icon}  /> 
         <Text style={[styles.label, {marginLeft:5, fontSize:10}]}>Other</Text>
-      </View>
+      </Pressable>
 
     </View>
 
@@ -127,16 +179,30 @@ const handleNext =()=>{
 
     <View style={styles.inputWrapper}>
   <Text style={[styles.label, {color:colors.grey, fontSize:10, marginBottom:10}]}>Enter Address Details</Text>
-  <TextInput placeholder='Address' style={styles.textInput} />
+  <TextInput 
+  placeholder='Address'
+   style={styles.textInput}
+   autoCapitalize='none'
+  keyboardType='email-address' 
+   autoCorrect={false}
+   value={content.address}
+   onChangeText={text =>setContent({...content, address:text})}
+   />
   </View>
 
 
 
       </View>
 
+      <Loader isModalVisible={loading} 
+    type={modalType}
+
+    message={errors.errorMessage} 
+    action={handleClose}
+     />
      
       <PrimaryButton
-      handleAction={handleNext}
+      handleAction={handleSubmit}
       title='Save'
       />
       </View>
@@ -183,7 +249,10 @@ const styles = StyleSheet.create({
 
   },
 
-
+  active:{
+    backgroundColor:colors.primary,
+    color:colors.white
+  },
 
 box:{
   width:width,

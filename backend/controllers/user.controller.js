@@ -206,25 +206,15 @@ const getOneUser = (req, res, next) => {
   
   let msg ='Some fields are required';
   
-  if(!String(data.code).trim()){
+  if(!data.code){
     errors.code =msg;
     formIsValid = false;
   }
   
   
   
-  if(!String(data.store_name).trim()){
-    errors.store_name =msg;
-    formIsValid = false;
-  }
-  
-  
-  if(!String(data.email_address).trim()){
-    errors.email_address =msg;
-    formIsValid = false;
-  }
 
-  if(!String(data.telephone).trim()){
+  if(!data.telephone){
     errors.telephone =msg;
     formIsValid = false;
   }
@@ -235,15 +225,10 @@ const getOneUser = (req, res, next) => {
     
         sequelize.sync().then(() => {
             models.User.update({
-  
+              fullname: data.fullname,
           image_url: data.image_url,
-          store_name:data.store_name,
           telephone: data.telephone,
-          email_address: data.email_address,
-          address: data.address,
-          latitude: data.latitude,
-          longitude: data.longitude,
-          map_data: data.map_data,
+          email_address: data.email_address
             },{
               where: {
                 code: data.code

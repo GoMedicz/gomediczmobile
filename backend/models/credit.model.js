@@ -1,5 +1,5 @@
-const getPaymentModel = (sequelize, { DataTypes }) => {
-  const Store = sequelize.define('tbl_payment', {
+const getCreditModel = (sequelize, { DataTypes }) => {
+  const Store = sequelize.define('tbl_credit', {
 
       id: {
         type: DataTypes.INTEGER,
@@ -25,27 +25,7 @@ const getPaymentModel = (sequelize, { DataTypes }) => {
           type: DataTypes.STRING,
           allowNull: false
         },
-        discount: {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
         method: {
-          type: DataTypes.STRING,
-          allowNull: false
-        },
-        order_code: {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
-        status: {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
-       payer: {
-          type: DataTypes.STRING,
-          allowNull: true
-        },
-        total_item: {
           type: DataTypes.STRING,
           allowNull: false
         },
@@ -56,44 +36,27 @@ const getPaymentModel = (sequelize, { DataTypes }) => {
         reference: {
           type: DataTypes.STRING,
           allowNull: true
-        },
-        payment_data: {
-          type: DataTypes.STRING,
-          defaultValue: "[]",
-          allowNull: true
         }
   },
    {
     indexes:[
       {
         unique: false,
-        name:'pay_code',
+        name:'code',
         fields: ['code'],
       },
       {
         unique: false,
-        name:'pay_wallet',
+        name:'wallet',
         fields: ['wallet'],
-      },
-      {
-        unique: false,
-        name:'pay_date_paid',
-        fields: ['date_paid'],
-      },
-      {
-        unique: false,
-        name:'pay_user_code',
-        fields: ['user_code'],
       }
-
-      
     ]
   } 
   
   )
 
   sequelize.sync().then((res) => {
-    console.log('tbl_payment successfully created');
+    console.log('tbl_credit successfully created');
   }).catch((error) => {
     console.error('Unable to create table : ', error);
   });
@@ -101,4 +64,4 @@ const getPaymentModel = (sequelize, { DataTypes }) => {
   return Store;
 };
 
-module.exports = getPaymentModel;
+module.exports = getCreditModel;

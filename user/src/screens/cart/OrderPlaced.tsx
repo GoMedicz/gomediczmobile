@@ -21,9 +21,7 @@ const height =
 
 
 type RootStackParamList = {
-  OrderPlaced: {
-    code:string;
-  }
+  OrderPlaced:undefined;
   MyOrder:undefined; 
     BottomTabs:undefined;
    };
@@ -44,7 +42,11 @@ const FetchContent =async()=>{
 
      removeData('drug');
      removeData('cartSummary');
-  
+
+     removeData('LabTest');
+     removeData('LabItems');
+     removeData('Test');
+     
   }catch(e){
 
   }
@@ -80,25 +82,21 @@ useEffect(()=>{
 
 <Text style={[styles.label]}>to check order status.</Text>
 
-<Pressable onPress={handleOrder}> <Text style={[styles.label,{color:colors.primary, marginTop:80}]}>My Orders</Text> </Pressable>
+<Pressable onPress={handleOrder}><Text style={[styles.label,{color:colors.primary, marginTop:80}]}>My Orders</Text></Pressable>
     </View>
-
-   
-
-
 
     </ScrollView>
 
 <View style={styles.container}>
 
 
-<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10, } ]}>
+<TouchableOpacity onPress={handleNext} activeOpacity={0.9} style={[globalStyles.button, {width:width, marginHorizontal:0, borderRadius:0, marginTop:10}]}>
   <Text style={globalStyles.buttonText}>Continue Shopping</Text> 
 </TouchableOpacity>
 
 </View>
 
-    </SafeAreaView>
+</SafeAreaView>
   )
 }
 

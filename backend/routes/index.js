@@ -23,7 +23,9 @@ const {
   LabTestController,
   MainCategoryController,
   ReminderController,
-  OfferController  
+  OfferController,
+  CreditController,
+  AddressController   
 } = require('../controllers/index');
 
 var ride = multer.diskStorage({
@@ -57,6 +59,20 @@ var storage = multer.diskStorage({
     destination: function (req, file, cb) {
 
       cb(null, './public/images/vendors/profiles/')
+
+    },
+    filename: function (req, file, cb) {
+   
+      cb(null, req.body.code+'_'+file.originalname)
+
+    }
+  })
+
+
+  var userimage = multer.diskStorage({
+    destination: function (req, file, cb) {
+
+      cb(null, './public/images/user/')
 
     },
     filename: function (req, file, cb) {
@@ -111,7 +127,7 @@ const profile = multer({ storage:store });
   const upload = multer({ storage: storage });
   const rider = multer({ storage:ride });
   const attachment = multer({ storage:appointment });
-
+  const user = multer({ storage:userimage });
   const lab = multer({ storage:labPic });
   const category = multer({ storage: categoryUpload });
 
@@ -206,11 +222,16 @@ router.get('/api/vendor/transaction/:code', General.AuthenticateToken, OrderCont
 router.get('/api/vendor/order/:vendor/:code', General.AuthenticateToken, OrderController.getOrder);
 router.get('/api/user/order/:code', General.AuthenticateToken, OrderController.getUserOrder);
 
+router.get('/api/transaction/getorder/:code', General.AuthenticateToken, OrderController.getAllUserOrder)
+
 router.post('/api/vendor/order/prescription', General.AuthenticateToken, prescribe.single('image'), OrderController.UploadFile);
 
 
 router.post('/api/vendor/statistics', General.AuthenticateToken, OrderController.getStatistics);
 router.post('/api/vendor/order/update', General.AuthenticateToken, OrderController.UpdateField);
+
+router.get('/api/transaction/user/:code', General.AuthenticateToken, OrderController.getUserTransaction)
+
 
 
 
@@ -220,6 +241,7 @@ router.post('/api/doctor/registration', DoctorController.AddNewDoctor);
 router.post('/api/doctor/update', DoctorController.UpdateDoctor);
 router.get('/api/doctor/search/:title', DoctorController.searchDoctor);
 router.get('/api/doctor/profile/:code', DoctorController.getDoctorProfile);
+router.get('/api/doctors/all', DoctorController.getDoctors);
 
 //Speciality controller
 router.post('/api/speciality/add', SpecialityController.addNewSpeciality);
@@ -253,7 +275,7 @@ router.post('/api/rider/field/update', General.AuthenticateToken, RiderControlle
 router.post('/api/user/verification', UserController.VerifyUser);
 router.post('/api/user/login', UserController.loginUser);
 router.post('/api/user/registration', UserController.AddNewUser);
-
+router.post('/api/user/profile/update', General.AuthenticateToken, user.single('image'), UserController.UpdateUser);
 router.get('/api/user/display_one/:code', General.AuthenticateToken, UserController.getOneUser);
 
 
@@ -328,10 +350,17 @@ router.get('/api/discount/active_offer', General.AuthenticateToken, OfferControl
 
 
 
+//Credit controller
+router.post('/api/user/wallet/add',  CreditController.AddNewPayment);
+router.get('/api/wallet/display/:wallet',  CreditController.getBalance);
+router.get('/api/transaction/display/:wallet',  CreditController.getTransactions);
 
 
 
 
+//Address controller
+router.post('/api/user/address/add',  AddressController.AddNewAddress);
+router.get('/api/address/display/:code',  AddressController.getAddress);
 
 
 

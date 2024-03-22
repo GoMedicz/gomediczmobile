@@ -20,16 +20,6 @@ if(!String(data.code).trim()){
 } 
 
 
-if(!Number(data.wallet)){
-  errors.wallet =msg;
-  formIsValid = false;
-}
-
-if(!String(data.user_code).trim()){
-  errors.user_code =msg;
-  formIsValid = false;
-}
-
 
 if(!Number(data.amount)){
   errors.amount =msg;
@@ -37,25 +27,6 @@ if(!Number(data.amount)){
 }
 
 
-if(!String(data.method).trim()){
-  errors.method =msg;
-  formIsValid = false;
-} 
-
-if(!String(data.payer).trim()){
-  errors.payer =msg;
-  formIsValid = false;
-} 
-
-if(!Number(data.total_item)){
-  errors.total_item =msg;
-  formIsValid = false;
-}
-
-if(!String(data.reference)){
-  errors.reference =msg;
-  formIsValid = false;
-}
 
 if(!formIsValid){
   return res.send({status:'error', message:'Some fields are required'})
@@ -63,17 +34,12 @@ if(!formIsValid){
 
     sequelize.sync().then(() => {
      
-         models.Payment.create({
+         models.Credit.create({
           code: data.code,
           wallet:data.wallet,
-          order_code: data.order_code,
-          status: data.status,
           user_code: data.user_code,
           amount: data.amount,
-          discount: data.discount,
          method: data.method,
-         payer: data.payer,
-         total_item: data.total_item,
          date_paid: todayDateTime,
          reference: data.reference
 
@@ -95,10 +61,10 @@ if(!formIsValid){
 
 
 const getBalance = (req, res, next) => {
-
+  
   //Only active products should be display i.e where status = active
   sequelize.query(
-    'SELECT ((SELECT  SUM(CAST(p.amount as INTEGER)) FROM tbl_payments p WHERE p.wallet = ?) - (SELECT  coalesce(SUM(CAST(w.amount as INTEGER)),0) FROM tbl_withdrawals w WHERE w.wallet = ?)) as balance',
+    "SELECT  (SELECT  coalesce(SUM(CAST(w.amount as INTEGER)),0) FROM tbl_credits w WHERE w.wallet = ?)- IFNULL((SELECT  SUM(CAST(p.amount as INTEGER)) FROM tbl_payments p WHERE p.method ='Wallet' and  p.wallet = ?),0) as balance",
     {
       replacements: [req.params.wallet, req.params.wallet],
       type: sequelize.QueryTypes.SELECT
@@ -115,12 +81,11 @@ const getBalance = (req, res, next) => {
   const getTransactions = (req, res, next) => {
  
     sequelize.sync().then(() => {
-         models.Payment.findAll({
+         models.Credit.findAll({
           where: {
           wallet: req.params.wallet
       },
-      attributes: ['payer', 'method', 'amount', 'discount', 'total_item', 'createdAt'],
-      order:[
+       order:[
         ['id', 'DESC']
       ],
       limit:15
@@ -136,9 +101,8 @@ const getBalance = (req, res, next) => {
 
 
 
-
 module.exports = {
   AddNewPayment,
-  getTransactions,
-  getBalance
+  getBalance,
+  getTransactions
 };

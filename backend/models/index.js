@@ -25,7 +25,8 @@ const getMainCategoryModel = require("./main_category.model");
 const getSubCategoryModel = require("./sub_category.model");
 const getReminderModel = require("./reminder.model");
 const getOfferModel = require("./offer.model");
-
+const getCreditModel = require("./credit.model");
+const getAddressModel = require("./address.model");
 
 const models = {
   Category: getCategoryModel(connection, Sequelize),
@@ -52,7 +53,9 @@ const models = {
   MainCategory:getMainCategoryModel(connection, Sequelize),
   SubCategory:getSubCategoryModel(connection, Sequelize),
   Reminder:getReminderModel(connection, Sequelize),
-  Offer:getOfferModel(connection, Sequelize)
+  Offer:getOfferModel(connection, Sequelize),
+  Credit:getCreditModel(connection, Sequelize),
+  Address:getAddressModel(connection, Sequelize)
 };
 
 

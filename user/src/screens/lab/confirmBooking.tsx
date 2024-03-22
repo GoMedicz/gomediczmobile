@@ -1,18 +1,14 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Platform, Dimensions, Pressable, TouchableOpacity } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CATITEMS, DATES, LANGUAGELIST, TIMES } from '../../components/data';
-import { CURRENCY, ImagesUrl, ServerUrl, config, configJSON, configToken } from '../../components/includes';
+import { CURRENCY } from '../../components/includes';
 import { globalStyles } from '../../components/globalStyle';
-import ModalDialog from '../../components/modal';
 import { FormatNumber, getData, getMonthYear, getNumWorkDays, getTime, storeData, timeAddMinutes } from '../../components/globalFunction';
-import axios from 'axios';
 import Loader from '../../components/loader';
 
 const {width} = Dimensions.get('screen');
@@ -33,9 +29,7 @@ type RootStackParamList = {
     amount:number;
     reference:string;
   }; 
-    BottomTabs:{
-     code:string;
-   }
+    BottomTabs:undefined;
    };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ConfirmBooking'>;
@@ -69,7 +63,7 @@ const [modalType, setModalType] = useState('load')
 
 
 const handleBack =()=>{
-  navigation.goBack();
+  navigation.navigate('BottomTabs');
 }
 
 
@@ -146,38 +140,6 @@ storeData('LabItems', JSON.stringify(cart.data, null, 2));
         screen:'LabTest',
         amount:cart.total
       }); 
-
-
-/* 
-
-setLoading(true)
-  let url = ServerUrl+'/api/lab/test/booking';
-     axios.post(url, fd, config)
-     .then(response =>{
-
-      console.log(response.data)
-       if(response.data.type === 'success'){
-        
-        storeData('order_code', order_code);
-        storeData('cart', '[]');
-
-        setModalType('Success')
-        setErrors({...errors, errorMessage: 'Successfully Booked'})
-        //handlePayment(order_code)
-
-      } else{
-        setModalType('Failed')
-            setErrors({...errors, errorMessage: response.data.message})
-                 }   
-             })
-             .catch((error)=>{
-              setModalType('Failed')
-            setErrors({...errors, errorMessage: error.message})
-
-             }).finally(()=>{
-             // handleReset()
-            
-             })   */
             }
 }
 
@@ -187,7 +149,11 @@ const  FetchContent = async()=>{
   
   try{
     let data:any  = await getData('Test');
-    let cat = JSON.parse(data)
+    let cat = [];
+    if(data && data.length!==''){
+     cat = JSON.parse(data)
+    }
+   
 
     const subtotal = cat.reduce((acc:number, item:any)=>acc+parseFloat(item.fees), 0)
 let charge = 100
@@ -346,7 +312,7 @@ renderItem={({item})=> <CardDate key={item.date} item={item} />}
 
 </View>
 
-
+<Text style={[styles.infoText, {color:colors.red, marginLeft:10} ]}>{errors.title}</Text>
 
 <View style={[styles.row, {paddingTop:0}]}>
 <FlatList 
