@@ -129,10 +129,10 @@ const loginUser = (req, res, next) => {
            }  
 
         }).catch((error) => {
-         return res.send({type:'error', message:JSON.stringify(error, undefined, 2)})
+         return res.send({type:'erroro', message:JSON.stringify(error, undefined, 2)})
         });
       }).catch((error) => {
-        return res.send({type:'error', message:JSON.stringify(error, undefined, 2)})
+        return res.send({type:'errors', message:JSON.stringify(error, undefined, 2)})
       }); 
   };
 

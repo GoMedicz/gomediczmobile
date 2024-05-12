@@ -237,10 +237,10 @@ refreshControl ={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh} 
     <View/>
     </View>
 
-
+{content.upcoming.length !==0?
 <View style={{height:45, paddingHorizontal:10, justifyContent:'center'}}>
 <Text style={styles.infoText}>Upcoming</Text>
-</View>
+</View>:[]}
 
 
     <View style={styles.catItems}>

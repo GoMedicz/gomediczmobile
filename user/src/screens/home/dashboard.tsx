@@ -160,7 +160,7 @@ setCategory(allCategory)
   useEffect(()=>{
     FetchContent()
     FetchCategory()
-  }, [])
+  }, [route])
 
 
 const OFFERCOLOR = ['', '#585AE1', '#FFDA6E',  '#4CD1BC', '#75B4FC', '#FC9680', '#9BE471' ]

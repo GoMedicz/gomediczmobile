@@ -20,6 +20,8 @@ function NameCard(props:any) {
         try{
        await axios.get(url, config).then(response=>{
           if(response.data.type==='success'){
+
+
             setProfile(response.data.data)
           }else{
             setProfile({} as any)
@@ -34,7 +36,7 @@ function NameCard(props:any) {
 
       useEffect(()=>{
         FetchProfile()
-      }, [])
+      }, [props])
   return (
     <Text style={props.style}>Hello, {profile.fullname}</Text>
   )

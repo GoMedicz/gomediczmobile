@@ -282,7 +282,7 @@ editable={false}
 
   placeholderTextColor={colors.grey}
   placeholder='Email Address'
-  value={profile.email}
+  value={profile.email_address}
   autoCapitalize='none'
   keyboardType='email-address' 
    autoFocus={true}

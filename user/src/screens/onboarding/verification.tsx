@@ -116,7 +116,6 @@ const handleReset = () => {
   clearTimer(getDeadTime());
 }
 
-console.log(route.params.otp)
 const handleSubmit =()=>{
   let error = {
     ...errors,  
@@ -211,7 +210,6 @@ setUser({...user, newOtp:otp})
     let url = ServerUrl+'/api/vendor/otp';
   
     clearTimer(getDeadTime());
-     console.log(otp)
    /* axios.post(url, fd, config)
    .then(response =>{
     

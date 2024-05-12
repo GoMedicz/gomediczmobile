@@ -1,8 +1,8 @@
 
 import { getData } from "./globalFunction";
 
-export const ImagesUrl = 'http://localhost:6000/public/images'
-export const ServerUrl = 'http://localhost:6000'
+export const ImagesUrl = 'https://new.settleafrica.com/public/images'
+export const ServerUrl = 'https://new.settleafrica.com'
 export const API_KEY = '';
 
 export const MODE :any = 'Light';// getData('THEME')

@@ -1,7 +1,7 @@
 
-import React, { useCallback, useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, TextInput, Animated } from 'react-native'
+import { StyleSheet, Text, View, Platform, Dimensions, TextInput, Animated } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import axios from 'axios';
@@ -9,7 +9,7 @@ import { ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import colors from '../../assets/colors';
 import { PrimaryButton } from '../../components/include/button';
-import { ImagesUrl, ServerUrl, configJSON, configToken } from '../../components/includes';
+import { ServerUrl, configJSON, configToken } from '../../components/includes';
 import { useZustandStore } from '../../api/store';
 import { dynamicStyles } from '../../components/dynamicStyles';
 import { globalStyles } from '../../components/globalStyle';

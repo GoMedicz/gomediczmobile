@@ -99,16 +99,12 @@ const [items, setItems] = useState([
   {title:"Lab Tests", label:'Test Booking', icon:'event-available', screen:'MyLabTest'},
   {title:"Wallet", label:'Quick Payments', icon:'account-balance-wallet', screen:'Wallet'},
   {title:"My Orders", label:'List of Orders', icon:'article', screen:'MyOrder'},
-
-
   {title:"Pill Reminders", label:'Take Pill on time', icon:'alarm', screen:'Reminder'},
 
   {title:"My Address", label:'Saved Address', icon:'location-on', screen:'Address'},
 
   {title:"Saved", label:'Medics & Doctor', icon:'bookmark', screen:'SavedItems'},
   
-
-
   {title:"Profile", label:'Setup Profile', icon:'store', screen:'Profile'},
 
   {title:"Change Language", label:'Change Language', icon:'language', screen:'Language'},

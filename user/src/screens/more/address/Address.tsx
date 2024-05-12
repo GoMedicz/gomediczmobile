@@ -1,18 +1,13 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeModules, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Platform, Dimensions, Pressable } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import axios from 'axios';
-import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../../assets/colors';
-import { CATCOLOR, CATEGORY, CATITEMS, LANGUAGELIST } from '../../../components/data';
-import { ImagesUrl, ServerUrl, configToken } from '../../../components/includes';
-import { globalStyles } from '../../../components/globalStyle';
-import ModalDialog from '../../../components/modal';
-import ShoppingCart from '../../../components/include/ShoppingCart';
+import { ServerUrl, configToken } from '../../../components/includes';
 import { PrimaryButtonChildren } from '../../../components/include/button';
 import { getData } from '../../../components/globalFunction';
 
@@ -56,7 +51,7 @@ const handleNext =()=>{
   navigation.navigate('AddAddress');
 }
 
-const ICON = ['', 'home', 'office', 'domain',  'pages', 'verified']
+const ICON = ['', 'home', 'pages', 'domain',  'pages', 'verified']
 
 
   const CardCategory =({item}:{item:any})=>{
@@ -80,7 +75,7 @@ const ICON = ['', 'home', 'office', 'domain',  'pages', 'verified']
     let url = ServerUrl+'/api/address/display/'+code
     try{
    await axios.get(url, config).then(response=>{
-  
+ 
       if(response.data.type==='success'){  
         setContent(response.data.data)
       }

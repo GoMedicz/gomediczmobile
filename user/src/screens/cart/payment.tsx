@@ -8,7 +8,7 @@ import { ScrollView } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
 import { CURRENCY, ImagesUrl, ServerUrl, configJSON, configToken, fluterwave, paystack } from '../../components/includes';
 import { FormatNumber, getData } from '../../components/globalFunction';
-import { Paystack } from "react-native-paystack-webview";
+//import { Paystack } from "react-native-paystack-webview";
 import {PayWithFlutterwave} from 'flutterwave-react-native';
 import Loader from '../../components/loader';
 import axios from 'axios';
@@ -297,7 +297,7 @@ const Previous =()=>{
   )}
 /> 
 
-{isPaystack&&
+{/* {isPaystack&&
 <Paystack
   paystackKey={paystack}
   amount={route.params.amount}
@@ -312,7 +312,7 @@ const Previous =()=>{
     handleSubmit("Paid", 'Paystack', ref)
   }}
   autoStart={isPaystack}
-/>}
+/>} */}
 
 
 </ScrollView>

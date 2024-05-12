@@ -1,15 +1,13 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Platform, Dimensions, TextInput } from 'react-native'
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 import { FlatList, RefreshControl } from 'react-native-gesture-handler'
 import colors from '../../assets/colors';
-import { CURRENCY, ImagesUrl, ServerUrl, configToken } from '../../components/includes';
-import { globalStyles } from '../../components/globalStyle';
+import { ServerUrl, configToken } from '../../components/includes';
 import axios from 'axios';
 import Loader from '../../components/loader';
-import { FormatNumber, getAge } from '../../components/globalFunction';
 import Doctor from './doctor';
 
 const {width} = Dimensions.get('screen');

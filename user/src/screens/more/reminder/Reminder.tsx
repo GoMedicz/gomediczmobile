@@ -36,8 +36,6 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Reminder'>;
  const Reminder =({ route, navigation }:Props)=> {
 
-  const [loading, setLoading] = useState(false)
-  const [Languages, setLanguages] = useState(LANGUAGELIST)
   const [refreshing, setRefreshing] = useState(false)
 
   const [content, setContent]= useState([] as any)

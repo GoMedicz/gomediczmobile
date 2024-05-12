@@ -5,7 +5,7 @@ import { Image, StyleSheet, Text, View, Platform, Dimensions, Pressable, NativeM
 import MaterialIcon  from 'react-native-vector-icons/MaterialIcons' 
 
 import axios from 'axios';
-import { Paystack } from "react-native-paystack-webview";
+//import { Paystack } from "react-native-paystack-webview";
 import {PayWithFlutterwave} from 'flutterwave-react-native';
 import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -242,7 +242,7 @@ const Previous =()=>{
     </TouchableOpacity>
   )}
 /> 
-
+{/* 
 {isPaystack&&
 <Paystack
   paystackKey={paystack}
@@ -258,7 +258,7 @@ const Previous =()=>{
     handleSubmit("Paid", 'Paystack', ref)
   }}
   autoStart={isPaystack}
-/>}
+/>} */}
 
 </ScrollView>
     </View>
